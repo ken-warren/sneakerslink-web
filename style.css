@@ -141,7 +141,6 @@ body {
 /*---Services--- */
 
 #feature {
-    background-color: #222;
     display: flex;
     justify-content: space-between;
     align-items: center;
