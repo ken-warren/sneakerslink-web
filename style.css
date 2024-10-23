@@ -141,6 +141,7 @@ body {
 /*---Services--- */
 
 #feature {
+    background-color: #222;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -199,6 +200,7 @@ body {
 
 #sneakers1 {
     text-align: center;
+    background-color: #E3E6F3;
 }
 
 #sneakers1 .pro-container {
