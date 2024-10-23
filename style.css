@@ -14,7 +14,6 @@ h1 {
 
 h2 {
     font-size: 46px;
-    background-color: #E3E6F3;
     line-height: 54px;
     color: #222;
 }
@@ -41,6 +40,19 @@ P {
 
 .section-m1 {
     margin: 40px 0;
+}
+
+button.normal {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 15px 30px;
+    color: #000;
+    background-color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transform: 0.2s;
 }
 
 body {
@@ -105,7 +117,7 @@ body {
 
 #headline {
     background-image: url("img/headline.png");
-    background-color: #E3E6F3;
+    background-color: #fff;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: top 25% right 5%;
@@ -199,7 +211,7 @@ body {
 
 #sneakers1 {
     text-align: center;
-    background-color: #E3E6F3;
+    background-color: #fff;
 }
 
 #sneakers1 .pro-container {
@@ -265,7 +277,46 @@ body {
     position: absolute;
     bottom: 10px;
     right: 10px;
-
 }
+
+/* BANNER */
+#banner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-image: url("img/banners/b2.jpg");
+    height: 40vh;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+}
+
+#banner h4 {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+#banner h2 {
+    color: #fff;
+    font-size: 30px;
+    padding: 5px 0;
+}
+
+#banner h2 span {
+    color: #e61010;
+}
+
+#banner button:hover {
+    background-color: #088178;
+    color: #fff;
+}
+
+
+
+
+
 
 /* Shop Page */
