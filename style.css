@@ -433,6 +433,7 @@ body {
     background-color: #041e42;
     background-repeat: no-repeat;
     background-position: 20%;
+    padding-top: 10px;
 }
 
 #newsletter .newstext {
