@@ -435,13 +435,9 @@ body {
     background-position: 20%;
 }
 
-#newsletter .newstext {
-    display: flex;
-}
-
 #newsletter h4 {
     font-size: 22px;
-    font-weight: 600;
+    font-weight: 700;
     color: #fff;
 }
 
