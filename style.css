@@ -452,8 +452,8 @@ body {
 }
 
 #newsletter input {
-    height: 3.35 rem;
-    padding: 0 1.25em;
+    height: 3.125rem;
+    padding: 0 1.25rem;
     font-size: 14px;
     width:  100%;
     border: 1px solid transparent;
