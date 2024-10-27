@@ -125,7 +125,7 @@ body {
 
 /* Home Page */
 
-/* ---Headline---*/
+/* HEADLINE*/
 
 #headline {
     background-image: url("img/headline1.png");
@@ -162,7 +162,7 @@ body {
 }
 
 
-/*---Services--- */
+/*FEATURES */
 
 #feature {
     display: flex;
@@ -219,7 +219,7 @@ body {
     background-color: #fff2e5;
 }
 
-/*--- Sneakers --- */
+/*SNEAKERS PRICE TAG */
 
 #sneakers1 {
     text-align: center;
@@ -291,7 +291,7 @@ body {
     right: 10px;
 }
 
-/* BANNER */
+/* OFFER BANNER */
 #banner {
     display: flex;
     flex-direction: column;
@@ -326,7 +326,7 @@ body {
     color: #fff;
 }
 
-/*BANNER 2*/
+/*SM BANNER 2*/
 
 #sm-banner {
     display: flex;
@@ -423,7 +423,7 @@ body {
 }
 
 
-/*NEWS LETTER*/
+/*NEWSLETTER*/
 #newsletter {
     display: flex;
     justify-content: space-between;
@@ -433,7 +433,6 @@ body {
     background-color: #041e42;
     background-repeat: no-repeat;
     background-position: 20%;
-    padding-top: 10px;
 }
 
 #newsletter .newstext {
