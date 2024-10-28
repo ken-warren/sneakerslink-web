@@ -674,7 +674,8 @@ footer .copyright {
     padding: 20px;
   }
    .navbutton, .cart {
-    line-height: 5px;
+    line-height: 20px;
+    padding-left: 20px;
   }
   label.logo {
     font-size: 20px;
@@ -684,6 +685,9 @@ footer .copyright {
   nav {
     padding: 10px 30px;
     height: 50px;
+  }
+  nav ul{
+    display: inline-block;
   }
   nav ul li a {
     font-size: 16px;
