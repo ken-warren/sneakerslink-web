@@ -524,6 +524,7 @@ footer {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  background-color: #e3e6f3;
 }
 
 footer .col {
