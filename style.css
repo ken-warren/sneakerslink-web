@@ -376,7 +376,7 @@ nav ul a:hover::after {
 #sm-banner {
   display: flex;
   justify-content: space-between;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   padding: 20px;
 }
 
@@ -406,9 +406,8 @@ nav ul a:hover::after {
   align-items: flex-start;
   background-image: url("img/banners/b8.png");
   height: 50vh;
-  width: 100%;
-  background-size: contain;
-  background-repeat: no-repeat;
+  min-width: 20%;
+  background-size: cover;
   background-position: center;
   padding: 30px;
 }
