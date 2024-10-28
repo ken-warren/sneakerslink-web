@@ -122,6 +122,11 @@ body {
   left: 20px;
 }
 
+#mobile {
+  display: none;
+  align-items: center;
+}
+
 /* Home Page */
 
 /* HEADLINE*/
@@ -508,13 +513,13 @@ footer a {
 }
 
 footer .socials {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 footer .socials i {
-    color: #465b52;
-    padding-right: 4px;
-    cursor: pointer;
+  color: #465b52;
+  padding-right: 4px;
+  cursor: pointer;
 }
 
 footer .install .row img {
@@ -542,18 +547,34 @@ footer .copyright {
 @media (max-width: 799px) {
   #navbar {
     display: flex;
-    flex-wrap: wrap;
     flex-direction: column;
     align-items: flex-start;
-    align-content: flex-end;
     justify-content: flex-start;
     position: fixed;
     top: 0;
-    right: 0px;
+    right: -300px;
     height: 100vh;
     width: 300px;
     background-color: #e3e6f3;
     box-shadow: 0 40px 60px rgba(0, 0, 0, 0.1);
     padding: 80px 0 0 10px;
+  }
+
+  #navbar .active {
+    right: 0px;
+  }
+
+  #navbar li {
+    margin-bottom: 20px;
+  }
+
+  #mobile {
+    display: none;
+    align-items: center;
+  }
+  #mobile i {
+    color: #1a1a1a;
+    font-size: 24px;
+    padding-left: 20px;
   }
 }
