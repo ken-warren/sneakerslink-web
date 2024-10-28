@@ -522,4 +522,15 @@ footer .install img {
     margin: 10px 0 15px 0;
 }
 
+footer .socials i:hover,
+footer a:hover {
+    color: #088178;
+}
+
+footer .copyright {
+    width: 100%;
+    text-align: center;
+}
+
+
 /* SHOP PAGE */
