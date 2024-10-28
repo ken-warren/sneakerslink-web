@@ -121,8 +121,8 @@ a.active {
   color: #08813a;
 }
 
-a.active::after,
-a:hover::after {
+nav ul a.active::after,
+nav ul a:hover::after {
   content: "";
   width: 30%;
   height: 2px;
@@ -150,6 +150,24 @@ a:hover::after {
   left: 0;
 }
 
+.cart {
+  font-size: 25px;
+  color: #088178;
+  float: right;
+  line-height: 80px;
+  margin-right: 30px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.cart i {
+  color: #000;
+}
+
+#lg-bag {
+  display: none;
+}
+
 
 /* Home Page */
 
@@ -157,7 +175,7 @@ a:hover::after {
 
 #headline {
   background-image: url("img/headline1.png");
-  background-color: #fff;
+  background-color: #e3e6f3;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: top 25% right 5%;
@@ -579,7 +597,10 @@ footer .copyright {
 }
 
 @media (max-width: 870px) {
-  .navbutton {
+  .section-p1 {
+    padding: 40px 40px;
+  }
+  .navbutton, .cart {
     display: block;
   }
   nav ul {
@@ -611,5 +632,117 @@ footer .copyright {
     position: absolute;
     bottom: 1px;
     left: 48%;
+  }
+  #headline {
+  height: 70vh;
+  width: 100%;
+  padding: 0 80px;
+  background-position: top 5px right -100px;
+  }
+  #feature {
+    justify-content: center;
+  }
+  #feature .ft-box {
+    margin: 15px 15px;
+  }
+  #sneakers1 .pro-container {
+    justify-content: center;
+  }
+  #sneakers1 .pro {
+    margin: 15px;
+  }
+  #banner {
+    height: 20vh;
+  }
+  #sm-banner .banner-box {
+    min-width: 100%;
+    height: 40vh;
+  }
+  #banner3 {
+    padding: 0 20px;
+  }
+  #banner3 .banner-box {
+    width: 28%;
+  }
+  #newsletter .form {
+    width: 70%;
+  }
+}
+
+@media (max-width: 550px) {
+  .section-p1{
+    padding: 20px;
+  }
+   .navbutton, .cart {
+    line-height: 5px;
+  }
+  label.logo {
+    font-size: 20px;
+    padding-left: 5px;
+    line-height: 20px;
+  }
+  nav {
+    padding: 10px 30px;
+    height: 50px;
+  }
+  nav ul li a {
+    font-size: 16px;
+  }
+  h1{
+    font-size: 32px;
+  }
+  h2 {
+    font-size: 28px;
+  }
+  h3{
+    font-size: 12px;
+    background-color: #e3e6f3;
+  }
+  h4 {
+    font-size: 16px;
+  }
+  #headline {
+    padding: 0 1px;
+    height: 80vh;
+  }
+  #headline button {
+    padding: 14px 60px 14px 60px;
+    font-size: 12px;
+  }
+  #feature {
+    justify-content: space-between;
+  }
+  #feature .ft-box{
+    width: 155px;
+    margin: 0 0 15px 0;
+  }
+  #sneaker1 .pro{
+    width: 100%;
+  }
+  #banner {
+    height: 40vh;
+  }
+  #sm-banner .banner-box{
+    margin-top: 20px;
+    background-position: 80%;
+  }
+  #sm-banner .banner-box2{
+    padding: 0 20px;
+    background-position: 80%;
+  }
+  #banner3{
+    padding: 0 20px;
+  }
+  #banner3 .banner-box {
+    width: 100%;
+  }
+  #newsletter{
+    padding: 20px 40px;
+  }
+  #newsletter .form{
+    width: 100%;
+  }
+  footer .copyright{
+    text-align: start;
   }
 }
