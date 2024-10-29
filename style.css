@@ -604,16 +604,18 @@ footer .copyright {
   width: 100%;
   height: 40vh;
   background-size: cover;
+  background-position: center;
   display: flex;
   justify-content: center;
   text-align: center;
   flex-direction: column;
-  padding: 14px;
+  padding: 10px;
 }
 
 #header h2,
 #header p {
   color: #fff;
+  margin-top: 20px;
 }
 
 #pagination {
@@ -638,6 +640,7 @@ footer .copyright {
 #prod-details {
   display: flex;
   margin-top: 20px;
+  background-color: #e3e6f3;
 }
 
 #prod-details .single-pro-img{
@@ -693,6 +696,77 @@ footer .copyright {
 .small-img-col{
   flex-basis: 24%;
   cursor: pointer;
+}
+
+/* BLOG PAGE*/
+
+#header.blog-header{
+  background-image: url("img/banners/b5.png");
+  background-position: center;
+}
+
+#blog {
+  padding: 150px 150px 0 150px;
+}
+
+#blog .blog-box{
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  padding-bottom: 90px;
+}
+
+#blog .blog-img{
+  width: 50%;
+  margin-right: 40px;
+}
+
+#blog img{
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+}
+
+#blog .blog-details{
+  width: 50%;
+}
+
+#blog .blog-details a{
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 700;
+  color: #000;
+  position: relative;
+}
+ 
+#blog .blog-details a::after {
+  content: "";
+  width: 50px;
+  height: 1px;
+  background-color: #000;
+  position: absolute;
+  top: 4px;
+  right: -60px;
+}
+
+
+#blog .blog-details a:hover{
+  color: #088178;
+}
+
+#blog .blog-details a:hover::after{
+  background-color: #088178;
+}
+
+#blog .blog-box h1{
+  position: absolute;
+  top: -40px;
+  left: 0;
+  font-size: 70px;
+  font-weight: 700;
+  color: #c9cbce;
+  z-index: -9;
 }
 
 /* Media Screen Devices */
@@ -919,13 +993,34 @@ footer .copyright {
   #prod-details .single-pro-details h4,
     #prod-details .single-pro-details h2 {
       font-size: 16px !important; /* Further reduce font size for very small screens */
-    }
+  }
 
-    #prod-details .single-pro-details select,
-    #prod-details .single-pro-details input,
-    #prod-details .single-pro-details button {
-      font-size: 14px !important;
-    }
+  #prod-details .single-pro-details select,
+  #prod-details .single-pro-details input,
+  #prod-details .single-pro-details button {
+    font-size: 14px !important;
+  }
+
+    /*BLOG PAGE*/
+
+  #blog{
+    padding: 100px 20px 0 20px;
+  }
+  #blog .blog-box{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  #blog .blog-img{
+    width: 100%;
+    margin-right: 40px;
+    margin-bottom: 30px;
+  }
+  #blog .blog-details{
+    width: 100%;
+  }
+  
+
 }
 
 @media (max-width: 360px) {
