@@ -930,13 +930,12 @@ footer .copyright {
 
 @media (max-width: 360px) {
   label.logo {
-  font-size: 18px;
-  padding-left: 2px;
-  line-height: 0px;
+    font-size: 18px;
+    padding-left: 2px;
+    line-height: 0;
   }
-
   nav {
-    padding: 0 0 10px 0;
+    padding: 0 0 30px 0;
     height: auto;
   }
 
@@ -944,3 +943,4 @@ footer .copyright {
     display: inline-block;
     top: 50px;
   }
+}
