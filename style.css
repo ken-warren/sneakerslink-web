@@ -78,7 +78,7 @@ nav {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   z-index: 999;
   position: fixed;
-  height: 80px;
+  height: 60px;
   width: 100%;
 }
 
@@ -471,7 +471,6 @@ nav ul a:hover::after {
   justify-content: space-between;
   flex-wrap: wrap;
   align-items: center;
-  background-image: url("img/banners/b1.jpg");
   background-color: #041e42;
   background-repeat: no-repeat;
   background-position: 20%;
@@ -584,8 +583,6 @@ footer .copyright {
   text-align: center;
 }
 
-/* SHOP PAGE */
-
 /* Media Screen Devices */
 @media (max-width: 952px) {
   label.logo {
@@ -671,83 +668,219 @@ footer .copyright {
 }
 
 @media (max-width: 550px) {
-  .section-p1{
+  .section-p1 {
     padding: 20px;
   }
-   .navbutton, .cart {
+
+  .navbutton, .cart {
     line-height: 20px;
     padding-left: 20px;
   }
+
   label.logo {
     font-size: 20px;
     padding-left: 5px;
     line-height: 20px;
   }
+
   nav {
     padding: 10px 30px;
     height: 50px;
   }
-  nav ul{
+
+  nav ul {
     display: inline-block;
   }
+
   nav ul li a {
     font-size: 16px;
   }
-  h1{
+
+  h1 {
     font-size: 32px;
   }
+
   h2 {
     font-size: 28px;
   }
-  h3{
+
+  h3 {
     font-size: 12px;
     background-color: #e3e6f3;
   }
+
   h4 {
     font-size: 16px;
   }
+
   #headline {
     padding: 0 1px;
     height: 80vh;
   }
+
   #headline button {
-    padding: 14px 60px 14px 60px;
+    padding: 14px 60px;
     font-size: 12px;
   }
+
   #feature {
     justify-content: space-between;
   }
-  #feature .ft-box{
+
+  #feature .ft-box {
     width: 155px;
-    margin: 0 0 15px 0;
+    margin-bottom: 15px;
   }
-  #sneaker1 .pro{
+
+  #sneaker1 .pro {
     width: 100%;
   }
+
   #banner {
     height: 40vh;
   }
-  #sm-banner .banner-box{
+
+  #sm-banner .banner-box {
     margin-top: 20px;
     background-position: 80%;
   }
-  #sm-banner .banner-box2{
+
+  #sm-banner .banner-box2 {
     padding: 0 20px;
     background-position: 80%;
   }
-  #banner3{
+
+  #banner3 {
     padding: 0 20px;
   }
+
   #banner3 .banner-box {
     width: 100%;
   }
-  #newsletter{
+
+  #newsletter {
     padding: 20px 40px;
   }
-  #newsletter .form{
+
+  #newsletter .form {
     width: 100%;
   }
-  footer .copyright{
+
+  footer .copyright {
     text-align: start;
   }
+
+  /* SINGLE PRODUCT */
+  #prod-details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #prod-details .single-pro-img {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  #prod-details .single-pro-details {
+    width: 100%;
+  }
+}
+
+
+/* SHOP PAGE */
+#header {
+  background-image: url("img/banners/b1.jpg");
+  width: 100%;
+  height: 40vh;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+  padding: 14px;
+}
+
+#header h2,
+#header p {
+  color: #fff;
+}
+
+#pagination {
+  text-align: center;
+}
+
+#pagination a {
+  text-decoration: none;
+  background-color: #088178;
+  padding: 15px 20px;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 600;
+}
+
+#pagination a i {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/*SINGLE PRODUCT PAGE*/
+
+#prod-details {
+  display: flex;
+  margin-top: 20px;
+}
+
+#prod-details .single-pro-img{
+  width: 40%;
+  margin-right: 50px;
+}
+
+#prod-details .single-pro-details{
+  width: 50%;
+  padding-top: 30px;
+}
+
+#prod-details .single-pro-details h4{
+  padding: 40px 0 20px 0;
+}
+
+#prod-details .single-pro-details h2{
+  font-size: 20px;
+}
+
+#prod-details .single-pro-details select{
+ display: block;
+ padding: 5px 10px;
+ margin-bottom: 10px;
+}
+
+#prod-details .single-pro-details input {
+  width: 50px;
+  height: 47px;
+  padding-left: 10px;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+#prod-details .single-pro-details input:focus{
+  outline: none;
+}
+
+#prod-details .single-pro-details button {
+  background-color: #088178;
+  color: #fff;
+}
+
+#prod-details .single-pro-details span{
+  line-height: 25px;
+}
+
+.small-img-grp {
+  display: flex;
+  justify-content: space-between;
+}
+
+.small-img-col{
+  flex-basis: 24%;
+  cursor: pointer;
 }
