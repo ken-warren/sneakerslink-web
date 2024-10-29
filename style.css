@@ -1,11 +1,16 @@
-@import url("https://fonts.googleapis.com/css?family=Spartan:weight@100;200;300;400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Spartan:wght@100;200;300;400;500;600;700;800;900&display=swap");
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "Spartan", sans-serif;
-  list-style: none;
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Global Styles */
 
 h1 {
   font-size: 50px;
@@ -25,11 +30,11 @@ h4 {
 }
 
 h6 {
-  font-size: 700;
-  line-height: 12px;
+  font-weight: 700;
+  font-size: 12px;
 }
 
-P {
+p {
   font-size: 16px;
   color: #465b52;
   margin: 15px 0 20px 0;
@@ -68,8 +73,11 @@ button.white {
   transform: 0.2s;
 }
 
-body {
+body,
+html {
   width: 100%;
+  padding: 0;
+  margin: 0;
 }
 
 /* NAVIGATION BAR */
@@ -78,8 +86,11 @@ nav {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   z-index: 999;
   position: fixed;
-  height: 60px;
+  height: 80px;
   width: 100%;
+  border-top: 1px solid transparent;
+  left: 0;
+  top: 0;
 }
 
 label.logo {
@@ -96,7 +107,8 @@ label.logo span {
 
 nav ul {
   float: right;
-  margin-right: 20px;
+  margin-right: 20px
+;
 }
 
 nav ul li {
@@ -665,6 +677,25 @@ footer .copyright {
   #newsletter .form {
     width: 70%;
   }
+   #prod-details .single-pro-img {
+    width: 60% !important;
+    margin-right: 20px !important;
+  }
+
+  #prod-details .single-pro-details {
+    width: 40% !important;
+  }
+  #prod-details .single-pro-details h4,
+    #prod-details .single-pro-details h2 {
+      font-size: 18px !important; /* Further reduce font size for very small screens */
+      padding: 10px 0 5px 0 !important;
+    }
+
+    #prod-details .single-pro-details select,
+    #prod-details .single-pro-details input,
+    #prod-details .single-pro-details button {
+      font-size: 16px !important;
+    }
 }
 
 @media (max-width: 550px) {
@@ -684,7 +715,7 @@ footer .copyright {
   }
 
   nav {
-    padding: 10px 30px;
+    padding: 10px 0;
     height: 50px;
   }
 
@@ -777,13 +808,23 @@ footer .copyright {
   }
 
   #prod-details .single-pro-img {
-    width: 100%;
-    margin-right: 0;
+    width: 100% !important;
+    margin-right: 0 !important;
   }
 
   #prod-details .single-pro-details {
-    width: 100%;
+    width: 100% !important;
   }
+  #prod-details .single-pro-details h4,
+    #prod-details .single-pro-details h2 {
+      font-size: 16px !important; /* Further reduce font size for very small screens */
+    }
+
+    #prod-details .single-pro-details select,
+    #prod-details .single-pro-details input,
+    #prod-details .single-pro-details button {
+      font-size: 14px !important;
+    }
 }
 
 
@@ -824,6 +865,10 @@ footer .copyright {
 }
 
 /*SINGLE PRODUCT PAGE*/
+
+#prod-details nav {
+  position: absolute;
+}
 
 #prod-details {
   display: flex;
