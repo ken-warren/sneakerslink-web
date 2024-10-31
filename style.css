@@ -811,11 +811,13 @@ footer .copyright {
   width: 40%;
 }
 
-#contact-details .details span{
+#contact-details .details span,
+#form-details form span{
   font-size: 12px; 
 }
 
-#contact-details .details h2{
+#contact-details .details h2,
+#form-details form h2{
   font-size: 26px;
   line-height: 35px;
   padding: 20px 0;
@@ -839,8 +841,65 @@ footer .copyright {
 
 #contact-details .details li p{ 
   margin: 0;
-  font-size: ;
+  font-size: 14px;
 }
+
+#form-details form{
+  width: 65%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+#form-details form input,
+#form-details form textarea{
+  width: 100%;
+  padding: 12px 15px;
+  outline: none;
+  margin-bottom: 20px;
+  border: 1px solid #e1e1e1;
+}
+
+#form-details form button{
+  background-color: #088178;
+  color: #e3e6f3;
+}
+
+#form-details .staff div{
+  padding-bottom: 25px;
+  display: flex;
+  align-items: flex-start;
+}
+
+#form-details{
+  display: flex;
+  justify-content: space-between;
+  margin: 30px; 
+  padding: 80px;
+  border: 1px solid #e1e1e1;
+}
+
+#form-details .staff div img{
+  width: 2px;
+  height: 2px;
+  object-fit: cover;
+  margin-right: 15px;
+}
+
+#form-details .staff div p{
+  margin: 0;
+  font-size: 13px;
+  line-height: 25px;
+}
+
+#form-details .staff div p span{
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+}
+
+#form-details .staff div p
 
 
 /* Media Screen Devices */
