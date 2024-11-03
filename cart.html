@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -23,18 +23,22 @@
         <i class="fas fa-bars"></i>
       </label>
       <!-- Shopping Cart Icon -->
-      <a href="cart.html" class="cart">
+      <a href="cart.html" class="cart" class="active">
         <i class="fa fa-shopping-bag"></i>
       </a>
       <label class="logo">Sneakers<span>Link</span></label>
-        <ul id="navbar">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="shop.html">Shop</a></li>
-            <li><a href="blog.html">Blog</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="contact.html">Contact</a></li>
-            <li id="lg-bag"><aclass= "active" href="cart.html"><i class="fa fa-shopping-bag" aria-hidden="true"></i></a></li>
-        </ul>
+      <ul id="navbar">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li id="lg-bag">
+          <a class="active" href="cart.html"
+            ><i class="fa fa-shopping-bag" aria-hidden="true"></i
+          ></a>
+        </li>
+      </ul>
     </nav>
 
     <!-- HEADLINE -->
@@ -44,74 +48,84 @@
       <p>Add your coupon code & <span>SAVE upto 70%</span> !</p>
     </section>
 
+    <!-- CART -->
+
     <section id="cart" class="section-p1">
-        <table width = "100%">
-            <thead>
-                <tr>
-                    <td>Remove</td>
-                    <td>Image</td>
-                    <td>Product</td>
-                    <td>Price</td>
-                    <td>Quantity</td>
-                    <td>Subtotal</td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><a href="#"><i class="fas fa-times-circle"></i></a></td>
-                    <td><img src="img/sneakers/c1.jpeg" alt=""></td>
-                    <td>Campus 00s 'Black White Gum'</td>
-                    <td>Kes 3,500</td>
-                    <td><input type="number" value="1"></td>
-                    <td>Kes 3,500</td>
-                </tr>
-                <tr>
-                    <td><a href="#"><i class="fas fa-times-circle"></i></a></td>
-                    <td><img src="img/sneakers/c2.jpeg" alt=""></td>
-                    <td>Campus 00s 'Bliss Lilac'</td>
-                    <td>Kes 3,500</td>
-                    <td><input type="number" value="1"></td>
-                    <td>Kes 3,500</td>
-                </tr>
-                <tr>
-                    <td><a href="#"><i class="fas fa-times-circle"></i></a></td>
-                    <td><img src="img/sneakers/s4.jpeg" alt=""></td>
-                    <td>Samba x CDG Valentines</td>
-                    <td>Kes 3,300</td>
-                    <td><input type="number" value="1"></td>
-                    <td>Kes 3,300</td>
-                </tr>
-            </tbody>
-        </table>
+      <table width="100%">
+        <thead>
+          <tr>
+            <td>Remove</td>
+            <td>Image</td>
+            <td>Product</td>
+            <td>Price</td>
+            <td>Quantity</td>
+            <td>Subtotal</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <a href="#"><i class="fas fa-times-circle"></i></a>
+            </td>
+            <td><img src="img/sneakers/c1.jpeg" alt="" /></td>
+            <td>Campus 00s 'Black White Gum'</td>
+            <td>Kes 3,500</td>
+            <td><input type="number" value="1" /></td>
+            <td>Kes 3,500</td>
+          </tr>
+          <tr>
+            <td>
+              <a href="#"><i class="fas fa-times-circle"></i></a>
+            </td>
+            <td><img src="img/sneakers/c2.jpeg" alt="" /></td>
+            <td>Campus 00s 'Bliss Lilac'</td>
+            <td>Kes 3,500</td>
+            <td><input type="number" value="1" /></td>
+            <td>Kes 3,500</td>
+          </tr>
+          <tr>
+            <td>
+              <a href="#"><i class="fas fa-times-circle"></i></a>
+            </td>
+            <td><img src="img/sneakers/s4.jpeg" alt="" /></td>
+            <td>Samba x CDG Valentines</td>
+            <td>Kes 3,300</td>
+            <td><input type="number" value="1" /></td>
+            <td>Kes 3,300</td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
+    <!-- CART-ADD -->
+
     <section id="cart-add" class="section-p1">
-        <div id="coupon">
-            <h3>Apply Coupon</h3>
-            <div>
-                <input type="text" placeholder="Enter Coupon Code">
-                <button class="normal">Apply</button>
-            </div>
+      <div id="coupon">
+        <h3>Apply Coupon</h3>
+        <div>
+          <input type="text" placeholder="Enter Coupon Code" />
+          <button class="normal">Apply</button>
         </div>
-        
-        <div id="subtotal">
-            <h3>Cart Total</h3>
-            <table>
-                <tr>
-                    <td>Cart Subtotal</td>
-                    <td>Kes 10,300</td>
-                </tr>
-                <tr>
-                    <td>Shipping</td>
-                    <td>Free</td>
-                </tr>
-                <tr>
-                    <td><strong>Total</strong></td>
-                    <td><strong>Kes 10,300</strong></td>
-                </tr>
-            </table>
-            <button class="normal">Pay</button>
-        </div>
+      </div>
+
+      <div id="subtotal">
+        <h3>Cart Total</h3>
+        <table>
+          <tr>
+            <td>Cart Subtotal</td>
+            <td>Kes 10,300</td>
+          </tr>
+          <tr>
+            <td>Shipping</td>
+            <td>Free</td>
+          </tr>
+          <tr>
+            <td><strong>Total</strong></td>
+            <td><strong>Kes 10,300</strong></td>
+          </tr>
+        </table>
+        <button class="normal">Pay</button>
+      </div>
     </section>
 
     <!-- FOOTER -->
@@ -140,11 +154,11 @@
 
       <div class="col">
         <h4>About</h4>
-        <a href="#">About Us</a>
+        <a href="about.html">About Us</a>
         <a href="#">Delivery Information</a>
         <a href="#">Privacy Policy</a>
         <a href="#">Terms & Conditions</a>
-        <a href="#">Contact Us</a>
+        <a href="contact.html">Contact Us</a>
       </div>
 
       <div class="col">

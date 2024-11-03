@@ -81,6 +81,7 @@ html {
 }
 
 /* NAVIGATION BAR */
+
 nav {
   background-color: #e3e6f3;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -633,6 +634,7 @@ footer .copyright {
 }
 
 /*SINGLE PRODUCT PAGE*/
+
 #prod-details {
   display: flex;
   margin-top: 20px;
@@ -801,6 +803,7 @@ footer .copyright {
 }
 
 /* CONTACT PAGE*/
+
 #contact-details {
   display: flex;
   align-items: center;
@@ -900,6 +903,7 @@ footer .copyright {
 }
 
 /* CART PAGE*/
+
 #header.cart-header {
   background-image: url("img/banners/banner.png");
 }
