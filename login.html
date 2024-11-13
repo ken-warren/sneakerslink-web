@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE-edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SneakersLink E-commerce Website</title>
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    </head>
+
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Spartan:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Spartan", sans-serif;
+        }
+
+        .login-container {
+            width: 100%;
+            height: 100vh;
+            background-image: linear-gradient(rgba(0, 150, 80, 0.8), rgba(0, 150, 80, 0.6)), url(img/signup.jpeg);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .form-box {
+            width: 90%;
+            max-width: 450px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 50px 60px 70px;
+            text-align: center;
+        }
+
+        .form-box h1 {
+            font-size: 30px;
+            margin-bottom: 60px;
+            color: #088178;
+            position: relative;
+        }
+
+        .form-box h1::after {
+            content: '';
+            width: 30px;
+            height: 4px;
+            border-radius: 3px;
+            background: #088178;
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%)
+        }
+
+        .input-group {
+            height: 350px;
+        }
+
+        .input-field {
+            background: #e3e6f3;
+            margin: 15px 0;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            max-height: 65px;
+            transform: max-height 0.5s;
+            overflow: hidden;
+        }
+
+        input {
+            width: 100%;
+            background: transparent;
+            border: 0;
+            outline: 0;
+            padding: 18px 15px;
+        }
+
+        .input-field i {
+            margin-left: 15px;
+            color: #9999;
+        }
+
+        form p {
+            text-align: left;
+            font-size: 13px;
+        }
+
+        form p a {
+            text-decoration: none;
+            color: #088178;
+        }
+
+        .btn-field {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-field button {
+            flex-basis: 48%;
+            background: #088178;
+            color: #fff;
+            height: 40px;
+            border-radius: 20px;
+            border: 0;
+            outline: 0;
+            cursor: pointer;
+            transition: back-ground 1s;
+        }
+
+        .btn-field button.disable {
+            background: #e3e6f3;
+            color: #1a1a1a;
+        }
+
+        .terms-container {
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .terms-container input {
+            margin-right: 20px;
+        }
+
+        .terms-container input a{
+            color: #088178;
+        }
+
+    </style>
+
+    <body>
+        <div class="login-container">
+            <div class="form-box">
+                <h1 id="title">Sign Up</h1>
+                <form>
+                    <div class="input-group">
+                        <div class="input-field" id="name-field">
+                            <i class=" fas fa-solid fa-user"></i>
+                            <input type="text" placeholder="Name">
+                        </div>
+
+                        <div class="input-field">
+                            <i class=" fas fa-solid fa-envelope"></i>
+                            <input type="email" placeholder="Email">
+                        </div>
+
+                        <div class="input-field">
+                            <i class=" fas fa-solid fa-lock"></i>
+                            <input type="password" placeholder="Password">
+                        </div>
+
+
+                        <div class="input-field" id="confirm-password">
+                            <i class="fas fa-solid fa-lock"></i>
+                            <input type="password" placeholder="Confirm Password" required>
+                        </div>
+
+                        <p id="forgotPass">Forgot password? <a href="#"> Reset </a></p>
+                        
+                        <p id="account-already">Already have an acount? <a href="#"> Login </a></p>
+
+                        <div class="terms-container" id="Terms">
+                            <input type="checkbox" required> I agree to the <a href="#">terms and conditions</a>
+                        </div>
+
+                        <div class="g-recaptcha" data-sitekey="your-recaptcha-site-key">
+                        </div>
+
+                    </div>
+
+                    <div class="btn-field">
+                        <button type="button" id="signup-btn"> Sign Up</button>
+                        <button type="button" class="disable" id="signin-btn"> Sign In</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+        <script>
+            let signupBtn = document.getElementById("signup-btn");
+            let signinBtn = document.getElementById("signin-btn");
+            let nameField = document.getElementById("name-field");
+            let title = document.getElementById("title");
+            let forgotPass = document.getElementById("forgotPass");
+            let Terms = document.getElementById("Terms");
+            let ConfPass = document.getElementById("confirm-password");
+            let accAlready = document.getElementById("account-already");
+            
+            signinBtn.onclick = function(){
+                nameField.style.maxHeight = "0";
+                ConfPass.style.maxHeight = "0";
+                Terms.style.display = "none";
+                accAlready.style.display = "none";
+                title.innerHTML = "Sign In";
+                signupBtn.classList.add("disable");
+                signinBtn.classList.remove("disable");
+            }
+
+            signupBtn.onclick = function(){
+                nameField.style.maxHeight = "60px";
+                ConfPass.style.maxHeight = "60px";
+                Terms.style.display = "block";
+                forgotPass.style.display = "none";
+                title.innerHTML = "Sign Up";
+                signupBtn.classList.remove("disable");
+                signinBtn.classList.add("disable");
+            }
+        </script>
+    </body>
+</html>
