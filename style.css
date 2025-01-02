@@ -1,9 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Spartan:wght@100;200;300;400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Spartan", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "San Francisco", "Poppins", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
 html {
@@ -185,33 +186,54 @@ nav ul a:hover::after {
 
 /* HEADLINE*/
 
-#headline {
-  background-image: url("img/headline1.png");
-  background-color: #e3e6f3;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: top 25% right 5%;
-  height: 80vh;
-  width: 100%;
+.headline-container {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  padding: 0 80px;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.background-clip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+#headline {
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 40px;
+  border-radius: 8px;
 }
 
 #headline h1 {
   color: #088178;
 }
 
+#headline h2 {
+  color: #e3e6f3;
+}
+
+#headline p {
+  color: #fff;
+}
+
 #headline h4 {
   padding: 15px;
+  color: red;
 }
 
 #headline button {
   background-image: url("img/button.png");
   background-color: transparent;
-  color: #08813a;
+  color: #e3e6f3;
   border: 0;
   padding: 14px 80px 14px 65px;
   font-size: 15px;
@@ -1040,6 +1062,10 @@ footer .copyright {
   #contact-details .map {
     width: 70%;
   }
+
+  #headline {
+    margin: 80px 0 140px 0;
+  }
 }
 
 @media (max-width: 870px) {
@@ -1188,6 +1214,14 @@ footer .copyright {
     padding: 10px 0;
     height: auto;
   }
+
+  #headline {
+    margin: 160px 0 80px 0;
+  }
+
+  .headline-container {
+    height: 100vh;
+  }
 }
 
 @media (max-width: 550px) {
@@ -1221,6 +1255,14 @@ footer .copyright {
     font-size: 16px;
   }
 
+  #headline {
+    margin: 280px 0 30px 0;
+  }
+
+  .headline-container {
+    height: 80vh;
+  }
+
   h1 {
     font-size: 32px;
   }
@@ -1239,7 +1281,11 @@ footer .copyright {
   }
 
   #headline {
-    padding: 0 1px;
+    margin: 80px 0 40px 0;
+    padding: 10px;
+  }
+
+  .headline-container {
     height: 80vh;
   }
 
@@ -1424,6 +1470,15 @@ footer .copyright {
     display: inline-block;
     top: 50px;
   }
+
+  #headline {
+    margin: 230px 0 100px 0;
+  }
+
+  .headline-container {
+    height: 80vh;
+  }
+
   #feature .ft-box {
     width: 110px;
     margin-bottom: 0 0 5px 0;
