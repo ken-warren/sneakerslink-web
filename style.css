@@ -74,11 +74,9 @@ button.white {
   transform: 0.2s;
 }
 
-body,
-html {
-  width: 100%;
-  padding: 0;
-  margin: 0;
+html, body {
+    width: 100%;
+    overflow-x: hidden; 
 }
 
 /* Home Page */
@@ -1980,4 +1978,22 @@ footer .col img.logo:hover {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* For tablets and mobile phones */
+@media (max-width: 768px) {
+    .navigation-menu {
+        /* Example: hide standard desktop menu */
+        display: none; 
+    }
+    
+    .mobile-menu-icon {
+        /* Example: show hamburger icon */
+        display: block; 
+    }
+
+    h1 {
+        /* Scale down massive headings so text doesn't overlap */
+        font-size: 2rem; 
+    }
 }
