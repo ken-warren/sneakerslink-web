@@ -23,9 +23,8 @@
         <i class="fas fa-bars"></i>
       </label>
       <!-- Shopping Cart Icon -->
-      <a href="cart.html" class="cart" class="active">
-        <i class="fa fa-shopping-bag"></i>
-      </a>
+      <a href="cart.html" class="cart active">
+        <i class="fa fa-shopping-bag"></i><span class="cart-count" data-cart-count>0</span></a>
       <label class="logo">Sneakers<span>Link</span></label>
       <ul id="navbar">
         <li><a href="index.html">Home</a></li>
@@ -33,11 +32,6 @@
         <li><a href="blog.html">Blog</a></li>
         <li><a href="about.html">About</a></li>
         <li><a href="contact.html">Contact</a></li>
-        <li id="lg-bag">
-          <a class="active" href="cart.html"
-            ><i class="fa fa-shopping-bag" aria-hidden="true"></i
-          ></a>
-        </li>
       </ul>
     </nav>
 
@@ -62,50 +56,22 @@
             <td>Subtotal</td>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>
-              <a href="#"><i class="fas fa-times-circle"></i></a>
-            </td>
-            <td><img src="img/sneakers/c1.jpeg" alt="" /></td>
-            <td>Campus 00s 'Black White Gum'</td>
-            <td>Kes 3,500</td>
-            <td><input type="number" value="1" /></td>
-            <td>Kes 3,500</td>
-          </tr>
-          <tr>
-            <td>
-              <a href="#"><i class="fas fa-times-circle"></i></a>
-            </td>
-            <td><img src="img/sneakers/c2.jpeg" alt="" /></td>
-            <td>Campus 00s 'Bliss Lilac'</td>
-            <td>Kes 3,500</td>
-            <td><input type="number" value="1" /></td>
-            <td>Kes 3,500</td>
-          </tr>
-          <tr>
-            <td>
-              <a href="#"><i class="fas fa-times-circle"></i></a>
-            </td>
-            <td><img src="img/sneakers/s4.jpeg" alt="" /></td>
-            <td>Samba x CDG Valentines</td>
-            <td>Kes 3,300</td>
-            <td><input type="number" value="1" /></td>
-            <td>Kes 3,300</td>
-          </tr>
+        <tbody id="cartBody">
+          <!-- rendered by script.js -->
         </tbody>
       </table>
+      <p id="emptyCartMsg" class="empty-cart-msg" hidden>Your cart is empty. <a href="shop.html">Start shopping &rarr;</a></p>
     </section>
 
     <!-- CART-ADD -->
-
     <section id="cart-add" class="section-p1">
       <div id="coupon">
         <h3>Apply Coupon</h3>
         <div>
-          <input type="text" placeholder="Enter Coupon Code" />
-          <button class="normal">Apply</button>
+          <input type="text" id="couponInput" placeholder="Enter Coupon Code" />
+          <button type="button" class="normal" id="applyCouponBtn">Apply</button>
         </div>
+        <p id="couponMsg" class="coupon-msg"></p>
       </div>
 
       <div id="subtotal">
@@ -113,7 +79,7 @@
         <table>
           <tr>
             <td>Cart Subtotal</td>
-            <td>Kes 10,300</td>
+            <td id="cartSubtotal">Kes 0</td>
           </tr>
           <tr>
             <td>Shipping</td>
@@ -121,22 +87,18 @@
           </tr>
           <tr>
             <td><strong>Total</strong></td>
-            <td><strong>Kes 10,300</strong></td>
+            <td><strong id="cartTotal">Kes 0</strong></td>
           </tr>
         </table>
-        <button class="normal">Pay</button>
+        <button type="button" class="normal" id="checkoutBtn">Checkout via WhatsApp</button>
       </div>
     </section>
 
     <!-- FOOTER -->
 
     <footer class="section-p1">
-      <link
-        rel="stylesheet"
-        href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
-      />
       <div class="col">
-        <img class="logo" src="img/logo.png" alt="" />
+        <img class="logo" src="img/logo.png" alt="SneakersLink logo" />
         <h4>Contact</h4>
         <p><strong>Location:</strong> Dubai Merchant Mall - Nairobi, Kenya</p>
         <p><strong>Phone:</strong> +254 768 372955 / +254 114 141830</p>
@@ -174,11 +136,11 @@
         <h4>Install App</h4>
         <p>From App Store or Google Play</p>
         <div class="row">
-          <img src="img/pay/app.jpg" alt="" />
-          <img src="img/pay/play.jpg" alt="" />
+          <img src="img/pay/app.jpg" alt="Download on the App Store" / loading="lazy">
+          <img src="img/pay/play.jpg" alt="Get it on Google Play" / loading="lazy">
 
           <p>Secure Payment Options</p>
-          <img src="img/pay/mpesa2.png" alt="" />
+          <img src="img/pay/mpesa2.png" alt="M-Pesa accepted here" / loading="lazy">
         </div>
       </div>
 
@@ -186,6 +148,15 @@
         <p><strong>SneakersLink ©, 2024 | All Rights Reserved</strong></p>
       </div>
     </footer>
+
+    
+    <!-- WHATSAPP + BACK TO TOP -->
+    <a href="https://wa.me/254768372955?text=Hi%20SneakersLink%2C%20I%27d%20like%20to%20ask%20about..." class="whatsapp-fab" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    <button id="backToTop" class="back-to-top" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
     <script src="script.js"></script>
   </body>

@@ -25,8 +25,7 @@
       </label>
       <!-- Shopping Cart Icon -->
       <a href="cart.html" class="cart">
-        <i class="fa fa-shopping-bag"></i>
-      </a>
+        <i class="fa fa-shopping-bag"></i><span class="cart-count" data-cart-count>0</span></a>
       <label class="logo">Sneakers<span>Link</span></label>
         <ul id="navbar">
             <li><a href="index.html">Home</a></li>
@@ -34,7 +33,6 @@
             <li><a href="blog.html">Blog</a></li>
             <li><a href="about.html">About</a></li>
             <li><a class= "active" href="contact.html">Contact</a></li>
-            <li id="lg-bag"><a href="cart.html"><i class="fa fa-shopping-bag" aria-hidden="true"></i></a></li>
         </ul>
     </nav>
 
@@ -52,24 +50,24 @@
             <span>GET IN TOUCH</span>
             <h2>Visit one of our shops or contact us today</h2>
             <h3>Main Shop</h3>
-            <div>
+            <ul>
                 <li>
                     <i class="far fa-map"></i>
                     <p>Shop K80, Dubai Merchant Mall - Opp RNG Plaza, Nairobi</p>
                 </li>
-                 <li>
+                <li>
                     <i class="far fa-envelope"></i>
-                    <p> sneakerslink254@gmail.com</p>
+                    <p>sneakerslink254@gmail.com</p>
                 </li>
-                 <li>
+                <li>
                     <i class="fas fa-phone-alt"></i>
                     <p>+254 768 372955 | +254 114 141830</p>
                 </li>
-                 <li>
+                <li>
                     <i class="far fa-clock"></i>
                     <p>1000hrs - 1800hrs, Mon - Sat</p>
                 </li>
-            </div>
+            </ul>
            
         </div>
         <div class="map">
@@ -80,19 +78,19 @@
     <!-- FORM -->
 
     <section id="form-details">
-        <form action="">
+        <form id="contactForm" novalidate>
             <span>LEAVE A MESSAGE</span>
             <h2>We'd love to hear from you</h2>
-            <input type="text" placeholder="Your Name">
-            <input type="text" placeholder="Your Email">
-            <input type="text" placeholder="Subject">
-            <textarea name="" id="" cols="30" rows="10" placeholder="Your Message"></textarea>
-            <button class="normal">Submit</button>
+            <input type="text" name="name" placeholder="Your Name" required>
+            <input type="email" name="email" placeholder="Your Email" required>
+            <input type="text" name="subject" placeholder="Subject" required>
+            <textarea name="message" cols="30" rows="10" placeholder="Your Message" required></textarea>
+            <button class="normal" type="submit">Submit</button>
         </form>
         <div class="staff">
-            <img src="img/staff/ken.png" alt="">
+            <img src="img/staff/ken.png" alt="" loading="lazy">
                 <p><span>Ken Warren</span> - JKUAT Plug <br>Phone: +254 768 372955</p>
-            <img src="img/staff/salim.png" alt="">
+            <img src="img/staff/salim.png" alt="" loading="lazy">
                 <p><span>SJ Mwatsefu</span> - USIU Plug <br>Phone: +254 114 141830</p>
             <img src="" alt="">
                 <p><span>Imran Maundu</span> - Coast Plug <br>Phone: +254 727 747780</p>
@@ -106,23 +104,18 @@
         <div class="newstext">
             <h4>Sign Up For Newsletters</h4>
             <p>Get E-mail updates about out latest shop and <span> special offers.</span></p>
-            <div class="form">
-            </div>
-        <div class="form">
-            <input type="text" placeholder="Your email address">
-            <button class="normal">Sign Up</button>
         </div>
+        <form class="form" id="newsletterForm">
+            <input type="email" required placeholder="Your email address">
+            <button class="normal" type="submit">Sign Up</button>
+        </form>
     </section>
 
     <!-- FOOTER -->
 
     <footer class="section-p1">
-      <link
-        rel="stylesheet"
-        href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
-      />
       <div class="col">
-        <img class="logo" src="img/logo.png" alt="" />
+        <img class="logo" src="img/logo.png" alt="SneakersLink logo" />
         <h4>Contact</h4>
         <p><strong>Location:</strong> Dubai Merchant Mall - Nairobi, Kenya</p>
         <p><strong>Phone:</strong> +254 768 372955 / +254 114 141830</p>
@@ -160,11 +153,11 @@
         <h4>Install App</h4>
         <p>From App Store or Google Play</p>
         <div class="row">
-          <img src="img/pay/app.jpg" alt="" />
-          <img src="img/pay/play.jpg" alt="" />
+          <img src="img/pay/app.jpg" alt="Download on the App Store" / loading="lazy">
+          <img src="img/pay/play.jpg" alt="Get it on Google Play" / loading="lazy">
 
           <p>Secure Payment Options</p>
-          <img src="img/pay/mpesa2.png" alt="" />
+          <img src="img/pay/mpesa2.png" alt="M-Pesa accepted here" / loading="lazy">
         </div>
       </div>
 
@@ -172,6 +165,15 @@
         <p><strong>SneakersLink ©, 2024 | All Rights Reserved</strong></p>
       </div>
     </footer>
+
+    
+    <!-- WHATSAPP + BACK TO TOP -->
+    <a href="https://wa.me/254768372955?text=Hi%20SneakersLink%2C%20I%27d%20like%20to%20ask%20about..." class="whatsapp-fab" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    <button id="backToTop" class="back-to-top" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
     <script src="script.js"></script>
   </body>

@@ -23,8 +23,7 @@
         </label>
         <!-- Shopping Cart Icon -->
         <a href="cart.html" class="cart">
-            <i class="fa fa-shopping-bag"></i>
-        </a>
+            <i class="fa fa-shopping-bag"></i><span class="cart-count" data-cart-count>0</span></a>
         <label class="logo">Sneakers<span>Link</span></label>
         <ul id="navbar">
             <li><a href="index.html">Home</a></li>
@@ -32,7 +31,6 @@
             <li><a class="active" href="blog.html">Blog</a></li>
             <li><a href="about.html">About</a></li>
             <li><a href="contact.html">Contact</a></li>
-            <li id="lg-bag"><a href="cart.html"><i class="fa fa-shopping-bag" aria-hidden="true"></i></a></li>
         </ul>
     </nav>
 
@@ -48,7 +46,7 @@
       <section id="blog">
         <div class="blog-box">
             <div class="blog-img">
-                <img src="img/blog/b1.jpg" alt="">
+                <img src="img/blog/b1.jpg" alt="" loading="lazy">
             </div>
             <div class="blog-details">
                 <h4>Whats Hot In Nairobi?</h4>
@@ -58,11 +56,11 @@
                 </p>
                 <a href="#">Read more</a>
             </div>
-            <h1>24/01</h1>
+            <span class="blog-date">24/01</span>
         </div>
         <div class="blog-box">
             <div class="blog-img">
-                <img src="img/blog/b2.jpg" alt="">
+                <img src="img/blog/b2.jpg" alt="" loading="lazy">
             </div>
             <div class="blog-details">
                 <h4>Choosing the Right Sneakers for Nairobi’s Urban Lifestyle</h4>
@@ -72,11 +70,11 @@
                 </p>
                 <a href="#">Read more</a>
             </div>
-            <h1>24/02</h1>
+            <span class="blog-date">24/02</span>
         </div>
         <div class="blog-box">
             <div class="blog-img">
-                <img src="img/blog/b5.png" alt="">
+                <img src="img/blog/b5.png" alt="" loading="lazy">
             </div>
             <div class="blog-details">
                 <h4>Featured Brand: Kenya’s Own “Enda” Sneakers</h4>
@@ -88,11 +86,11 @@
                 </p>
                 <a href="#">Read more</a>
             </div>
-            <h1>24/03</h1>
+            <span class="blog-date">24/03</span>
         </div>
         <div class="blog-box">
             <div class="blog-img">
-                <img src="img/blog/b4.jpg" alt="">
+                <img src="img/blog/b4.jpg" alt="" loading="lazy">
             </div>
             <div class="blog-details">
                 <h4>How to Care for Your Sneakers </h4>
@@ -103,7 +101,7 @@
                  </p>
                 <a href="#">Read more</a>
             </div>
-            <h1>24/04</h1>
+            <span class="blog-date">24/04</span>
         </div>
       </section>
 
@@ -121,19 +119,18 @@
         <div class="newstext">
             <h4>Sign Up For Newsletters</h4>
             <p>Get E-mail updates about out latest shop and <span> special offers.</span></p>
-            <div class="form">
-            </div>
-        <div class="form">
-            <input type="text" placeholder="Your email address">
-            <button class="normal">Sign Up</button>
         </div>
+        <form class="form" id="newsletterForm">
+            <input type="email" required placeholder="Your email address">
+            <button class="normal" type="submit">Sign Up</button>
+        </form>
     </section>
 
     <!-- FOOTER -->
 
-    <footer class="section-p1"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+    <footer class="section-p1">
         <div class="col">
-            <img class="logo" src="img/logo.png" alt="">
+            <img class="logo" src="img/logo.png" alt="SneakersLink logo">
             <h4>Contact</h4>
             <p><strong>Location:</strong> Dubai Merchant Mall - Nairobi, Kenya</p>
             <p><strong>Phone:</strong> +254 768 372955 / +254 114 141830</p>
@@ -171,11 +168,11 @@
             <h4>Install App</h4>
             <p>From App Store or Google Play</p>
             <div class="row">
-                <img src="img/pay/app.jpg" alt="">
-                <img src="img/pay/play.jpg" alt="">
+                <img src="img/pay/app.jpg" alt="Download on the App Store" loading="lazy">
+                <img src="img/pay/play.jpg" alt="Get it on Google Play" loading="lazy">
 
                 <p>Secure Payment Options</p>
-                <img src="img/pay/mpesa2.png" alt="">
+                <img src="img/pay/mpesa2.png" alt="M-Pesa accepted here" loading="lazy">
             </div>
         </div>
 
@@ -184,6 +181,15 @@
         </div>
 
     </footer>
+
+    
+    <!-- WHATSAPP + BACK TO TOP -->
+    <a href="https://wa.me/254768372955?text=Hi%20SneakersLink%2C%20I%27d%20like%20to%20ask%20about..." class="whatsapp-fab" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    <button id="backToTop" class="back-to-top" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
     <script src="script.js"></script>
 

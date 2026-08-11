@@ -133,44 +133,151 @@
             color: #088178;
         }
 
+        /* ---- modern enhancements ---- */
+        .login-container {
+            animation: bgZoom 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes bgZoom {
+            from { background-size: 100%; }
+            to { background-size: 112%; }
+        }
+
+        .form-box {
+            border-radius: 14px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+            animation: riseIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes riseIn {
+            from { opacity: 0; transform: translate(-50%, -46%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        .back-link {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover { opacity: 1; }
+
+        .input-field {
+            position: relative;
+            border: 1px solid transparent;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-field:focus-within {
+            border-color: #088178;
+            box-shadow: 0 0 0 3px rgba(8, 129, 120, 0.15);
+        }
+
+        .input-field.field-error {
+            border-color: #e61010;
+            animation: shakeField 0.4s;
+        }
+
+        @keyframes shakeField {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        .toggle-pass {
+            margin-right: 15px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .error-msg {
+            display: block;
+            text-align: left;
+            font-size: 12px;
+            color: #e61010;
+            margin: -10px 0 8px 4px;
+            min-height: 14px;
+        }
+
+        .btn-field button {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-field button:hover:not(.disable) {
+            background: #066b63;
+        }
+
+        .success-banner {
+            display: none;
+            background: #e8f6ea;
+            color: #066b63;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .success-banner.show {
+            display: block;
+            animation: riseIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
     </style>
 
     <body>
         <div class="login-container">
+            <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to SneakersLink</a>
             <div class="form-box">
                 <h1 id="title">Sign Up</h1>
-                <form>
+
+                <div class="success-banner" id="successBanner">You're in! Redirecting you to the shop&hellip;</div>
+
+                <form id="authForm" novalidate>
                     <div class="input-group">
                         <div class="input-field" id="name-field">
                             <i class=" fas fa-solid fa-user"></i>
-                            <input type="text" placeholder="Name">
+                            <input type="text" id="nameInput" placeholder="Name">
                         </div>
+                        <span class="error-msg" id="nameError"></span>
 
                         <div class="input-field">
                             <i class=" fas fa-solid fa-envelope"></i>
-                            <input type="email" placeholder="Email">
+                            <input type="email" id="emailInput" placeholder="Email" required>
                         </div>
+                        <span class="error-msg" id="emailError"></span>
 
                         <div class="input-field">
                             <i class=" fas fa-solid fa-lock"></i>
-                            <input type="password" placeholder="Password">
+                            <input type="password" id="passwordInput" placeholder="Password" required minlength="6">
+                            <i class="fas fa-eye toggle-pass" data-target="passwordInput"></i>
                         </div>
+                        <span class="error-msg" id="passwordError"></span>
 
 
                         <div class="input-field" id="confirm-password">
                             <i class="fas fa-solid fa-lock"></i>
-                            <input type="password" placeholder="Confirm Password" required>
+                            <input type="password" id="confirmInput" placeholder="Confirm Password">
+                            <i class="fas fa-eye toggle-pass" data-target="confirmInput"></i>
                         </div>
+                        <span class="error-msg" id="confirmError"></span>
 
                         <p id="forgotPass">Forgot password? <a href="#"> Reset </a></p>
                         
-                        <p id="account-already">Already have an acount? <a href="#"> Login </a></p>
+                        <p id="account-already">Already have an acount? <a href="#" id="switchToSignin"> Login </a></p>
 
                         <div class="terms-container" id="Terms">
-                            <input type="checkbox" required> I agree to the <a href="#">terms and conditions</a>
-                        </div>
-
-                        <div class="g-recaptcha" data-sitekey="your-recaptcha-site-key">
+                            <input type="checkbox" id="termsCheck"> I agree to the <a href="#">terms and conditions</a>
                         </div>
 
                     </div>
@@ -193,26 +300,122 @@
             let Terms = document.getElementById("Terms");
             let ConfPass = document.getElementById("confirm-password");
             let accAlready = document.getElementById("account-already");
-            
-            signinBtn.onclick = function(){
+            let mode = "signup"; // "signup" | "signin"
+
+            function clearErrors() {
+                document.querySelectorAll(".error-msg").forEach(el => el.textContent = "");
+                document.querySelectorAll(".input-field").forEach(el => el.classList.remove("field-error"));
+            }
+
+            function setError(fieldId, errorId, message) {
+                document.getElementById(fieldId).closest(".input-field").classList.add("field-error");
+                document.getElementById(errorId).textContent = message;
+            }
+
+            function switchToSignin(){
+                mode = "signin";
                 nameField.style.maxHeight = "0";
                 ConfPass.style.maxHeight = "0";
                 Terms.style.display = "none";
                 accAlready.style.display = "none";
+                forgotPass.style.display = "block";
                 title.innerHTML = "Sign In";
                 signupBtn.classList.add("disable");
                 signinBtn.classList.remove("disable");
+                clearErrors();
             }
 
-            signupBtn.onclick = function(){
+            function switchToSignup(){
+                mode = "signup";
                 nameField.style.maxHeight = "60px";
                 ConfPass.style.maxHeight = "60px";
                 Terms.style.display = "block";
                 forgotPass.style.display = "none";
+                accAlready.style.display = "block";
                 title.innerHTML = "Sign Up";
                 signupBtn.classList.remove("disable");
                 signinBtn.classList.add("disable");
+                clearErrors();
             }
+
+            document.getElementById("switchToSignin").addEventListener("click", function(e){
+                e.preventDefault();
+                switchToSignin();
+            });
+
+            document.querySelectorAll(".toggle-pass").forEach(function(icon){
+                icon.addEventListener("click", function(){
+                    const target = document.getElementById(icon.dataset.target);
+                    const showing = target.type === "text";
+                    target.type = showing ? "password" : "text";
+                    icon.classList.toggle("fa-eye", showing);
+                    icon.classList.toggle("fa-eye-slash", !showing);
+                });
+            });
+
+            document.getElementById("authForm").addEventListener("submit", function(e){
+                e.preventDefault();
+                attemptSubmit();
+            });
+
+            function attemptSubmit() {
+                clearErrors();
+                let valid = true;
+
+                const name = document.getElementById("nameInput");
+                const email = document.getElementById("emailInput");
+                const password = document.getElementById("passwordInput");
+                const confirm = document.getElementById("confirmInput");
+                const terms = document.getElementById("termsCheck");
+
+                if (mode === "signup" && name.value.trim().length < 2) {
+                    setError("nameInput", "nameError", "Please enter your name.");
+                    valid = false;
+                }
+
+                if (!email.value || !email.checkValidity()) {
+                    setError("emailInput", "emailError", "Enter a valid email address.");
+                    valid = false;
+                }
+
+                if (!password.value || password.value.length < 6) {
+                    setError("passwordInput", "passwordError", "Password must be at least 6 characters.");
+                    valid = false;
+                }
+
+                if (mode === "signup") {
+                    if (confirm.value !== password.value || !confirm.value) {
+                        setError("confirmInput", "confirmError", "Passwords do not match.");
+                        valid = false;
+                    }
+                    if (!terms.checked) {
+                        valid = false;
+                        Terms.style.color = "#e61010";
+                        setTimeout(() => { Terms.style.color = ""; }, 1200);
+                    }
+                }
+
+                if (!valid) return;
+
+                const banner = document.getElementById("successBanner");
+                banner.textContent = mode === "signup"
+                    ? "Account created! Redirecting you to the shop…"
+                    : "Welcome back! Redirecting you to the shop…";
+                banner.classList.add("show");
+
+                setTimeout(function () {
+                    window.location.href = "index.html";
+                }, 1400);
+            }
+
+            // Each tab button: first click switches to that tab, a click while
+            // it's already the active tab submits the form.
+            signupBtn.addEventListener("click", function(){
+                if (mode === "signup") { attemptSubmit(); } else { switchToSignup(); }
+            });
+            signinBtn.addEventListener("click", function(){
+                if (mode === "signin") { attemptSubmit(); } else { switchToSignin(); }
+            });
         </script>
     </body>
 </html>
