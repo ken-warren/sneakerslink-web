@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE-edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SneakersLink E-commerce Website</title>
+    <title>Track Your Order — SneakersLink</title>
     <link
       rel="stylesheet"
       href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
@@ -14,7 +14,7 @@
   </head>
 
   <body>
-    
+
     <!-- NAVIGATIOB BAR -->
 
     <nav>
@@ -32,76 +32,41 @@
             <li><a href="shop.html">Shop</a></li>
             <li><a href="blog.html">Blog</a></li>
             <li><a href="about.html">About</a></li>
-            <li><a class= "active" href="contact.html">Contact</a></li>
+            <li><a href="contact.html">Contact</a></li>
         <li><a href="login.html">Login</a></li>
-        <li><a href="track-order.html">Track Order</a></li>
+        <li><a class="active" href="track-order.html">Track Order</a></li>
     </ul>
     </nav>
 
-    <!-- HEADLINE -->
-
-    <section id="header" class="about-header">
-      <h2>#Tubonge</h2>
-      <p>DM US! We Love To Hear From You!</p>
+    <!-- PAGE HEADER -->
+    <section class="section-p1" id="track-header">
+      <h2>Track Your Order</h2>
+      <p>Enter the order reference you received on WhatsApp after checkout to see its live status.</p>
     </section>
 
-    <!-- CONTACT -->
+    <!-- TRACK FORM -->
+    <section class="section-p1" id="track-page">
+      <form id="trackForm" class="track-form" novalidate>
+        <input type="text" id="trackOrderId" placeholder="e.g. SL-AB12CDE" autocomplete="off">
+        <button type="submit" class="normal">Track Order</button>
+      </form>
 
-    <section id="contact-details" class="section-p1">
-        <div class="details">
-            <span>GET IN TOUCH</span>
-            <h2>Visit one of our shops or contact us today</h2>
-            <h3>Main Shop</h3>
-            <ul>
-                <li>
-                    <i class="far fa-map"></i>
-                    <p>Shop K80, Dubai Merchant Mall - Opp RNG Plaza, Nairobi</p>
-                </li>
-                <li>
-                    <i class="far fa-envelope"></i>
-                    <p>sneakerslink254@gmail.com</p>
-                </li>
-                <li>
-                    <i class="fas fa-phone-alt"></i>
-                    <p>+254 768 372955 | +254 114 141830</p>
-                </li>
-                <li>
-                    <i class="far fa-clock"></i>
-                    <p>1000hrs - 1800hrs, Mon - Sat</p>
-                </li>
-            </ul>
-           
-        </div>
-        <div class="map">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8147185308667!2d36.825622874080715!3d-1.285141335623007!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f11e109f5919b%3A0xb6b1c2c247150905!2sDubai%20Merchant%20Mall!5e0!3m2!1sen!2ske!4v1730397022599!5m2!1sen!2ske" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div>
+      <div id="recentOrders" class="recent-orders" hidden>
+        <p>Your recent orders on this device:</p>
+        <ul></ul>
+      </div>
+
+      <p id="trackNotFound" class="track-not-found" hidden>
+        We couldn't find an order with that reference on this device. Orders are only tracked in the
+        browser they were placed from — if you checked out on your phone, look it up there, or
+        <a href="https://wa.me/254768372955?text=Hi%20SneakersLink%2C%20I%27d%20like%20to%20check%20on%20my%20order" target="_blank" rel="noopener">message us on WhatsApp</a>
+        with your reference.
+      </p>
+
+      <div id="trackResult" class="track-result" hidden></div>
     </section>
 
-    <!-- FORM -->
-
-    <section id="form-details">
-        <form id="contactForm" novalidate>
-            <span>LEAVE A MESSAGE</span>
-            <h2>We'd love to hear from you</h2>
-            <input type="text" name="name" placeholder="Your Name" required>
-            <input type="email" name="email" placeholder="Your Email" required>
-            <input type="text" name="subject" placeholder="Subject" required>
-            <textarea name="message" cols="30" rows="10" placeholder="Your Message" required></textarea>
-            <button class="normal" type="submit">Submit</button>
-        </form>
-        <div class="staff">
-            <img src="img/staff/ken.png" alt="" loading="lazy">
-                <p><span>Ken Warren</span> - JKUAT Plug <br>Phone: +254 768 372955</p>
-            <img src="img/staff/salim.png" alt="" loading="lazy">
-                <p><span>SJ Mwatsefu</span> - USIU Plug <br>Phone: +254 114 141830</p>
-            <img src="" alt="">
-                <p><span>Imran Maundu</span> - Coast Plug <br>Phone: +254 727 747780</p>
-        </div>
-
-    </section>
-
-    <!-- NEWS LETTER -->
-
+    <!-- NEWSLETTER -->
     <section id="newsletter" class="section-p1 section-m1">
         <div class="newstext">
             <h4>Sign Up For Newsletters</h4>
@@ -114,7 +79,6 @@
     </section>
 
     <!-- FOOTER -->
-
     <footer class="section-p1">
       <div class="col">
         <img class="logo" src="img/logo.png" alt="SneakersLink logo" />
@@ -168,7 +132,7 @@
       </div>
     </footer>
 
-    
+
     <!-- WHATSAPP + BACK TO TOP -->
     <a href="https://wa.me/254768372955?text=Hi%20SneakersLink%2C%20I%27d%20like%20to%20ask%20about..." class="whatsapp-fab" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp">
         <i class="fab fa-whatsapp"></i>

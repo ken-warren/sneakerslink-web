@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
     <head>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE-edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>SneakersLink E-commerce Website</title>
+        <title>Sign In / Sign Up — SneakersLink</title>
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
     </head>
 
@@ -19,139 +19,25 @@
             font-family: "Spartan", sans-serif;
         }
 
+        html, body { height: 100%; }
+
         .login-container {
             width: 100%;
-            height: 100vh;
-            background-image: linear-gradient(rgba(0, 150, 80, 0.8), rgba(0, 150, 80, 0.6)), url(img/signup.jpeg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 16px;
+            background-image: linear-gradient(rgba(0, 60, 50, 0.82), rgba(0, 60, 50, 0.72)), url(img/signup.jpeg);
             background-size: cover;
             background-position: center;
             position: relative;
-        }
-
-        .form-box {
-            width: 90%;
-            max-width: 450px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #fff;
-            padding: 50px 60px 70px;
-            text-align: center;
-        }
-
-        .form-box h1 {
-            font-size: 30px;
-            margin-bottom: 60px;
-            color: #088178;
-            position: relative;
-        }
-
-        .form-box h1::after {
-            content: '';
-            width: 30px;
-            height: 4px;
-            border-radius: 3px;
-            background: #088178;
-            position: absolute;
-            bottom: -12px;
-            left: 50%;
-            transform: translateX(-50%)
-        }
-
-        .input-group {
-            height: 350px;
-        }
-
-        .input-field {
-            background: #e3e6f3;
-            margin: 15px 0;
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            max-height: 65px;
-            transform: max-height 0.5s;
-            overflow: hidden;
-        }
-
-        input {
-            width: 100%;
-            background: transparent;
-            border: 0;
-            outline: 0;
-            padding: 18px 15px;
-        }
-
-        .input-field i {
-            margin-left: 15px;
-            color: #9999;
-        }
-
-        form p {
-            text-align: left;
-            font-size: 13px;
-        }
-
-        form p a {
-            text-decoration: none;
-            color: #088178;
-        }
-
-        .btn-field {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .btn-field button {
-            flex-basis: 48%;
-            background: #088178;
-            color: #fff;
-            height: 40px;
-            border-radius: 20px;
-            border: 0;
-            outline: 0;
-            cursor: pointer;
-            transition: back-ground 1s;
-        }
-
-        .btn-field button.disable {
-            background: #e3e6f3;
-            color: #1a1a1a;
-        }
-
-        .terms-container {
-            text-align: left;
-            margin-top: 10px;
-        }
-
-        .terms-container input {
-            margin-right: 20px;
-        }
-
-        .terms-container input a{
-            color: #088178;
-        }
-
-        /* ---- modern enhancements ---- */
-        .login-container {
             animation: bgZoom 20s ease-in-out infinite alternate;
         }
 
         @keyframes bgZoom {
-            from { background-size: 100%; }
+            from { background-size: cover; }
             to { background-size: 112%; }
-        }
-
-        .form-box {
-            border-radius: 14px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
-            animation: riseIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        @keyframes riseIn {
-            from { opacity: 0; transform: translate(-50%, -46%); }
-            to { opacity: 1; transform: translate(-50%, -50%); }
         }
 
         .back-link {
@@ -171,10 +57,80 @@
 
         .back-link:hover { opacity: 1; }
 
+        .form-box {
+            width: 100%;
+            max-width: 440px;
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+            padding: 40px 36px 44px;
+            text-align: center;
+            animation: riseIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .brand-logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: #088178;
+            margin-bottom: 22px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ---- Tabs: purely switch which form is visible, never submit ---- */
+        .auth-tabs {
+            display: flex;
+            background: #e3e6f3;
+            border-radius: 999px;
+            padding: 4px;
+            margin-bottom: 28px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            border: 0;
+            background: transparent;
+            padding: 10px 0;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #555;
+            cursor: pointer;
+            transition: background-color 0.25s, color 0.25s, box-shadow 0.25s;
+        }
+
+        .auth-tab[aria-selected="true"] {
+            background: #088178;
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(8, 129, 120, 0.35);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 6px;
+            color: #1a1a1a;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 26px;
+        }
+
         .input-field {
             position: relative;
+            background: #e3e6f3;
+            margin: 0 0 6px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
             border: 1px solid transparent;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+            transition: border-color 0.2s, box-shadow 0.2s, max-height 0.3s, margin 0.3s, opacity 0.3s;
         }
 
         .input-field:focus-within {
@@ -193,6 +149,22 @@
             75% { transform: translateX(6px); }
         }
 
+        .input-field i:first-child {
+            margin-left: 15px;
+            color: #999;
+            width: 16px;
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            background: transparent;
+            border: 0;
+            outline: 0;
+            padding: 15px 12px;
+            font-size: 14px;
+        }
+
         .toggle-pass {
             margin-right: 15px;
             cursor: pointer;
@@ -204,18 +176,62 @@
             text-align: left;
             font-size: 12px;
             color: #e61010;
-            margin: -10px 0 8px 4px;
+            margin: 0 0 12px 4px;
             min-height: 14px;
         }
 
-        .btn-field button {
-            position: relative;
-            overflow: hidden;
+        .field-hidden {
+            max-height: 0;
+            margin: 0;
+            border: 0;
+            opacity: 0;
+            pointer-events: none;
         }
 
-        .btn-field button:hover:not(.disable) {
-            background: #066b63;
+        form p.link-row {
+            text-align: left;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 16px;
         }
+
+        form p.link-row a,
+        .terms-container a {
+            text-decoration: none;
+            color: #088178;
+            font-weight: 600;
+        }
+
+        .terms-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            text-align: left;
+            font-size: 12.5px;
+            color: #555;
+            margin-bottom: 20px;
+            transition: max-height 0.3s, opacity 0.3s, margin 0.3s;
+        }
+
+        .terms-container input { width: auto; margin-top: 2px; }
+
+        .submit-btn {
+            width: 100%;
+            background: #088178;
+            color: #fff;
+            height: 46px;
+            border-radius: 8px;
+            border: 0;
+            outline: 0;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            transition: background-color 0.2s, transform 0.15s;
+        }
+
+        .submit-btn:hover { background: #066b63; }
+        .submit-btn:active { transform: scale(0.98); }
 
         .success-banner {
             display: none;
@@ -225,7 +241,7 @@
             padding: 12px;
             font-size: 13px;
             font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
 
         .success-banner.show {
@@ -233,189 +249,181 @@
             animation: riseIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
+        @media (max-width: 480px) {
+            .form-box { padding: 32px 22px 36px; }
+        }
     </style>
 
     <body>
         <div class="login-container">
             <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to SneakersLink</a>
-            <div class="form-box">
-                <h1 id="title">Sign Up</h1>
 
-                <div class="success-banner" id="successBanner">You're in! Redirecting you to the shop&hellip;</div>
+            <div class="form-box">
+                <div class="brand-logo">SNEAKERS<span style="color:#1a1a1a">LINK</span></div>
+
+                <div class="auth-tabs" role="tablist">
+                    <button type="button" class="auth-tab" id="tab-signup" role="tab" aria-selected="true">Sign Up</button>
+                    <button type="button" class="auth-tab" id="tab-signin" role="tab" aria-selected="false">Sign In</button>
+                </div>
+
+                <h1 id="formTitle">Create your account</h1>
+                <p class="subtitle" id="formSubtitle">Sign up to save your sizes and track orders faster.</p>
+
+                <div class="success-banner" id="successBanner"></div>
 
                 <form id="authForm" novalidate>
-                    <div class="input-group">
-                        <div class="input-field" id="name-field">
-                            <i class=" fas fa-solid fa-user"></i>
-                            <input type="text" id="nameInput" placeholder="Name">
-                        </div>
-                        <span class="error-msg" id="nameError"></span>
+                    <div class="input-field" id="name-field">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="nameInput" placeholder="Name" autocomplete="name">
+                    </div>
+                    <span class="error-msg" id="nameError"></span>
 
-                        <div class="input-field">
-                            <i class=" fas fa-solid fa-envelope"></i>
-                            <input type="email" id="emailInput" placeholder="Email" required>
-                        </div>
-                        <span class="error-msg" id="emailError"></span>
+                    <div class="input-field">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="emailInput" placeholder="Email" autocomplete="email" required>
+                    </div>
+                    <span class="error-msg" id="emailError"></span>
 
-                        <div class="input-field">
-                            <i class=" fas fa-solid fa-lock"></i>
-                            <input type="password" id="passwordInput" placeholder="Password" required minlength="6">
-                            <i class="fas fa-eye toggle-pass" data-target="passwordInput"></i>
-                        </div>
-                        <span class="error-msg" id="passwordError"></span>
+                    <div class="input-field">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="passwordInput" placeholder="Password" autocomplete="new-password" required minlength="6">
+                        <i class="fas fa-eye toggle-pass" data-target="passwordInput"></i>
+                    </div>
+                    <span class="error-msg" id="passwordError"></span>
 
+                    <div class="input-field" id="confirm-password">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirmInput" placeholder="Confirm Password" autocomplete="new-password">
+                        <i class="fas fa-eye toggle-pass" data-target="confirmInput"></i>
+                    </div>
+                    <span class="error-msg" id="confirmError"></span>
 
-                        <div class="input-field" id="confirm-password">
-                            <i class="fas fa-solid fa-lock"></i>
-                            <input type="password" id="confirmInput" placeholder="Confirm Password">
-                            <i class="fas fa-eye toggle-pass" data-target="confirmInput"></i>
-                        </div>
-                        <span class="error-msg" id="confirmError"></span>
+                    <p class="link-row" id="forgotPass" style="display:none;">Forgot password? <a href="#">Reset</a></p>
 
-                        <p id="forgotPass">Forgot password? <a href="#"> Reset </a></p>
-                        
-                        <p id="account-already">Already have an acount? <a href="#" id="switchToSignin"> Login </a></p>
-
-                        <div class="terms-container" id="Terms">
-                            <input type="checkbox" id="termsCheck"> I agree to the <a href="#">terms and conditions</a>
-                        </div>
-
+                    <div class="terms-container" id="Terms">
+                        <input type="checkbox" id="termsCheck">
+                        <label for="termsCheck">I agree to the <a href="#">terms and conditions</a></label>
                     </div>
 
-                    <div class="btn-field">
-                        <button type="button" id="signup-btn"> Sign Up</button>
-                        <button type="button" class="disable" id="signin-btn"> Sign In</button>
-                    </div>
+                    <button type="submit" class="submit-btn" id="submitBtn">Create Account</button>
                 </form>
             </div>
-
         </div>
 
         <script>
-            let signupBtn = document.getElementById("signup-btn");
-            let signinBtn = document.getElementById("signin-btn");
-            let nameField = document.getElementById("name-field");
-            let title = document.getElementById("title");
-            let forgotPass = document.getElementById("forgotPass");
-            let Terms = document.getElementById("Terms");
-            let ConfPass = document.getElementById("confirm-password");
-            let accAlready = document.getElementById("account-already");
-            let mode = "signup"; // "signup" | "signin"
-
-            function clearErrors() {
-                document.querySelectorAll(".error-msg").forEach(el => el.textContent = "");
-                document.querySelectorAll(".input-field").forEach(el => el.classList.remove("field-error"));
-            }
-
-            function setError(fieldId, errorId, message) {
-                document.getElementById(fieldId).closest(".input-field").classList.add("field-error");
-                document.getElementById(errorId).textContent = message;
-            }
-
-            function switchToSignin(){
-                mode = "signin";
-                nameField.style.maxHeight = "0";
-                ConfPass.style.maxHeight = "0";
-                Terms.style.display = "none";
-                accAlready.style.display = "none";
-                forgotPass.style.display = "block";
-                title.innerHTML = "Sign In";
-                signupBtn.classList.add("disable");
-                signinBtn.classList.remove("disable");
-                clearErrors();
-            }
-
-            function switchToSignup(){
-                mode = "signup";
-                nameField.style.maxHeight = "60px";
-                ConfPass.style.maxHeight = "60px";
-                Terms.style.display = "block";
-                forgotPass.style.display = "none";
-                accAlready.style.display = "block";
-                title.innerHTML = "Sign Up";
-                signupBtn.classList.remove("disable");
-                signinBtn.classList.add("disable");
-                clearErrors();
-            }
-
-            document.getElementById("switchToSignin").addEventListener("click", function(e){
-                e.preventDefault();
-                switchToSignin();
-            });
-
-            document.querySelectorAll(".toggle-pass").forEach(function(icon){
-                icon.addEventListener("click", function(){
-                    const target = document.getElementById(icon.dataset.target);
-                    const showing = target.type === "text";
-                    target.type = showing ? "password" : "text";
-                    icon.classList.toggle("fa-eye", showing);
-                    icon.classList.toggle("fa-eye-slash", !showing);
-                });
-            });
-
-            document.getElementById("authForm").addEventListener("submit", function(e){
-                e.preventDefault();
-                attemptSubmit();
-            });
-
-            function attemptSubmit() {
-                clearErrors();
-                let valid = true;
-
-                const name = document.getElementById("nameInput");
-                const email = document.getElementById("emailInput");
-                const password = document.getElementById("passwordInput");
-                const confirm = document.getElementById("confirmInput");
-                const terms = document.getElementById("termsCheck");
-
-                if (mode === "signup" && name.value.trim().length < 2) {
-                    setError("nameInput", "nameError", "Please enter your name.");
-                    valid = false;
-                }
-
-                if (!email.value || !email.checkValidity()) {
-                    setError("emailInput", "emailError", "Enter a valid email address.");
-                    valid = false;
-                }
-
-                if (!password.value || password.value.length < 6) {
-                    setError("passwordInput", "passwordError", "Password must be at least 6 characters.");
-                    valid = false;
-                }
-
-                if (mode === "signup") {
-                    if (confirm.value !== password.value || !confirm.value) {
-                        setError("confirmInput", "confirmError", "Passwords do not match.");
-                        valid = false;
-                    }
-                    if (!terms.checked) {
-                        valid = false;
-                        Terms.style.color = "#e61010";
-                        setTimeout(() => { Terms.style.color = ""; }, 1200);
-                    }
-                }
-
-                if (!valid) return;
-
+            (function () {
+                const tabSignup = document.getElementById("tab-signup");
+                const tabSignin = document.getElementById("tab-signin");
+                const nameField = document.getElementById("name-field");
+                const confirmField = document.getElementById("confirm-password");
+                const terms = document.getElementById("Terms");
+                const forgotPass = document.getElementById("forgotPass");
+                const formTitle = document.getElementById("formTitle");
+                const formSubtitle = document.getElementById("formSubtitle");
+                const submitBtn = document.getElementById("submitBtn");
                 const banner = document.getElementById("successBanner");
-                banner.textContent = mode === "signup"
-                    ? "Account created! Redirecting you to the shop…"
-                    : "Welcome back! Redirecting you to the shop…";
-                banner.classList.add("show");
+                let mode = "signup"; // "signup" | "signin"
 
-                setTimeout(function () {
-                    window.location.href = "index.html";
-                }, 1400);
-            }
+                function clearErrors() {
+                    document.querySelectorAll(".error-msg").forEach((el) => (el.textContent = ""));
+                    document.querySelectorAll(".input-field").forEach((el) => el.classList.remove("field-error"));
+                    banner.classList.remove("show");
+                }
 
-            // Each tab button: first click switches to that tab, a click while
-            // it's already the active tab submits the form.
-            signupBtn.addEventListener("click", function(){
-                if (mode === "signup") { attemptSubmit(); } else { switchToSignup(); }
-            });
-            signinBtn.addEventListener("click", function(){
-                if (mode === "signin") { attemptSubmit(); } else { switchToSignin(); }
-            });
+                function setError(fieldId, errorId, message) {
+                    document.getElementById(fieldId).closest(".input-field").classList.add("field-error");
+                    document.getElementById(errorId).textContent = message;
+                }
+
+                function setMode(next) {
+                    mode = next;
+                    clearErrors();
+
+                    const isSignup = mode === "signup";
+                    tabSignup.setAttribute("aria-selected", String(isSignup));
+                    tabSignin.setAttribute("aria-selected", String(!isSignup));
+
+                    nameField.classList.toggle("field-hidden", !isSignup);
+                    confirmField.classList.toggle("field-hidden", !isSignup);
+                    terms.classList.toggle("field-hidden", !isSignup);
+                    forgotPass.style.display = isSignup ? "none" : "block";
+
+                    formTitle.textContent = isSignup ? "Create your account" : "Welcome back";
+                    formSubtitle.textContent = isSignup
+                        ? "Sign up to save your sizes and track orders faster."
+                        : "Sign in to pick up right where you left off.";
+                    submitBtn.textContent = isSignup ? "Create Account" : "Sign In";
+                }
+
+                tabSignup.addEventListener("click", () => setMode("signup"));
+                tabSignin.addEventListener("click", () => setMode("signin"));
+
+                document.querySelectorAll(".toggle-pass").forEach((icon) => {
+                    icon.addEventListener("click", () => {
+                        const target = document.getElementById(icon.dataset.target);
+                        const showing = target.type === "text";
+                        target.type = showing ? "password" : "text";
+                        icon.classList.toggle("fa-eye", showing);
+                        icon.classList.toggle("fa-eye-slash", !showing);
+                    });
+                });
+
+                document.getElementById("authForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    clearErrors();
+                    let valid = true;
+
+                    const name = document.getElementById("nameInput");
+                    const email = document.getElementById("emailInput");
+                    const password = document.getElementById("passwordInput");
+                    const confirm = document.getElementById("confirmInput");
+                    const termsCheck = document.getElementById("termsCheck");
+
+                    if (mode === "signup" && name.value.trim().length < 2) {
+                        setError("nameInput", "nameError", "Please enter your name.");
+                        valid = false;
+                    }
+
+                    if (!email.value || !email.checkValidity()) {
+                        setError("emailInput", "emailError", "Enter a valid email address.");
+                        valid = false;
+                    }
+
+                    if (!password.value || password.value.length < 6) {
+                        setError("passwordInput", "passwordError", "Password must be at least 6 characters.");
+                        valid = false;
+                    }
+
+                    if (mode === "signup") {
+                        if (!confirm.value || confirm.value !== password.value) {
+                            setError("confirmInput", "confirmError", "Passwords do not match.");
+                            valid = false;
+                        }
+                        if (!termsCheck.checked) {
+                            valid = false;
+                            terms.style.color = "#e61010";
+                            setTimeout(() => { terms.style.color = ""; }, 1200);
+                        }
+                    }
+
+                    if (!valid) return;
+
+                    // No backend is wired up yet — this simulates a successful
+                    // auth flow so the UI can be demoed end-to-end. Swap this
+                    // for a real API call when one exists.
+                    banner.textContent = mode === "signup"
+                        ? "Account created! Redirecting you to the shop…"
+                        : "Welcome back! Redirecting you to the shop…";
+                    banner.classList.add("show");
+                    submitBtn.disabled = true;
+
+                    setTimeout(function () {
+                        window.location.href = "index.html";
+                    }, 1200);
+                });
+
+                setMode("signup");
+            })();
         </script>
     </body>
 </html>

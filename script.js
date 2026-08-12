@@ -108,6 +108,67 @@
     return getCart().reduce((sum, p) => sum + p.qty * p.price, 0);
   }
 
+  /* =========================================================
+     ORDER TRACKING ENGINE
+     No backend exists yet, so an order's progress is derived
+     deterministically from how long ago it was placed. This
+     keeps the tracker page honest (nothing is faked per-visit)
+     while still demoing a real end-to-end flow.
+     ========================================================= */
+  const ORDERS_KEY = "sl_orders_v1";
+
+  const ORDER_STAGES = [
+    { key: "placed",    label: "Order Placed",     icon: "fa-receipt",       afterMinutes: 0 },
+    { key: "confirmed", label: "Confirmed",         icon: "fa-check-circle",  afterMinutes: 2 },
+    { key: "packed",    label: "Packed",            icon: "fa-box",           afterMinutes: 10 },
+    { key: "out",       label: "Out for Delivery",  icon: "fa-truck",         afterMinutes: 30 },
+    { key: "delivered", label: "Delivered",         icon: "fa-home",          afterMinutes: 60 },
+  ];
+
+  function generateOrderId() {
+    const stamp = Date.now().toString(36).toUpperCase().slice(-5);
+    const rand = Math.random().toString(36).toUpperCase().slice(2, 5);
+    return `SL-${stamp}${rand}`;
+  }
+
+  function getOrders() {
+    try {
+      return JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveOrders(orders) {
+    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+  }
+
+  function createOrder(cartItems, total) {
+    const orders = getOrders();
+    const order = {
+      id: generateOrderId(),
+      items: cartItems.map((i) => ({ name: i.name, size: i.size, qty: i.qty, price: i.price, img: i.img })),
+      total,
+      placedAt: Date.now(),
+    };
+    orders.unshift(order);
+    saveOrders(orders.slice(0, 25)); // keep it tidy
+    return order;
+  }
+
+  function getOrderById(id) {
+    return getOrders().find((o) => o.id.toLowerCase() === String(id).trim().toLowerCase());
+  }
+
+  function computeOrderProgress(order) {
+    const minutesElapsed = (Date.now() - order.placedAt) / 60000;
+    let currentIndex = 0;
+    ORDER_STAGES.forEach((stage, i) => {
+      if (minutesElapsed >= stage.afterMinutes) currentIndex = i;
+    });
+    return currentIndex;
+  }
+
   function updateCartBadges() {
     const count = cartCount();
     $$("[data-cart-count]").forEach((el) => {
@@ -309,11 +370,15 @@
           showToast("Your cart is empty", { type: "warn" });
           return;
         }
+        const order = createOrder(cart, cartTotal());
         const lines = cart
           .map((i) => `- ${i.name}${i.size ? ` (Size ${i.size})` : ""} x${i.qty} — ${money(i.price * i.qty)}`)
           .join("\n");
-        const message = `Hi SneakersLink! I'd like to order:\n${lines}\n\nTotal: ${money(cartTotal())}`;
+        const message = `Hi SneakersLink! I'd like to order (Ref: ${order.id}):\n${lines}\n\nTotal: ${money(order.total)}`;
         window.open("https://wa.me/254768372955?text=" + encodeURIComponent(message), "_blank");
+        showToast(`Order placed — reference ${order.id}. Track it anytime!`);
+        saveCart([]);
+        renderCartPage();
       });
     }
   }
@@ -417,6 +482,109 @@
   }
 
   /* =========================================================
+     TRACK ORDER PAGE (track-order.html)
+     ========================================================= */
+  function renderOrderTimeline(order) {
+    const wrap = $("#trackResult");
+    if (!wrap) return;
+
+    const currentIndex = computeOrderProgress(order);
+    const placedDate = new Date(order.placedAt);
+
+    const stepsHtml = ORDER_STAGES.map((stage, i) => {
+      const state = i < currentIndex ? "done" : i === currentIndex ? "active" : "upcoming";
+      return `
+        <li class="track-step track-step--${state}">
+          <span class="track-step-icon"><i class="fas ${stage.icon}"></i></span>
+          <span class="track-step-label">${stage.label}</span>
+        </li>`;
+    }).join("");
+
+    const itemsHtml = order.items
+      .map(
+        (i) => `
+        <div class="track-item">
+          <img src="${i.img}" alt="${i.name}">
+          <div>
+            <p class="track-item-name">${i.name}${i.size ? ` <small>(Size ${i.size})</small>` : ""}</p>
+            <p class="track-item-qty">Qty ${i.qty} · ${money(i.price * i.qty)}</p>
+          </div>
+        </div>`
+      )
+      .join("");
+
+    wrap.innerHTML = `
+      <div class="track-card">
+        <div class="track-card-head">
+          <div>
+            <p class="track-order-id">Order ${order.id}</p>
+            <p class="track-order-date">Placed ${placedDate.toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short" })}</p>
+          </div>
+          <p class="track-order-total">${money(order.total)}</p>
+        </div>
+        <ol class="track-steps">${stepsHtml}</ol>
+        <div class="track-items">${itemsHtml}</div>
+      </div>
+    `;
+    wrap.hidden = false;
+  }
+
+  function wireTrackOrderPage() {
+    const form = $("#trackForm");
+    if (!form) return;
+
+    const input = $("#trackOrderId");
+    const notFound = $("#trackNotFound");
+    const resultWrap = $("#trackResult");
+
+    function lookup(id) {
+      const order = getOrderById(id);
+      if (!order) {
+        if (resultWrap) resultWrap.hidden = true;
+        if (notFound) notFound.hidden = false;
+        return;
+      }
+      if (notFound) notFound.hidden = true;
+      renderOrderTimeline(order);
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!input.value.trim()) {
+        showToast("Enter an order reference first", { type: "warn" });
+        return;
+      }
+      lookup(input.value);
+    });
+
+    // Deep-link support: track-order.html?id=SL-XXXXX
+    const params = new URLSearchParams(window.location.search);
+    const idParam = params.get("id");
+    if (idParam) {
+      input.value = idParam;
+      lookup(idParam);
+    }
+
+    // Offer quick access to the visitor's own recent orders, if any.
+    const recentWrap = $("#recentOrders");
+    if (recentWrap) {
+      const orders = getOrders().slice(0, 3);
+      if (orders.length) {
+        recentWrap.hidden = false;
+        recentWrap.querySelector("ul").innerHTML = orders
+          .map((o) => `<li><button type="button" class="recent-order-btn" data-id="${o.id}">${o.id} — ${money(o.total)}</button></li>`)
+          .join("");
+        recentWrap.querySelectorAll(".recent-order-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            input.value = btn.dataset.id;
+            lookup(btn.dataset.id);
+          });
+        });
+      }
+    }
+  }
+
+  /* =========================================================
      INIT
      ========================================================= */
   document.addEventListener("DOMContentLoaded", () => {
@@ -428,6 +596,7 @@
     wireCartPageEvents();
     wireNewsletterForm();
     wireContactForm();
+    wireTrackOrderPage();
     renderCartPage();
     updateCartBadges();
     wireScrollReveal();
