@@ -1,505 +1,1761 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE-edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Sign In / Sign Up — SneakersLink</title>
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
-        <script>
-          (function () {
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sign In / Sign Up — SneakersLink</title>
+
+    <link rel="stylesheet"
+        href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
+
+    <script>
+        (function () {
             try {
-              var saved = localStorage.getItem("sl_theme");
-              var theme = saved === "light" || saved === "dark"
-                ? saved
-                : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-              document.documentElement.setAttribute("data-theme", theme);
+                var saved = localStorage.getItem("sl_theme");
+
+                var theme =
+                    saved === "light" || saved === "dark"
+                        ? saved
+                        : (
+                            window.matchMedia &&
+                            window.matchMedia("(prefers-color-scheme: dark)").matches
+                                ? "dark"
+                                : "light"
+                        );
+
+                document.documentElement.setAttribute("data-theme", theme);
             } catch (e) {}
-          })();
-        </script>
-    </head>
+        })();
+    </script>
+</head>
 
-    <style>
-        @import url("https://fonts.googleapis.com/css2?family=Spartan:wght@100;200;300;400;500;600;700;800;900&display=swap");
+<style>
+    @import url("https://fonts.googleapis.com/css2?family=Spartan:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
-        :root {
-            --brand: #088178;
-            --brand-dark: #066b63;
-            --surface: #ffffff;
-            --input-bg: #e3e6f3;
-            --text: #1a1a1a;
-            --text-muted: #777;
-            --border: transparent;
-        }
+    :root {
+        --brand: #088178;
+        --brand-dark: #066b63;
+        --surface: #ffffff;
+        --input-bg: #e3e6f3;
+        --text: #1a1a1a;
+        --text-muted: #777;
+        --border: transparent;
+    }
 
-        [data-theme="dark"] {
-            --brand: #35d6c4;
-            --brand-dark: #22a897;
-            --surface: #12212f;
-            --input-bg: #16232f;
-            --text: #f2f5f7;
-            --text-muted: #a9bac6;
-            --border: rgba(255, 255, 255, 0.1);
-        }
+    [data-theme="dark"] {
+        --brand: #35d6c4;
+        --brand-dark: #22a897;
+        --surface: #12212f;
+        --input-bg: #16232f;
+        --text: #f2f5f7;
+        --text-muted: #a9bac6;
+        --border: rgba(255, 255, 255, 0.1);
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Spartan", sans-serif;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Spartan", sans-serif;
+    }
 
-        html, body { height: 100%; }
+    html,
+    body {
+        height: 100%;
+    }
 
-        .login-container {
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 16px;
-            background-image: linear-gradient(rgba(0, 60, 50, 0.82), rgba(0, 60, 50, 0.72)), url(img/signup.jpeg);
+    .login-container {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 16px;
+
+        background-image:
+            linear-gradient(
+                rgba(0, 60, 50, 0.82),
+                rgba(0, 60, 50, 0.72)
+            ),
+            url(img/signup.jpeg);
+
+        background-size: cover;
+        background-position: center;
+        position: relative;
+
+        animation: bgZoom 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes bgZoom {
+        from {
             background-size: cover;
-            background-position: center;
-            position: relative;
-            animation: bgZoom 20s ease-in-out infinite alternate;
         }
 
-        @keyframes bgZoom {
-            from { background-size: cover; }
-            to { background-size: 112%; }
+        to {
+            background-size: 112%;
+        }
+    }
+
+    .back-link {
+        position: absolute;
+        top: 24px;
+        left: 24px;
+
+        color: #fff;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        opacity: 0.9;
+        transition: opacity 0.2s;
+    }
+
+    .back-link:hover {
+        opacity: 1;
+    }
+
+    .form-box {
+        width: 100%;
+        max-width: 440px;
+
+        background-color: var(--surface);
+        border: 1px solid var(--border);
+
+        transition:
+            background-color 0.3s,
+            border-color 0.3s;
+
+        border-radius: 16px;
+
+        box-shadow:
+            0 25px 60px rgba(0, 0, 0, 0.35);
+
+        padding: 40px 36px 44px;
+
+        text-align: center;
+
+        animation:
+            riseIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes riseIn {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .brand-logo {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--brand);
+        margin-bottom: 22px;
+        letter-spacing: 0.5px;
+    }
+
+    /* ---------------------------------------------
+       AUTH TABS
+    --------------------------------------------- */
+
+    .auth-tabs {
+        display: flex;
+
+        background: var(--input-bg);
+
+        border-radius: 999px;
+
+        padding: 4px;
+        margin-bottom: 28px;
+    }
+
+    .auth-tab {
+        flex: 1;
+
+        border: 0;
+        background: transparent;
+
+        padding: 10px 0;
+
+        border-radius: 999px;
+
+        font-size: 14px;
+        font-weight: 700;
+
+        color: var(--text-muted);
+
+        cursor: pointer;
+
+        transition:
+            background-color 0.25s,
+            color 0.25s,
+            box-shadow 0.25s;
+    }
+
+    .auth-tab[aria-selected="true"] {
+        background: var(--brand);
+        color: #fff;
+
+        box-shadow:
+            0 6px 16px rgba(8, 129, 120, 0.35);
+    }
+
+    h1 {
+        font-size: 24px;
+        margin-bottom: 6px;
+        color: var(--text);
+    }
+
+    .subtitle {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 26px;
+        line-height: 1.5;
+    }
+
+    /* ---------------------------------------------
+       INPUTS
+    --------------------------------------------- */
+
+    .input-field {
+        position: relative;
+
+        background: var(--input-bg);
+
+        margin: 0 0 6px;
+
+        border-radius: 8px;
+
+        display: flex;
+        align-items: center;
+
+        border: 1px solid transparent;
+
+        overflow: hidden;
+
+        transition:
+            border-color 0.2s,
+            box-shadow 0.2s,
+            max-height 0.3s,
+            margin 0.3s,
+            opacity 0.3s;
+    }
+
+    .input-field:focus-within {
+        border-color: var(--brand);
+
+        box-shadow:
+            0 0 0 3px rgba(8, 129, 120, 0.15);
+    }
+
+    .input-field.field-error {
+        border-color: #e61010;
+
+        animation: shakeField 0.4s;
+    }
+
+    @keyframes shakeField {
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+
+        25% {
+            transform: translateX(-6px);
+        }
+
+        75% {
+            transform: translateX(6px);
+        }
+    }
+
+    .input-field i:first-child {
+        margin-left: 15px;
+
+        color: #999;
+
+        width: 16px;
+
+        text-align: center;
+    }
+
+    input {
+        width: 100%;
+
+        background: transparent;
+
+        border: 0;
+        outline: 0;
+
+        padding: 15px 12px;
+
+        font-size: 14px;
+
+        color: var(--text);
+    }
+
+    input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .toggle-pass {
+        margin-right: 15px;
+
+        cursor: pointer;
+
+        color: #999;
+
+        transition: color 0.2s;
+    }
+
+    .toggle-pass:hover {
+        color: var(--brand);
+    }
+
+    .error-msg {
+        display: block;
+
+        text-align: left;
+
+        font-size: 12px;
+
+        color: #e61010;
+
+        margin: 0 0 12px 4px;
+
+        min-height: 14px;
+
+        line-height: 1.4;
+    }
+
+    /* ---------------------------------------------
+       HIDDEN FIELDS
+    --------------------------------------------- */
+
+    .field-hidden {
+        max-height: 0;
+
+        margin: 0;
+
+        border: 0;
+
+        opacity: 0;
+
+        pointer-events: none;
+    }
+
+    /* ---------------------------------------------
+       LINKS
+    --------------------------------------------- */
+
+    form p.link-row {
+        text-align: left;
+
+        font-size: 13px;
+
+        color: var(--text-muted);
+
+        margin-bottom: 16px;
+    }
+
+    form p.link-row a,
+    .terms-container a {
+        text-decoration: none;
+
+        color: var(--brand);
+
+        font-weight: 600;
+    }
+
+    form p.link-row a:hover,
+    .terms-container a:hover {
+        text-decoration: underline;
+    }
+
+    /* ---------------------------------------------
+       TERMS
+    --------------------------------------------- */
+
+    .terms-container {
+        display: flex;
+
+        align-items: flex-start;
+
+        gap: 8px;
+
+        text-align: left;
+
+        font-size: 12.5px;
+
+        color: var(--text-muted);
+
+        margin-bottom: 20px;
+
+        transition:
+            max-height 0.3s,
+            opacity 0.3s,
+            margin 0.3s;
+    }
+
+    .terms-container input {
+        width: auto;
+
+        margin-top: 2px;
+
+        flex-shrink: 0;
+    }
+
+    /* ---------------------------------------------
+       BUTTON
+    --------------------------------------------- */
+
+    .submit-btn {
+        width: 100%;
+
+        background: var(--brand);
+
+        color: #fff;
+
+        height: 46px;
+
+        border-radius: 8px;
+
+        border: 0;
+
+        outline: 0;
+
+        cursor: pointer;
+
+        font-size: 15px;
+
+        font-weight: 700;
+
+        letter-spacing: 0.3px;
+
+        transition:
+            background-color 0.2s,
+            transform 0.15s,
+            opacity 0.2s;
+    }
+
+    .submit-btn:hover {
+        background: var(--brand-dark);
+    }
+
+    .submit-btn:active {
+        transform: scale(0.98);
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+
+    /* ---------------------------------------------
+       SUCCESS / STATUS BANNER
+    --------------------------------------------- */
+
+    .success-banner {
+        display: none;
+
+        background: #e8f6ea;
+
+        color: #066b63;
+
+        border-radius: 6px;
+
+        padding: 12px;
+
+        font-size: 13px;
+
+        font-weight: 600;
+
+        line-height: 1.5;
+
+        margin-bottom: 18px;
+    }
+
+    .success-banner.show {
+        display: block;
+
+        animation:
+            riseIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    [data-theme="dark"] .success-banner {
+        background: rgba(53, 214, 196, 0.12);
+
+        color: var(--brand);
+    }
+
+    /* ---------------------------------------------
+       THEME TOGGLE
+    --------------------------------------------- */
+
+    .theme-toggle {
+        position: absolute;
+
+        top: 24px;
+        right: 24px;
+
+        width: 38px;
+        height: 38px;
+
+        border-radius: 50%;
+
+        border: 1px solid rgba(255, 255, 255, 0.4);
+
+        background: transparent;
+
+        color: #fff;
+
+        cursor: pointer;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        font-size: 14px;
+
+        transition:
+            transform 0.25s,
+            background-color 0.2s;
+    }
+
+    .theme-toggle:hover {
+        transform: rotate(15deg) scale(1.08);
+
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .theme-toggle .fa-sun {
+        display: none;
+    }
+
+    .theme-toggle .fa-moon {
+        display: inline;
+    }
+
+    [data-theme="dark"] .theme-toggle .fa-sun {
+        display: inline;
+    }
+
+    [data-theme="dark"] .theme-toggle .fa-moon {
+        display: none;
+    }
+
+    /* ---------------------------------------------
+       LOADING STATE
+    --------------------------------------------- */
+
+    .firebase-status {
+        display: none;
+
+        font-size: 12px;
+
+        color: var(--text-muted);
+
+        margin-bottom: 14px;
+
+        line-height: 1.5;
+    }
+
+    .firebase-status.show {
+        display: block;
+    }
+
+    /* ---------------------------------------------
+       MOBILE
+    --------------------------------------------- */
+
+    @media (max-width: 480px) {
+
+        .form-box {
+            padding: 32px 22px 36px;
         }
 
         .back-link {
-            position: absolute;
-            top: 24px;
-            left: 24px;
-            color: #fff;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            opacity: 0.9;
-            transition: opacity 0.2s;
-        }
-
-        .back-link:hover { opacity: 1; }
-
-        .form-box {
-            width: 100%;
-            max-width: 440px;
-            background-color: var(--surface);
-            border: 1px solid var(--border);
-            transition: background-color 0.3s, border-color 0.3s;
-            border-radius: 16px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
-            padding: 40px 36px 44px;
-            text-align: center;
-            animation: riseIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        @keyframes riseIn {
-            from { opacity: 0; transform: translateY(14px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .brand-logo {
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--brand);
-            margin-bottom: 22px;
-            letter-spacing: 0.5px;
-        }
-
-        /* ---- Tabs: purely switch which form is visible, never submit ---- */
-        .auth-tabs {
-            display: flex;
-            background: var(--input-bg);
-            border-radius: 999px;
-            padding: 4px;
-            margin-bottom: 28px;
-        }
-
-        .auth-tab {
-            flex: 1;
-            border: 0;
-            background: transparent;
-            padding: 10px 0;
-            border-radius: 999px;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: background-color 0.25s, color 0.25s, box-shadow 0.25s;
-        }
-
-        .auth-tab[aria-selected="true"] {
-            background: var(--brand);
-            color: #fff;
-            box-shadow: 0 6px 16px rgba(8, 129, 120, 0.35);
-        }
-
-        h1 {
-            font-size: 24px;
-            margin-bottom: 6px;
-            color: var(--text);
-        }
-
-        .subtitle {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 26px;
-        }
-
-        .input-field {
-            position: relative;
-            background: var(--input-bg);
-            margin: 0 0 6px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            border: 1px solid transparent;
-            overflow: hidden;
-            transition: border-color 0.2s, box-shadow 0.2s, max-height 0.3s, margin 0.3s, opacity 0.3s;
-        }
-
-        .input-field:focus-within {
-            border-color: var(--brand);
-            box-shadow: 0 0 0 3px rgba(8, 129, 120, 0.15);
-        }
-
-        .input-field.field-error {
-            border-color: #e61010;
-            animation: shakeField 0.4s;
-        }
-
-        @keyframes shakeField {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-6px); }
-            75% { transform: translateX(6px); }
-        }
-
-        .input-field i:first-child {
-            margin-left: 15px;
-            color: #999;
-            width: 16px;
-            text-align: center;
-        }
-
-        input {
-            width: 100%;
-            background: transparent;
-            border: 0;
-            outline: 0;
-            padding: 15px 12px;
-            font-size: 14px;
-            color: var(--text);
-        }
-
-        .toggle-pass {
-            margin-right: 15px;
-            cursor: pointer;
-            color: #999;
-        }
-
-        .error-msg {
-            display: block;
-            text-align: left;
+            top: 16px;
+            left: 16px;
             font-size: 12px;
-            color: #e61010;
-            margin: 0 0 12px 4px;
-            min-height: 14px;
-        }
-
-        .field-hidden {
-            max-height: 0;
-            margin: 0;
-            border: 0;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        form p.link-row {
-            text-align: left;
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-        }
-
-        form p.link-row a,
-        .terms-container a {
-            text-decoration: none;
-            color: var(--brand);
-            font-weight: 600;
-        }
-
-        .terms-container {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            text-align: left;
-            font-size: 12.5px;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-            transition: max-height 0.3s, opacity 0.3s, margin 0.3s;
-        }
-
-        .terms-container input { width: auto; margin-top: 2px; }
-
-        .submit-btn {
-            width: 100%;
-            background: var(--brand);
-            color: #fff;
-            height: 46px;
-            border-radius: 8px;
-            border: 0;
-            outline: 0;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            transition: background-color 0.2s, transform 0.15s;
-        }
-
-        .submit-btn:hover { background: var(--brand-dark); }
-        .submit-btn:active { transform: scale(0.98); }
-
-        .success-banner {
-            display: none;
-            background: #e8f6ea;
-            color: #066b63;
-            border-radius: 6px;
-            padding: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 18px;
-        }
-
-        .success-banner.show {
-            display: block;
-            animation: riseIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        [data-theme="dark"] .success-banner {
-            background: rgba(53, 214, 196, 0.12);
-            color: var(--brand);
         }
 
         .theme-toggle {
-            position: absolute;
-            top: 24px;
-            right: 24px;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            background: transparent;
-            color: #fff;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            transition: transform 0.25s;
+            top: 16px;
+            right: 16px;
         }
 
-        .theme-toggle:hover { transform: rotate(15deg) scale(1.08); }
-        .theme-toggle .fa-sun { display: none; }
-        .theme-toggle .fa-moon { display: inline; }
-        [data-theme="dark"] .theme-toggle .fa-sun { display: inline; }
-        [data-theme="dark"] .theme-toggle .fa-moon { display: none; }
-
-        @media (max-width: 480px) {
-            .form-box { padding: 32px 22px 36px; }
+        .login-container {
+            padding: 70px 14px 30px;
         }
-    </style>
 
-    <body>
-        <div class="login-container">
-            <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to SneakersLink</a>
-            <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-                <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
-            </button>
+        h1 {
+            font-size: 21px;
+        }
+    }
+</style>
 
-            <div class="form-box">
-                <div class="brand-logo">SNEAKERS<span style="color:#1a1a1a">LINK</span></div>
 
-                <div class="auth-tabs" role="tablist">
-                    <button type="button" class="auth-tab" id="tab-signup" role="tab" aria-selected="true">Sign Up</button>
-                    <button type="button" class="auth-tab" id="tab-signin" role="tab" aria-selected="false">Sign In</button>
+<body>
+
+    <div class="login-container">
+
+        <!-- Back to website -->
+        <a href="index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to SneakersLink
+        </a>
+
+        <!-- Theme -->
+        <button
+            type="button"
+            class="theme-toggle"
+            id="themeToggle"
+            aria-label="Toggle dark mode">
+
+            <i class="fas fa-moon"></i>
+            <i class="fas fa-sun"></i>
+
+        </button>
+
+
+        <div class="form-box">
+
+            <!-- Brand -->
+            <div class="brand-logo">
+                SNEAKERS<span style="color:#1a1a1a">LINK</span>
+            </div>
+
+
+            <!-- Sign Up / Sign In -->
+            <div class="auth-tabs" role="tablist">
+
+                <button
+                    type="button"
+                    class="auth-tab"
+                    id="tab-signup"
+                    role="tab"
+                    aria-selected="true">
+
+                    Sign Up
+
+                </button>
+
+                <button
+                    type="button"
+                    class="auth-tab"
+                    id="tab-signin"
+                    role="tab"
+                    aria-selected="false">
+
+                    Sign In
+
+                </button>
+
+            </div>
+
+
+            <!-- Heading -->
+            <h1 id="formTitle">
+                Create your account
+            </h1>
+
+            <p class="subtitle" id="formSubtitle">
+                Sign up to save your sizes and track orders faster.
+            </p>
+
+
+            <!-- Firebase status -->
+            <div
+                class="firebase-status"
+                id="firebaseStatus">
+            </div>
+
+
+            <!-- Success message -->
+            <div
+                class="success-banner"
+                id="successBanner"
+                role="status"
+                aria-live="polite">
+            </div>
+
+
+            <!-- Authentication form -->
+            <form
+                id="authForm"
+                novalidate>
+
+
+                <!-- NAME -->
+                <div
+                    class="input-field"
+                    id="name-field">
+
+                    <i class="fas fa-user"></i>
+
+                    <input
+                        type="text"
+                        id="nameInput"
+                        placeholder="Name"
+                        autocomplete="name">
+
                 </div>
 
-                <h1 id="formTitle">Create your account</h1>
-                <p class="subtitle" id="formSubtitle">Sign up to save your sizes and track orders faster.</p>
+                <span
+                    class="error-msg"
+                    id="nameError">
+                </span>
 
-                <div class="success-banner" id="successBanner"></div>
 
-                <form id="authForm" novalidate>
-                    <div class="input-field" id="name-field">
-                        <i class="fas fa-user"></i>
-                        <input type="text" id="nameInput" placeholder="Name" autocomplete="name">
-                    </div>
-                    <span class="error-msg" id="nameError"></span>
+                <!-- EMAIL -->
+                <div class="input-field">
 
-                    <div class="input-field">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="emailInput" placeholder="Email" autocomplete="email" required>
-                    </div>
-                    <span class="error-msg" id="emailError"></span>
+                    <i class="fas fa-envelope"></i>
 
-                    <div class="input-field">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="passwordInput" placeholder="Password" autocomplete="new-password" required minlength="6">
-                        <i class="fas fa-eye toggle-pass" data-target="passwordInput"></i>
-                    </div>
-                    <span class="error-msg" id="passwordError"></span>
+                    <input
+                        type="email"
+                        id="emailInput"
+                        placeholder="Email"
+                        autocomplete="email"
+                        required>
 
-                    <div class="input-field" id="confirm-password">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="confirmInput" placeholder="Confirm Password" autocomplete="new-password">
-                        <i class="fas fa-eye toggle-pass" data-target="confirmInput"></i>
-                    </div>
-                    <span class="error-msg" id="confirmError"></span>
+                </div>
 
-                    <p class="link-row" id="forgotPass" style="display:none;">Forgot password? <a href="#">Reset</a></p>
+                <span
+                    class="error-msg"
+                    id="emailError">
+                </span>
 
-                    <div class="terms-container" id="Terms">
-                        <input type="checkbox" id="termsCheck">
-                        <label for="termsCheck">I agree to the <a href="#">terms and conditions</a></label>
-                    </div>
 
-                    <button type="submit" class="submit-btn" id="submitBtn">Create Account</button>
-                </form>
-            </div>
+                <!-- PASSWORD -->
+                <div class="input-field">
+
+                    <i class="fas fa-lock"></i>
+
+                    <input
+                        type="password"
+                        id="passwordInput"
+                        placeholder="Password"
+                        autocomplete="new-password"
+                        required
+                        minlength="6">
+
+                    <i
+                        class="fas fa-eye toggle-pass"
+                        data-target="passwordInput"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Show password">
+                    </i>
+
+                </div>
+
+                <span
+                    class="error-msg"
+                    id="passwordError">
+                </span>
+
+
+                <!-- CONFIRM PASSWORD -->
+                <div
+                    class="input-field"
+                    id="confirm-password">
+
+                    <i class="fas fa-lock"></i>
+
+                    <input
+                        type="password"
+                        id="confirmInput"
+                        placeholder="Confirm Password"
+                        autocomplete="new-password">
+
+                    <i
+                        class="fas fa-eye toggle-pass"
+                        data-target="confirmInput"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Show password">
+                    </i>
+
+                </div>
+
+                <span
+                    class="error-msg"
+                    id="confirmError">
+                </span>
+
+
+                <!-- FORGOT PASSWORD -->
+                <p
+                    class="link-row"
+                    id="forgotPass"
+                    style="display:none;">
+
+                    Forgot password?
+
+                    <a
+                        href="#"
+                        id="resetPasswordLink">
+
+                        Reset
+
+                    </a>
+
+                </p>
+
+
+                <!-- TERMS -->
+                <div
+                    class="terms-container"
+                    id="termsContainer">
+
+                    <input
+                        type="checkbox"
+                        id="termsCheck">
+
+                    <label for="termsCheck">
+
+                        I agree to the
+                        <a href="#">
+                            terms and conditions
+                        </a>
+
+                    </label>
+
+                </div>
+
+
+                <!-- SUBMIT -->
+                <button
+                    type="submit"
+                    class="submit-btn"
+                    id="submitBtn">
+
+                    Create Account
+
+                </button>
+
+            </form>
+
         </div>
 
-        <script>
-            (function () {
-                const tabSignup = document.getElementById("tab-signup");
-                const tabSignin = document.getElementById("tab-signin");
-                const nameField = document.getElementById("name-field");
-                const confirmField = document.getElementById("confirm-password");
-                const terms = document.getElementById("Terms");
-                const forgotPass = document.getElementById("forgotPass");
-                const formTitle = document.getElementById("formTitle");
-                const formSubtitle = document.getElementById("formSubtitle");
-                const submitBtn = document.getElementById("submitBtn");
-                const banner = document.getElementById("successBanner");
-                let mode = "signup"; // "signup" | "signin"
+    </div>
 
-                function clearErrors() {
-                    document.querySelectorAll(".error-msg").forEach((el) => (el.textContent = ""));
-                    document.querySelectorAll(".input-field").forEach((el) => el.classList.remove("field-error"));
-                    banner.classList.remove("show");
-                }
 
-                function setError(fieldId, errorId, message) {
-                    document.getElementById(fieldId).closest(".input-field").classList.add("field-error");
-                    document.getElementById(errorId).textContent = message;
-                }
+    <!-- =====================================================
+         FIREBASE AUTH MODULE
+    ====================================================== -->
 
-                function setMode(next) {
-                    mode = next;
-                    clearErrors();
+    <script
+        type="module"
+        src="firebase-auth.js">
+    </script>
 
-                    const isSignup = mode === "signup";
-                    tabSignup.setAttribute("aria-selected", String(isSignup));
-                    tabSignin.setAttribute("aria-selected", String(!isSignup));
 
-                    nameField.classList.toggle("field-hidden", !isSignup);
-                    confirmField.classList.toggle("field-hidden", !isSignup);
-                    terms.classList.toggle("field-hidden", !isSignup);
-                    forgotPass.style.display = isSignup ? "none" : "block";
+    <!-- =====================================================
+         LOGIN PAGE JAVASCRIPT
+    ====================================================== -->
 
-                    formTitle.textContent = isSignup ? "Create your account" : "Welcome back";
-                    formSubtitle.textContent = isSignup
+    <script>
+
+        (function () {
+
+            const tabSignup =
+                document.getElementById("tab-signup");
+
+            const tabSignin =
+                document.getElementById("tab-signin");
+
+            const nameField =
+                document.getElementById("name-field");
+
+            const confirmField =
+                document.getElementById("confirm-password");
+
+            const terms =
+                document.getElementById("termsContainer");
+
+            const forgotPass =
+                document.getElementById("forgotPass");
+
+            const formTitle =
+                document.getElementById("formTitle");
+
+            const formSubtitle =
+                document.getElementById("formSubtitle");
+
+            const submitBtn =
+                document.getElementById("submitBtn");
+
+            const banner =
+                document.getElementById("successBanner");
+
+            const firebaseStatus =
+                document.getElementById("firebaseStatus");
+
+            const authForm =
+                document.getElementById("authForm");
+
+            const emailInput =
+                document.getElementById("emailInput");
+
+            const passwordInput =
+                document.getElementById("passwordInput");
+
+            const nameInput =
+                document.getElementById("nameInput");
+
+            const confirmInput =
+                document.getElementById("confirmInput");
+
+            const termsCheck =
+                document.getElementById("termsCheck");
+
+
+            let mode = "signup";
+
+            let authReady = false;
+
+
+            /* =================================================
+               CLEAR ERRORS
+            ================================================= */
+
+            function clearErrors() {
+
+                document
+                    .querySelectorAll(".error-msg")
+                    .forEach((el) => {
+                        el.textContent = "";
+                    });
+
+                document
+                    .querySelectorAll(".input-field")
+                    .forEach((el) => {
+                        el.classList.remove("field-error");
+                    });
+
+                banner.classList.remove("show");
+
+                banner.textContent = "";
+
+                terms.style.color = "";
+            }
+
+
+            /* =================================================
+               SET ERROR
+            ================================================= */
+
+            function setError(
+                fieldId,
+                errorId,
+                message
+            ) {
+
+                const field =
+                    document
+                        .getElementById(fieldId)
+                        .closest(".input-field");
+
+                field.classList.add("field-error");
+
+                document.getElementById(errorId)
+                    .textContent = message;
+            }
+
+
+            /* =================================================
+               SHOW SUCCESS
+            ================================================= */
+
+            function showSuccess(message) {
+
+                banner.textContent = message;
+
+                banner.classList.add("show");
+            }
+
+
+            /* =================================================
+               AUTH MODE
+            ================================================= */
+
+            function setMode(next) {
+
+                mode = next;
+
+                clearErrors();
+
+                const isSignup =
+                    mode === "signup";
+
+
+                tabSignup.setAttribute(
+                    "aria-selected",
+                    String(isSignup)
+                );
+
+                tabSignin.setAttribute(
+                    "aria-selected",
+                    String(!isSignup)
+                );
+
+
+                nameField.classList.toggle(
+                    "field-hidden",
+                    !isSignup
+                );
+
+                confirmField.classList.toggle(
+                    "field-hidden",
+                    !isSignup
+                );
+
+                terms.classList.toggle(
+                    "field-hidden",
+                    !isSignup
+                );
+
+
+                forgotPass.style.display =
+                    isSignup
+                        ? "none"
+                        : "block";
+
+
+                formTitle.textContent =
+                    isSignup
+                        ? "Create your account"
+                        : "Welcome back";
+
+
+                formSubtitle.textContent =
+                    isSignup
                         ? "Sign up to save your sizes and track orders faster."
                         : "Sign in to pick up right where you left off.";
-                    submitBtn.textContent = isSignup ? "Create Account" : "Sign In";
+
+
+                submitBtn.textContent =
+                    isSignup
+                        ? "Create Account"
+                        : "Sign In";
+
+
+                passwordInput.setAttribute(
+                    "autocomplete",
+                    isSignup
+                        ? "new-password"
+                        : "current-password"
+                );
+
+
+                confirmInput.value = "";
+
+            }
+
+
+            /* =================================================
+               FIREBASE ERROR TRANSLATION
+            ================================================= */
+
+            function getFirebaseErrorMessage(error) {
+
+                if (!error) {
+                    return "Something went wrong. Please try again.";
                 }
 
-                tabSignup.addEventListener("click", () => setMode("signup"));
-                tabSignin.addEventListener("click", () => setMode("signin"));
 
-                document.querySelectorAll(".toggle-pass").forEach((icon) => {
-                    icon.addEventListener("click", () => {
-                        const target = document.getElementById(icon.dataset.target);
-                        const showing = target.type === "text";
-                        target.type = showing ? "password" : "text";
-                        icon.classList.toggle("fa-eye", showing);
-                        icon.classList.toggle("fa-eye-slash", !showing);
-                    });
+                switch (error.code) {
+
+                    case "auth/email-already-in-use":
+
+                        return "An account already exists with this email. Try signing in instead.";
+
+
+                    case "auth/invalid-email":
+
+                        return "Please enter a valid email address.";
+
+
+                    case "auth/weak-password":
+
+                        return "Password must be at least 6 characters.";
+
+
+                    case "auth/invalid-credential":
+
+                        return "Incorrect email or password.";
+
+
+                    case "auth/wrong-password":
+
+                        return "Incorrect email or password.";
+
+
+                    case "auth/user-not-found":
+
+                        return "Incorrect email or password.";
+
+
+                    case "auth/too-many-requests":
+
+                        return "Too many attempts. Please wait a little while and try again.";
+
+
+                    case "auth/network-request-failed":
+
+                        return "Network error. Check your internet connection and try again.";
+
+
+                    case "auth/operation-not-allowed":
+
+                        return "Email/password sign-in is not enabled in Firebase yet.";
+
+
+                    case "auth/password-does-not-meet-requirements":
+
+                        return "Your password does not meet the required password policy.";
+
+
+                    case "auth/user-disabled":
+
+                        return "This account has been disabled. Please contact support.";
+
+
+                    case "auth/requires-recent-login":
+
+                        return "Please sign in again and try again.";
+
+
+                    default:
+
+                        return error.message ||
+                            "Authentication failed. Please try again.";
+                }
+
+            }
+
+
+            /* =================================================
+               PASSWORD VISIBILITY
+            ================================================= */
+
+            document
+                .querySelectorAll(".toggle-pass")
+                .forEach((icon) => {
+
+                    function togglePassword() {
+
+                        const target =
+                            document.getElementById(
+                                icon.dataset.target
+                            );
+
+                        const showing =
+                            target.type === "text";
+
+
+                        target.type =
+                            showing
+                                ? "password"
+                                : "text";
+
+
+                        icon.classList.toggle(
+                            "fa-eye",
+                            showing
+                        );
+
+                        icon.classList.toggle(
+                            "fa-eye-slash",
+                            !showing
+                        );
+
+
+                        icon.setAttribute(
+                            "aria-label",
+                            showing
+                                ? "Show password"
+                                : "Hide password"
+                        );
+
+                    }
+
+
+                    icon.addEventListener(
+                        "click",
+                        togglePassword
+                    );
+
+
+                    icon.addEventListener(
+                        "keydown",
+                        (event) => {
+
+                            if (
+                                event.key === "Enter" ||
+                                event.key === " "
+                            ) {
+
+                                event.preventDefault();
+
+                                togglePassword();
+
+                            }
+
+                        }
+                    );
+
                 });
 
-                document.getElementById("authForm").addEventListener("submit", function (e) {
-                    e.preventDefault();
+
+            /* =================================================
+               TABS
+            ================================================= */
+
+            tabSignup.addEventListener(
+                "click",
+                () => setMode("signup")
+            );
+
+
+            tabSignin.addEventListener(
+                "click",
+                () => setMode("signin")
+            );
+
+
+            /* =================================================
+               FORGOT PASSWORD
+            ================================================= */
+
+            document
+                .getElementById("resetPasswordLink")
+                .addEventListener(
+                    "click",
+                    async function (event) {
+
+                        event.preventDefault();
+
+                        clearErrors();
+
+
+                        const email =
+                            emailInput.value.trim();
+
+
+                        if (
+                            !email ||
+                            !emailInput.checkValidity()
+                        ) {
+
+                            setError(
+                                "emailInput",
+                                "emailError",
+                                "Enter your email address first."
+                            );
+
+                            emailInput.focus();
+
+                            return;
+                        }
+
+
+                        if (
+                            !window.SLAuth ||
+                            !window.SLAuth.isConfigured
+                        ) {
+
+                            showSuccess(
+                                "Firebase authentication is not configured yet."
+                            );
+
+                            return;
+                        }
+
+
+                        const originalText =
+                            this.textContent;
+
+
+                        this.textContent =
+                            "Sending…";
+
+
+                        this.style.pointerEvents =
+                            "none";
+
+
+                        try {
+
+                            await window.SLAuth.resetPassword(
+                                email
+                            );
+
+
+                            showSuccess(
+                                "Password reset email sent. Check your inbox."
+                            );
+
+
+                        } catch (error) {
+
+                            console.error(
+                                "Password reset error:",
+                                error
+                            );
+
+
+                            setError(
+                                "emailInput",
+                                "emailError",
+                                getFirebaseErrorMessage(error)
+                            );
+
+
+                        } finally {
+
+                            this.textContent =
+                                originalText;
+
+                            this.style.pointerEvents =
+                                "";
+
+                        }
+
+                    }
+                );
+
+
+            /* =================================================
+               FORM SUBMISSION
+            ================================================= */
+
+            authForm.addEventListener(
+                "submit",
+                async function (event) {
+
+                    event.preventDefault();
+
+
                     clearErrors();
+
+
                     let valid = true;
 
-                    const name = document.getElementById("nameInput");
-                    const email = document.getElementById("emailInput");
-                    const password = document.getElementById("passwordInput");
-                    const confirm = document.getElementById("confirmInput");
-                    const termsCheck = document.getElementById("termsCheck");
 
-                    if (mode === "signup" && name.value.trim().length < 2) {
-                        setError("nameInput", "nameError", "Please enter your name.");
+                    const name =
+                        nameInput.value.trim();
+
+                    const email =
+                        emailInput.value.trim();
+
+                    const password =
+                        passwordInput.value;
+
+                    const confirm =
+                        confirmInput.value;
+
+
+                    /* -----------------------------------------
+                       NAME VALIDATION
+                    ----------------------------------------- */
+
+                    if (
+                        mode === "signup" &&
+                        name.length < 2
+                    ) {
+
+                        setError(
+                            "nameInput",
+                            "nameError",
+                            "Please enter your name."
+                        );
+
                         valid = false;
+
                     }
 
-                    if (!email.value || !email.checkValidity()) {
-                        setError("emailInput", "emailError", "Enter a valid email address.");
+
+                    /* -----------------------------------------
+                       EMAIL VALIDATION
+                    ----------------------------------------- */
+
+                    if (
+                        !email ||
+                        !emailInput.checkValidity()
+                    ) {
+
+                        setError(
+                            "emailInput",
+                            "emailError",
+                            "Enter a valid email address."
+                        );
+
                         valid = false;
+
                     }
 
-                    if (!password.value || password.value.length < 6) {
-                        setError("passwordInput", "passwordError", "Password must be at least 6 characters.");
+
+                    /* -----------------------------------------
+                       PASSWORD VALIDATION
+                    ----------------------------------------- */
+
+                    if (
+                        !password ||
+                        password.length < 6
+                    ) {
+
+                        setError(
+                            "passwordInput",
+                            "passwordError",
+                            "Password must be at least 6 characters."
+                        );
+
                         valid = false;
+
                     }
+
+
+                    /* -----------------------------------------
+                       SIGN UP VALIDATION
+                    ----------------------------------------- */
 
                     if (mode === "signup") {
-                        if (!confirm.value || confirm.value !== password.value) {
-                            setError("confirmInput", "confirmError", "Passwords do not match.");
+
+                        if (
+                            !confirm ||
+                            confirm !== password
+                        ) {
+
+                            setError(
+                                "confirmInput",
+                                "confirmError",
+                                "Passwords do not match."
+                            );
+
                             valid = false;
+
                         }
+
+
                         if (!termsCheck.checked) {
+
                             valid = false;
-                            terms.style.color = "#e61010";
-                            setTimeout(() => { terms.style.color = ""; }, 1200);
+
+                            terms.style.color =
+                                "#e61010";
+
+                            setTimeout(() => {
+
+                                terms.style.color = "";
+
+                            }, 1500);
+
                         }
+
                     }
 
-                    if (!valid) return;
 
-                    // No backend is wired up yet — this simulates a successful
-                    // auth flow so the UI can be demoed end-to-end. Swap this
-                    // for a real API call when one exists.
-                    banner.textContent = mode === "signup"
-                        ? "Account created! Redirecting you to the shop…"
-                        : "Welcome back! Redirecting you to the shop…";
-                    banner.classList.add("show");
+                    if (!valid) {
+                        return;
+                    }
+
+
+                    /* -----------------------------------------
+                       CHECK FIREBASE
+                    ----------------------------------------- */
+
+                    if (
+                        !window.SLAuth ||
+                        !window.SLAuth.isConfigured
+                    ) {
+
+                        showSuccess(
+                            "Firebase authentication is not configured yet. Please check firebase-config.js."
+                        );
+
+                        return;
+
+                    }
+
+
+                    if (!authReady) {
+
+                        showSuccess(
+                            "Connecting to authentication service. Please try again in a moment."
+                        );
+
+                        return;
+
+                    }
+
+
+                    /* -----------------------------------------
+                       DISABLE BUTTON
+                    ----------------------------------------- */
+
                     submitBtn.disabled = true;
 
-                    setTimeout(function () {
-                        window.location.href = "index.html";
-                    }, 1200);
-                });
+                    submitBtn.textContent =
+                        mode === "signup"
+                            ? "Creating Account…"
+                            : "Signing In…";
 
-                setMode("signup");
 
-                const themeToggle = document.getElementById("themeToggle");
-                if (themeToggle) {
-                    themeToggle.addEventListener("click", () => {
-                        const current = document.documentElement.getAttribute("data-theme");
-                        const next = current === "dark" ? "light" : "dark";
-                        document.documentElement.setAttribute("data-theme", next);
-                        try { localStorage.setItem("sl_theme", next); } catch (e) {}
-                    });
+                    try {
+
+                        /* =====================================
+                           SIGN UP
+                        ===================================== */
+
+                        if (mode === "signup") {
+
+                            await window.SLAuth.register(
+                                name,
+                                email,
+                                password
+                            );
+
+
+                            showSuccess(
+                                "Account created successfully! Welcome to SneakersLink."
+                            );
+
+                        }
+
+                        /* =====================================
+                           SIGN IN
+                        ===================================== */
+
+                        else {
+
+                            await window.SLAuth.login(
+                                email,
+                                password
+                            );
+
+
+                            showSuccess(
+                                "Welcome back! Redirecting you to the shop…"
+                            );
+
+                        }
+
+
+                        /* -------------------------------------
+                           REDIRECT
+                        ------------------------------------- */
+
+                        setTimeout(function () {
+
+                            window.location.href =
+                                "index.html";
+
+                        }, 1000);
+
+
+                    } catch (error) {
+
+                        console.error(
+                            "Firebase authentication error:",
+                            error
+                        );
+
+
+                        const message =
+                            getFirebaseErrorMessage(error);
+
+
+                        /*
+                         * Put authentication errors near
+                         * the email/password fields.
+                         */
+
+                        if (
+                            error &&
+                            (
+                                error.code ===
+                                    "auth/email-already-in-use" ||
+                                error.code ===
+                                    "auth/invalid-email"
+                            )
+                        ) {
+
+                            setError(
+                                "emailInput",
+                                "emailError",
+                                message
+                            );
+
+                        } else if (
+                            error &&
+                            (
+                                error.code ===
+                                    "auth/weak-password" ||
+                                error.code ===
+                                    "auth/password-does-not-meet-requirements"
+                            )
+                        ) {
+
+                            setError(
+                                "passwordInput",
+                                "passwordError",
+                                message
+                            );
+
+                        } else {
+
+                            setError(
+                                "emailInput",
+                                "emailError",
+                                message
+                            );
+
+                        }
+
+
+                    } finally {
+
+                        submitBtn.disabled = false;
+
+                        submitBtn.textContent =
+                            mode === "signup"
+                                ? "Create Account"
+                                : "Sign In";
+
+                    }
+
                 }
-            })();
-        </script>
-    </body>
+            );
+
+
+            /* =================================================
+               FIREBASE READY
+            ================================================= */
+
+            function markFirebaseReady() {
+
+                authReady = true;
+
+                firebaseStatus.classList.remove("show");
+
+            }
+
+
+            function handleFirebaseReady() {
+
+                if (
+                    window.SLAuth &&
+                    window.SLAuth.isConfigured
+                ) {
+
+                    markFirebaseReady();
+
+                } else {
+
+                    firebaseStatus.textContent =
+                        "Firebase authentication is not configured.";
+
+                    firebaseStatus.classList.add("show");
+
+                }
+
+            }
+
+
+            /*
+             * firebase-auth.js is a module and therefore loads
+             * asynchronously. Listen for its ready event.
+             */
+
+            if (window.SLAuth) {
+
+                handleFirebaseReady();
+
+            } else {
+
+                window.addEventListener(
+                    "slauth:ready",
+                    handleFirebaseReady,
+                    { once: true }
+                );
+
+            }
+
+
+            /* =================================================
+               THEME TOGGLE
+            ================================================= */
+
+            const themeToggle =
+                document.getElementById("themeToggle");
+
+
+            if (themeToggle) {
+
+                themeToggle.addEventListener(
+                    "click",
+                    () => {
+
+                        const current =
+                            document.documentElement
+                                .getAttribute("data-theme");
+
+
+                        const next =
+                            current === "dark"
+                                ? "light"
+                                : "dark";
+
+
+                        document.documentElement
+                            .setAttribute(
+                                "data-theme",
+                                next
+                            );
+
+
+                        try {
+
+                            localStorage.setItem(
+                                "sl_theme",
+                                next
+                            );
+
+                        } catch (e) {}
+
+                    }
+                );
+
+            }
+
+
+            /* =================================================
+               INITIAL MODE
+            ================================================= */
+
+            setMode("signup");
+
+
+        })();
+
+    </script>
+
+</body>
+
 </html>
