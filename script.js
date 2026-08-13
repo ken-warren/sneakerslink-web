@@ -465,6 +465,50 @@
   }
 
   /* =========================================================
+     THEME — toggle button + live system-preference following
+     ---------------------------------------------------------
+     A tiny inline script in <head> already resolved the initial
+     data-theme attribute (localStorage override, else OS
+     preference) before first paint, to avoid a flash of the
+     wrong theme. This just wires the visible toggle button and
+     keeps the site following the OS live if the person hasn't
+     explicitly chosen a theme themselves.
+     ========================================================= */
+  function wireTheme() {
+    const toggleBtn = $("#themeToggle");
+    const media = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+    }
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener("click", () => {
+        const current = document.documentElement.getAttribute("data-theme");
+        const next = current === "dark" ? "light" : "dark";
+        applyTheme(next);
+        try {
+          localStorage.setItem("sl_theme", next);
+        } catch (e) {}
+      });
+    }
+
+    // If the person hasn't explicitly picked a theme on this site,
+    // keep following their OS setting live while the page is open.
+    if (media) {
+      const onSystemChange = (e) => {
+        let hasOverride = false;
+        try {
+          hasOverride = !!localStorage.getItem("sl_theme");
+        } catch (err) {}
+        if (!hasOverride) applyTheme(e.matches ? "dark" : "light");
+      };
+      if (media.addEventListener) media.addEventListener("change", onSystemChange);
+      else if (media.addListener) media.addListener(onSystemChange); // older Safari
+    }
+  }
+
+  /* =========================================================
      BACK TO TOP
      ========================================================= */
   function wireBackToTop() {
@@ -677,6 +721,7 @@
      ========================================================= */
   document.addEventListener("DOMContentLoaded", () => {
     wireNav();
+    wireTheme();
     wireBackToTop();
     wireAddToCartButtons();
     wireProductCardNavigation();

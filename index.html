@@ -8,6 +8,17 @@
     <title>SneakersLink E-commerce Website</title>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
 
+        <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("sl_theme");
+          var theme = saved === "light" || saved === "dark"
+            ? saved
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {}
+      })();
+    </script>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -24,6 +35,10 @@
         <!-- Shopping Cart Icon -->
         <a href="cart.html" class="cart">
             <i class="fa fa-shopping-bag"></i><span class="cart-count" data-cart-count>0</span></a>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+            <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
+        </button>
+
 
          <!-- Logo -->
         <label class="logo">Sneakers<span>Link</span></label>

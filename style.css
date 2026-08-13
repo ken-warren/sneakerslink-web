@@ -16,18 +16,18 @@ html {
 h1 {
   font-size: 50px;
   line-height: 64px;
-  color: #222;
+  color: var(--text);
 }
 
 h2 {
   font-size: 46px;
   line-height: 54px;
-  color: #222;
+  color: var(--text);
 }
 
 h4 {
   font-size: 20px;
-  color: #222;
+  color: var(--text);
 }
 
 h6 {
@@ -37,7 +37,7 @@ h6 {
 
 p {
   font-size: 16px;
-  color: #465b52;
+  color: var(--text-muted);
   margin: 15px 0 20px 0;
 }
 
@@ -79,6 +79,8 @@ html {
   width: 100%;
   padding: 0;
   margin: 0;
+  background-color: var(--bg);
+  transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
 }
 
 /* Home Page */
@@ -86,7 +88,7 @@ html {
 /* NAVIGATION BAR */
 
 nav {
-  background-color: #e3e6f3;
+  background-color: var(--nav-bg);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   z-index: 999;
   position: fixed;
@@ -99,7 +101,7 @@ nav {
 }
 
 label.logo {
-  color: #000;
+  color: var(--text);
   font-size: 32px;
   font-weight: bold;
   line-height: 80px;
@@ -126,7 +128,7 @@ nav ul li a {
   text-decoration: none;
   font-size: 17px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text);
   padding: 7px 13px;
   border-radius: 3px;
   transition: 0.3s ease;
@@ -150,7 +152,7 @@ nav ul a:hover::after {
 
 .navbutton {
   font-size: 30px;
-  color: #000;
+  color: var(--text);
   float: right;
   line-height: 80px;
   margin-right: 40px;
@@ -177,7 +179,7 @@ nav ul a:hover::after {
 }
 
 .cart i {
-  color: #000;
+  color: var(--text);
 }
 
 #lg-bag {
@@ -319,9 +321,10 @@ nav ul a:hover::after {
   border: 1px solid #cce7d0;
   border-radius: 25px;
   cursor: pointer;
+  background-color: var(--surface);
   box-shadow: 20px 20px 30px rgba(0, 0, 0, 0.02);
   margin: 15px 0;
-  transition: 0.2s ease;
+  transition: 0.2s ease, background-color 0.3s var(--ease), border-color 0.3s var(--ease);
   position: relative;
 }
 
@@ -334,13 +337,13 @@ nav ul a:hover::after {
 }
 
 #sneakers1 .pro .des span, #sneakers2 .pro .des span {
-  color: #606863;
+  color: var(--text-muted);
   font-size: 12px;
 }
 
 #sneakers1 .pro .des h5, #sneakers2 .pro .des h5 {
   padding-top: 7px;
-  color: #1a1a1a;
+  color: var(--text);
   font-size: 15px;
 }
 
@@ -353,7 +356,7 @@ nav ul a:hover::after {
   padding-top: 7px;
   font-size: 15px;
   font-weight: 700;
-  color: #088178;
+  color: var(--brand);
 }
 
 #sneakers1 .pro .cart, #sneakers2 .pro .cart {
@@ -547,7 +550,7 @@ footer {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  background-color: #e3e6f3;
+  background-color: var(--footer-bg);
 }
 
 footer .col {
@@ -574,7 +577,7 @@ footer p {
 footer a {
   font-size: 13px;
   text-decoration: none;
-  color: #222;
+  color: var(--text);
   margin-bottom: 10px;
 }
 
@@ -583,7 +586,7 @@ footer .socials {
 }
 
 footer .socials i {
-  color: #465b52;
+  color: var(--text-muted);
   padding-right: 4px;
   cursor: pointer;
 }
@@ -746,7 +749,7 @@ footer .copyright {
   text-decoration: none;
   font-size: 11px;
   font-weight: 700;
-  color: #000;
+  color: var(--text);
   position: relative;
 }
 
@@ -754,7 +757,7 @@ footer .copyright {
   content: "";
   width: 50px;
   height: 1px;
-  background-color: #000;
+  background-color: var(--text);
   position: absolute;
   top: 4px;
   right: -60px;
@@ -862,7 +865,9 @@ footer .copyright {
   padding: 12px 15px;
   outline: none;
   margin-bottom: 20px;
-  border: 1px solid #e1e1e1;
+  border: 1px solid var(--border);
+  background-color: var(--input-bg);
+  color: var(--text);
 }
 
 #form-details form button {
@@ -881,7 +886,7 @@ footer .copyright {
   justify-content: space-between;
   margin: 30px;
   padding: 80px;
-  border: 1px solid #e1e1e1;
+  border: 1px solid var(--border);
 }
 
 #form-details .staff div img {
@@ -960,9 +965,10 @@ footer .copyright {
 }
 
 #cart table thead {
-  border: 1px solid #e2e9e1;
+  border: 1px solid var(--border);
   border-left: none;
   border-right: none;
+  color: var(--text);
 }
 
 #cart table thead td {
@@ -1001,7 +1007,9 @@ footer .copyright {
   outline: none;
   width: 60%;
   margin-right: 10px;
-  border: 1px solid #e2e9e1;
+  border: 1px solid var(--border);
+  background-color: var(--input-bg);
+  color: var(--text);
 }
 
 #coupon button,
@@ -1014,7 +1022,7 @@ footer .copyright {
 #subtotal {
   width: 50%;
   margin-bottom: 30px;
-  border: 1px solid #e2e9e1;
+  border: 1px solid var(--border);
   padding: 30px;
 }
 
@@ -1025,7 +1033,8 @@ footer .copyright {
 
 #subtotal table td {
   width: 50%;
-  border: 1px solid #e2e9e1;
+  border: 1px solid var(--border);
+  color: var(--text);
   padding: 10px;
   font-size: 13px;
 }
@@ -1072,7 +1081,7 @@ footer .copyright {
   nav ul {
     position: fixed;
     width: 100%;
-    background: #e3e6f3;
+    background: var(--nav-bg);
     top: 80px;
     left: -100%;
     height: calc(100vh - 80px);
@@ -1486,6 +1495,52 @@ footer .copyright {
   --shadow-soft: 0 10px 30px rgba(8, 129, 120, 0.08);
   --shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.14);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ---- theme surface tokens (light = default) ---- */
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-alt: #f7f9fb;
+  --text: #1a1a1a;
+  --text-muted: #465b52;
+  --border: #e6e6e6;
+  --nav-bg: #e3e6f3;
+  --footer-bg: #e3e6f3;
+  --input-bg: #f0f2fa;
+  --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+/* =========================================================
+   DARK THEME
+   ---------------------------------------------------------
+   Applied by setting data-theme="dark" on <html>. The value
+   is resolved by the tiny inline script in each page's <head>
+   (see theme-init in the docs) — it follows the OS-level
+   prefers-color-scheme automatically unless the person has
+   explicitly toggled a preference, which is then remembered.
+   ========================================================= */
+[data-theme="dark"] {
+  --brand: #35d6c4;
+  --brand-dark: #22a897;
+  --brand-light: #113631;
+  --ink: #f2f5f7;
+  --bg-soft: #16232f;
+
+  --bg: #0b1622;
+  --surface: #12212f;
+  --surface-alt: #0e1c28;
+  --text: #f2f5f7;
+  --text-muted: #a9bac6;
+  --border: rgba(255, 255, 255, 0.1);
+  --nav-bg: rgba(11, 22, 34, 0.9);
+  --footer-bg: #081119;
+  --input-bg: #16232f;
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+
+  color-scheme: dark;
+}
+
+[data-theme="dark"] body {
+  background: linear-gradient(160deg, #0b1622 0%, #10202f 55%, #0b1622 100%);
 }
 
 *:focus-visible {
@@ -2056,9 +2111,11 @@ footer .col img.logo:hover {
 .track-form input {
   flex: 1;
   padding: 14px 16px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   font-size: 14px;
+  background-color: var(--input-bg);
+  color: var(--text);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -2075,7 +2132,7 @@ footer .col img.logo:hover {
 .recent-orders {
   margin-bottom: 24px;
   font-size: 13px;
-  color: #666;
+  color: var(--text-muted);
 }
 
 .recent-orders ul {
@@ -2118,10 +2175,11 @@ footer .col img.logo:hover {
 }
 
 .track-card {
-  border: 1px solid #eee;
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 28px 24px;
-  box-shadow: var(--shadow-soft);
+  background-color: var(--surface);
+  box-shadow: var(--card-shadow);
   animation: riseIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -2147,7 +2205,7 @@ footer .col img.logo:hover {
 
 .track-order-date {
   font-size: 12.5px;
-  color: #888;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
@@ -2174,7 +2232,7 @@ footer .col img.logo:hover {
   left: 5%;
   right: 5%;
   height: 3px;
-  background: #eee;
+  background: var(--border);
   z-index: 0;
 }
 
@@ -2196,8 +2254,8 @@ footer .col img.logo:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #eee;
-  color: #999;
+  background: var(--border);
+  color: var(--text-muted);
   font-size: 14px;
   transition: background-color 0.3s, color 0.3s, transform 0.3s;
 }
@@ -2237,7 +2295,7 @@ footer .col img.logo:hover {
 }
 
 .track-items {
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--border);
   padding-top: 18px;
   display: flex;
   flex-direction: column;
@@ -2270,7 +2328,7 @@ footer .col img.logo:hover {
   height: 48px;
   object-fit: cover;
   border-radius: 8px;
-  background: #f7f7f7;
+  background: var(--surface-alt);
 }
 
 .track-item-name {
@@ -2281,7 +2339,7 @@ footer .col img.logo:hover {
 
 .track-item-qty {
   font-size: 12px;
-  color: #888;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
@@ -2289,4 +2347,86 @@ footer .col img.logo:hover {
   .track-form { flex-direction: column; }
   .track-step-label { font-size: 10px; max-width: 52px; }
   .track-card { padding: 22px 16px; }
+}
+
+/* =========================================================
+   DARK MODE — fine-tuning overrides
+   Scoped so none of this touches the light theme.
+   ========================================================= */
+[data-theme="dark"] #sneakers1 .pro,
+[data-theme="dark"] #sneakers2 .pro {
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .add-cart-btn {
+  background-color: var(--surface);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .track-not-found {
+  background: rgba(230, 16, 16, 0.08);
+  border-color: rgba(230, 16, 16, 0.3);
+  color: #ff8585;
+}
+
+[data-theme="dark"] .track-not-found a {
+  color: var(--brand);
+}
+
+[data-theme="dark"] #headline {
+  background-color: rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+[data-theme="dark"] .ticker {
+  background: var(--surface-alt);
+}
+
+[data-theme="dark"] .ticker-track span {
+  color: var(--text);
+}
+
+[data-theme="dark"] .staff-avatar-fallback {
+  border-color: var(--brand-dark);
+}
+
+/* ---- theme toggle button (in nav) ---- */
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  margin-right: 12px;
+  float: right;
+  margin-top: 22px;
+  transition: transform 0.25s var(--ease), background-color 0.25s var(--ease), border-color 0.25s var(--ease);
+}
+
+.theme-toggle:hover {
+  transform: rotate(15deg) scale(1.08);
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.theme-toggle .fa-sun { display: none; }
+.theme-toggle .fa-moon { display: inline; }
+
+[data-theme="dark"] .theme-toggle .fa-sun { display: inline; }
+[data-theme="dark"] .theme-toggle .fa-moon { display: none; }
+
+@media (max-width: 870px) {
+  .theme-toggle {
+    margin-top: 22px;
+    margin-right: 20px;
+  }
 }

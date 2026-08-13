@@ -28,6 +28,11 @@ in the original.
   loading on product/blog imagery, keyboard-operable product cards.
 
 ### Added
+- **Dark mode.** Automatically follows the visitor's OS-level light/dark
+  setting (and keeps following it live if they change it while the site is
+  open), with a toggle in the nav to override it manually — that choice is
+  remembered on their next visit. Covers every page, including the admin
+  dashboard and login screen.
 - **Working cart** — add to cart from any product grid or the product page,
   persisted in `localStorage` so it survives a refresh or page change. Live
   badge count in the nav, quantity/remove controls on the cart page, and a

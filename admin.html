@@ -8,13 +8,46 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Admin — SneakersLink</title>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("sl_theme");
+          var theme = saved === "light" || saved === "dark"
+            ? saved
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {}
+      })();
+    </script>
 </head>
 
 <style>
     @import url("https://fonts.googleapis.com/css2?family=Spartan:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
+    :root {
+        --brand: #088178;
+        --brand-dark: #066b63;
+        --bg: #f6f7fb;
+        --surface: #ffffff;
+        --input-bg: #f0f2fa;
+        --text: #1a1a1a;
+        --text-muted: #888;
+        --border: #eee;
+    }
+
+    [data-theme="dark"] {
+        --brand: #35d6c4;
+        --brand-dark: #22a897;
+        --bg: #0b1622;
+        --surface: #12212f;
+        --input-bg: #16232f;
+        --text: #f2f5f7;
+        --text-muted: #a9bac6;
+        --border: rgba(255, 255, 255, 0.1);
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Spartan", sans-serif; }
-    html, body { min-height: 100%; background: #f6f7fb; }
+    html, body { min-height: 100%; background: var(--bg); transition: background-color 0.3s; }
 
     header.admin-bar {
         background: #1a1a1a;
@@ -31,6 +64,27 @@
     header.admin-bar .brand span { color: #35c9bd; }
 
     header.admin-bar .who { font-size: 13px; color: #ccc; display: flex; align-items: center; gap: 14px; }
+
+    .theme-toggle {
+        background: transparent;
+        border: 1px solid #444;
+        color: #fff;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        transition: transform 0.25s;
+    }
+
+    .theme-toggle:hover { transform: rotate(15deg) scale(1.08); }
+    .theme-toggle .fa-sun { display: none; }
+    .theme-toggle .fa-moon { display: inline; }
+    [data-theme="dark"] .theme-toggle .fa-sun { display: inline; }
+    [data-theme="dark"] .theme-toggle .fa-moon { display: none; }
 
     header.admin-bar button {
         background: transparent;
@@ -51,19 +105,21 @@
     .state-card {
         max-width: 420px;
         margin: 60px auto;
-        background: #fff;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 14px;
         box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+        transition: background-color 0.3s, border-color 0.3s;
         padding: 36px 32px;
         text-align: center;
     }
 
-    .state-card i.big { font-size: 34px; color: #088178; margin-bottom: 14px; }
-    .state-card h2 { font-size: 19px; margin-bottom: 8px; color: #1a1a1a; }
-    .state-card p { font-size: 13.5px; color: #777; line-height: 1.6; margin-bottom: 20px; }
+    .state-card i.big { font-size: 34px; color: var(--brand); margin-bottom: 14px; }
+    .state-card h2 { font-size: 19px; margin-bottom: 8px; color: var(--text); }
+    .state-card p { font-size: 13.5px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
 
     .input-field {
-        background: #f0f2fa;
+        background: var(--input-bg);
         border-radius: 8px;
         display: flex;
         align-items: center;
@@ -72,15 +128,15 @@
         transition: border-color 0.2s;
     }
 
-    .input-field:focus-within { border-color: #088178; }
+    .input-field:focus-within { border-color: var(--brand); }
     .input-field i { margin-left: 14px; color: #999; width: 14px; text-align: center; }
-    .input-field input { flex: 1; border: 0; background: transparent; outline: 0; padding: 13px 12px; font-size: 14px; }
+    .input-field input { flex: 1; border: 0; background: transparent; outline: 0; padding: 13px 12px; font-size: 14px; color: var(--text); }
 
     .error-msg { display: block; text-align: left; font-size: 12px; color: #e61010; margin: -6px 0 10px 4px; min-height: 14px; }
 
     .submit-btn {
         width: 100%;
-        background: #088178;
+        background: var(--brand);
         color: #fff;
         height: 44px;
         border-radius: 8px;
@@ -91,7 +147,7 @@
         transition: background-color 0.2s;
     }
 
-    .submit-btn:hover { background: #066b63; }
+    .submit-btn:hover { background: var(--brand-dark); }
     .submit-btn:disabled { opacity: 0.6; cursor: default; }
 
     /* ---- stats ---- */
@@ -100,30 +156,32 @@
     .stat-box {
         flex: 1;
         min-width: 130px;
-        background: #fff;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 12px;
         padding: 18px 20px;
         box-shadow: 0 4px 16px rgba(0,0,0,0.04);
     }
 
-    .stat-box .num { font-size: 24px; font-weight: 800; color: #1a1a1a; }
-    .stat-box .label { font-size: 12px; color: #888; margin-top: 4px; }
+    .stat-box .num { font-size: 24px; font-weight: 800; color: var(--text); }
+    .stat-box .label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
     /* ---- orders ---- */
     .orders-empty {
         text-align: center;
-        color: #999;
+        color: var(--text-muted);
         padding: 60px 20px;
         font-size: 14px;
     }
 
     .order-card {
-        background: #fff;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 12px;
         padding: 18px 20px;
         margin-bottom: 14px;
         box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-        transition: box-shadow 0.2s;
+        transition: box-shadow 0.2s, background-color 0.3s, border-color 0.3s;
     }
 
     .order-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
@@ -137,18 +195,20 @@
         margin-bottom: 12px;
     }
 
-    .order-id { font-weight: 800; font-size: 15px; color: #1a1a1a; }
-    .order-date { font-size: 12px; color: #999; margin-top: 2px; }
-    .order-total { font-weight: 800; color: #088178; font-size: 15px; }
+    .order-id { font-weight: 800; font-size: 15px; color: var(--text); }
+    .order-date { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .order-total { font-weight: 800; color: var(--brand); font-size: 15px; }
 
-    .order-items { font-size: 12.5px; color: #555; margin-bottom: 14px; line-height: 1.7; }
+    .order-items { font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.7; }
 
     .order-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
 
     .status-select {
         padding: 8px 12px;
         border-radius: 999px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
         font-size: 12.5px;
         font-weight: 700;
         cursor: pointer;
@@ -161,7 +221,7 @@
     .status-badge--out { color: #d2691e; }
     .status-badge--delivered { color: #088178; }
 
-    .order-updated { font-size: 11px; color: #bbb; }
+    .order-updated { font-size: 11px; color: var(--text-muted); }
 
     @media (max-width: 560px) {
         main { padding: 20px 14px 50px; }
@@ -173,9 +233,14 @@
 
     <header class="admin-bar">
         <div class="brand">SNEAKERS<span>LINK</span> · Admin</div>
-        <div class="who" id="whoBar" hidden>
-            <span id="whoEmail"></span>
-            <button type="button" id="signOutBtn">Sign Out</button>
+        <div class="who" style="display:flex;align-items:center;gap:14px;">
+            <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
+            </button>
+            <span class="who-signed-in" id="whoBar" hidden>
+                <span id="whoEmail"></span>
+                <button type="button" id="signOutBtn" style="margin-left:14px;">Sign Out</button>
+            </span>
         </div>
     </header>
 
@@ -375,6 +440,16 @@
             $("#signOutBtn").addEventListener("click", async () => {
                 await window.SLOrders.adminSignOut();
             });
+
+            const themeToggle = $("#themeToggle");
+            if (themeToggle) {
+                themeToggle.addEventListener("click", () => {
+                    const current = document.documentElement.getAttribute("data-theme");
+                    const next = current === "dark" ? "light" : "dark";
+                    document.documentElement.setAttribute("data-theme", next);
+                    try { localStorage.setItem("sl_theme", next); } catch (e) {}
+                });
+            }
 
             // firebase-orders.js is a deferred module; by DOMContentLoaded it has
             // already run, but guard with the ready event too just in case.
