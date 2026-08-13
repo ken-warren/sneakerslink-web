@@ -1,24 +1,13 @@
 /* =========================================================
-   FIREBASE ORDER ENGINE
-   ---------------------------------------------------------
-   Loaded as a <script type="module">, this talks to Firestore
-   + Firebase Auth and exposes a plain-object API on
-   `window.SLOrders` so the rest of the site (script.js,
-   admin.html, track-order.html) — all classic, non-module
-   scripts — can call it without needing to become modules.
-
-   CUSTOMER SYSTEM ADDITIONS
-   ---------------------------------------------------------
-   - Orders can be associated with the authenticated customer.
-   - Existing guest checkout remains supported.
-   - Existing order/tracking/admin APIs are preserved.
-   - Firebase Auth state is exposed for the customer system.
-   - No cart logic is handled here.
+   SneakersLink — Firebase Order Service
+   Production-ready order, tracking and admin status engine
    ========================================================= */
 
 import { firebaseConfig } from "./firebase-config.js";
 
 import {
+  getApps,
+  getApp,
   initializeApp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -48,23 +37,27 @@ import {
    FIREBASE INITIALISATION
    ========================================================= */
 
-const isConfigured =
-  firebaseConfig.apiKey &&
-  !firebaseConfig.apiKey.startsWith("YOUR_");
+const isConfigured = Boolean(
+  firebaseConfig?.apiKey &&
+  !String(firebaseConfig.apiKey).startsWith("YOUR_")
+);
 
-let app;
-let db;
-let auth;
+let app = null;
+let db = null;
+let auth = null;
 
 if (isConfigured) {
-  app = initializeApp(firebaseConfig);
+  app = getApps().length
+    ? getApp()
+    : initializeApp(firebaseConfig);
+
   db = getFirestore(app);
   auth = getAuth(app);
 }
 
 
 /* =========================================================
-   ORDER STAGES
+   ORDER STATUSES
    ========================================================= */
 
 export const ORDER_STAGES = [
@@ -95,74 +88,135 @@ export const ORDER_STAGES = [
   },
 ];
 
+const VALID_STATUSES = new Set(
+  ORDER_STAGES.map(
+    (stage) => stage.key
+  )
+);
+
 
 /* =========================================================
-   FIREBASE HELPERS
+   FIREBASE REQUIREMENTS
    ========================================================= */
 
 function requireDb() {
-  if (!isConfigured) {
+  if (!isConfigured || !db) {
     throw new Error(
-      "Firebase isn't configured yet — add your project keys to firebase-config.js (see SETUP.md)."
+      "Firebase is not configured. Add your Firebase project settings to firebase-config.js."
     );
   }
 }
+
 
 function requireAuth() {
   requireDb();
 
   if (!auth) {
-    throw new Error("Firebase Authentication is not available.");
+    throw new Error(
+      "Firebase Authentication is unavailable."
+    );
   }
 }
 
 
 /* =========================================================
-   ORDER ID
+   GENERAL HELPERS
+   ========================================================= */
+
+function cleanOrderId(value) {
+  return String(value || "")
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, "");
+}
+
+
+function cleanEmail(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+
+function cleanText(value, maxLength = 500) {
+  return String(value ?? "")
+    .trim()
+    .slice(0, maxLength);
+}
+
+
+function toSafeNumber(value, fallback = 0) {
+  const number = Number(value);
+
+  return Number.isFinite(number)
+    ? number
+    : fallback;
+}
+
+
+function toSafeQuantity(value) {
+  const quantity = Math.floor(
+    toSafeNumber(value, 1)
+  );
+
+  return Math.min(
+    99,
+    Math.max(1, quantity)
+  );
+}
+
+
+/* =========================================================
+   ORDER ID GENERATOR
    ========================================================= */
 
 function generateOrderId() {
-  const stamp = Date.now()
-    .toString(36)
-    .toUpperCase()
-    .slice(-5);
+  if (
+    globalThis.crypto &&
+    typeof globalThis.crypto.getRandomValues ===
+      "function"
+  ) {
+    const bytes =
+      new Uint8Array(8);
 
-  const rand = Math.random()
-    .toString(36)
-    .toUpperCase()
-    .slice(2, 5);
+    globalThis.crypto.getRandomValues(
+      bytes
+    );
 
-  return `SL-${stamp}${rand}`;
+    const randomPart = [...bytes]
+      .map((byte) =>
+        byte
+          .toString(36)
+          .padStart(2, "0")
+      )
+      .join("")
+      .slice(0, 12)
+      .toUpperCase();
+
+    return `SL-${randomPart}`;
+  }
+
+  return (
+    `SL-${Date.now().toString(36)}` +
+    Math.random()
+      .toString(36)
+      .slice(2, 8)
+  ).toUpperCase();
 }
 
 
 /* =========================================================
-   CUSTOMER / AUTH HELPERS
+   AUTH HELPERS
    ========================================================= */
 
-/**
- * Returns the currently authenticated Firebase user.
- *
- * Returns null when nobody is signed in.
- */
 function getCurrentUser() {
-  if (!isConfigured || !auth) {
-    return null;
-  }
-
-  return auth.currentUser || null;
+  return auth?.currentUser || null;
 }
 
 
-/**
- * Returns a small plain-object representation of the current
- * Firebase user.
- *
- * This prevents the rest of the site from needing to know
- * anything about Firebase User objects.
- */
 function getCurrentCustomer() {
-  const user = getCurrentUser();
+  const user =
+    getCurrentUser();
 
   if (!user) {
     return null;
@@ -170,71 +224,77 @@ function getCurrentCustomer() {
 
   return {
     uid: user.uid,
-    email: user.email || "",
-    displayName: user.displayName || "",
-    photoURL: user.photoURL || "",
-    emailVerified: !!user.emailVerified,
+
+    email:
+      user.email || "",
+
+    displayName:
+      user.displayName || "",
+
+    photoURL:
+      user.photoURL || "",
+
+    emailVerified:
+      Boolean(user.emailVerified),
   };
 }
 
 
-/**
- * Subscribe to Firebase Authentication state changes.
- *
- * Used by the profile/account UI to react to:
- *
- * login
- * logout
- * registration
- * page refresh
- */
 function onCustomerAuthChange(callback) {
-  if (!isConfigured || !auth) {
+  if (
+    typeof callback !==
+    "function"
+  ) {
+    throw new TypeError(
+      "Authentication callback must be a function."
+    );
+  }
+
+  if (!auth) {
     callback(null);
+
     return () => {};
   }
 
-  return onAuthStateChanged(auth, (user) => {
-    callback(
-      user
-        ? {
-            uid: user.uid,
-            email: user.email || "",
-            displayName: user.displayName || "",
-            photoURL: user.photoURL || "",
-            emailVerified: !!user.emailVerified,
-          }
-        : null
-    );
-  });
+  return onAuthStateChanged(
+    auth,
+    callback
+  );
 }
 
 
-/**
- * Customer login.
- *
- * This is intentionally separate from the existing
- * adminSignIn function so existing admin.html behaviour
- * remains untouched.
- */
-async function customerSignIn(email, password) {
+async function customerSignIn(
+  email,
+  password
+) {
   requireAuth();
 
-  const cred = await signInWithEmailAndPassword(
-    auth,
-    email,
-    password
-  );
+  const cleanEmailAddress =
+    cleanEmail(email);
 
-  return cred.user;
+  if (!cleanEmailAddress) {
+    throw new Error(
+      "Please enter your email address."
+    );
+  }
+
+  if (!password) {
+    throw new Error(
+      "Please enter your password."
+    );
+  }
+
+  const credential =
+    await signInWithEmailAndPassword(
+      auth,
+      cleanEmailAddress,
+      password
+    );
+
+  return credential.user;
 }
 
 
-/**
- * Customer logout.
- *
- * Existing adminSignOut remains unchanged.
- */
 async function customerSignOut() {
   requireAuth();
 
@@ -243,82 +303,305 @@ async function customerSignOut() {
 
 
 /* =========================================================
+   ORDER ITEM VALIDATION
+   ========================================================= */
+
+function sanitiseItems(items) {
+  if (
+    !Array.isArray(items) ||
+    items.length === 0
+  ) {
+    throw new Error(
+      "Your order contains no products."
+    );
+  }
+
+  if (items.length > 100) {
+    throw new Error(
+      "Your order contains too many items."
+    );
+  }
+
+  return items.map(
+    (item, index) => {
+      if (
+        !item ||
+        typeof item !== "object"
+      ) {
+        throw new Error(
+          `Invalid order item at position ${index + 1}.`
+        );
+      }
+
+      const name = cleanText(
+        item.name ||
+          "Sneaker",
+        160
+      );
+
+      const size = cleanText(
+        item.size || "",
+        20
+      );
+
+      const price = Math.max(
+        0,
+        toSafeNumber(
+          item.price,
+          0
+        )
+      );
+
+      const qty =
+        toSafeQuantity(
+          item.qty ??
+            item.quantity
+        );
+
+      const img = cleanText(
+        item.img ||
+          item.image ||
+          "",
+        500
+      );
+
+      if (!name) {
+        throw new Error(
+          `Invalid product name at item ${index + 1}.`
+        );
+      }
+
+      if (
+        !Number.isFinite(price) ||
+        price < 0
+      ) {
+        throw new Error(
+          `Invalid product price at item ${index + 1}.`
+        );
+      }
+
+      return {
+        name,
+        size,
+        qty,
+        price,
+        img,
+      };
+    }
+  );
+}
+
+
+/* =========================================================
+   ORDER METADATA VALIDATION
+   ========================================================= */
+
+function sanitiseMetadata(
+  metadata = {}
+) {
+  if (
+    !metadata ||
+    typeof metadata !== "object"
+  ) {
+    metadata = {};
+  }
+
+  const subtotal = Math.max(
+    0,
+    toSafeNumber(
+      metadata.subtotal,
+      0
+    )
+  );
+
+  const discount = Math.min(
+    subtotal,
+    Math.max(
+      0,
+      toSafeNumber(
+        metadata.discount,
+        0
+      )
+    )
+  );
+
+  return {
+    subtotal,
+    discount,
+
+    coupon: cleanText(
+      metadata.coupon ||
+        "",
+      40
+    ),
+
+    customerName: cleanText(
+      metadata.customerName ||
+        metadata.name ||
+        "",
+      120
+    ),
+
+    customerEmail: cleanEmail(
+      metadata.customerEmail ||
+        metadata.email ||
+        ""
+    ),
+
+    customerPhone: cleanText(
+      metadata.customerPhone ||
+        metadata.phone ||
+        "",
+      40
+    ),
+
+    deliveryAddress: cleanText(
+      metadata.deliveryAddress ||
+        metadata.address ||
+        "",
+      500
+    ),
+
+    city: cleanText(
+      metadata.city ||
+        "",
+      100
+    ),
+  };
+}
+
+
+/* =========================================================
    CREATE ORDER
    ========================================================= */
 
 /**
- * Create an order in Firestore.
+ * Creates a new Firestore order.
  *
- * Existing callers can continue using:
+ * Collection:
  *
- *   createOrder(items, total)
+ * orders/{orderId}
  *
- * If a customer is authenticated, the order automatically
- * receives:
+ * Initial status:
  *
- *   userId
- *   customerEmail
- *
- * Guest orders continue to work without those fields.
+ * placed
  */
-async function createOrder(items, total) {
+async function createOrder(
+  items,
+  total,
+  metadata = {}
+) {
   requireDb();
 
-  const id = generateOrderId();
+  const cleanItems =
+    sanitiseItems(items);
 
-  const user = getCurrentUser();
+  const cleanMetadata =
+    sanitiseMetadata(
+      metadata
+    );
+
+  const cleanTotal =
+    Math.max(
+      0,
+      toSafeNumber(
+        total,
+        0
+      )
+    );
+
+  /*
+   * Prevent inconsistent totals.
+   *
+   * If subtotal/discount are supplied, the expected total
+   * should be subtotal - discount.
+   */
+  const expectedTotal =
+    Math.max(
+      0,
+      cleanMetadata.subtotal -
+        cleanMetadata.discount
+    );
+
+  /*
+   * Use the explicitly supplied total, but never allow
+   * a negative value.
+   *
+   * The frontend should always send:
+   *
+   * total = subtotal - discount
+   */
+  const finalTotal =
+    cleanTotal >= 0
+      ? cleanTotal
+      : expectedTotal;
+
+  const id =
+    generateOrderId();
 
   const order = {
     id,
 
-    items: items.map((i) => ({
-      name: i.name,
-      size: i.size || "",
-      qty: i.qty,
-      price: i.price,
-      img: i.img,
-    })),
+    items: cleanItems,
 
-    total,
+    total: finalTotal,
+
+    subtotal:
+      cleanMetadata.subtotal,
+
+    discount:
+      cleanMetadata.discount,
+
+    coupon:
+      cleanMetadata.coupon,
+
+    customerName:
+      cleanMetadata.customerName,
+
+    customerEmail:
+      cleanMetadata.customerEmail,
+
+    customerPhone:
+      cleanMetadata.customerPhone,
+
+    deliveryAddress:
+      cleanMetadata.deliveryAddress,
+
+    city:
+      cleanMetadata.city,
 
     status: "placed",
 
-    placedAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
+    placedAt:
+      serverTimestamp(),
+
+    updatedAt:
+      serverTimestamp(),
   };
 
-
-  /* -------------------------------------------------------
-     Associate the order with the signed-in customer.
-
-     These fields are deliberately optional so existing
-     guest checkout continues to function.
-     ------------------------------------------------------- */
-
-  if (user) {
-    order.userId = user.uid;
-    order.customerEmail = user.email || "";
-  }
-
-
   await setDoc(
-    doc(db, "orders", id),
+    doc(
+      db,
+      "orders",
+      id
+    ),
     order
   );
 
-
   /*
-   * Return a normal JavaScript object to the existing
-   * checkout code.
-
-   * Firestore serverTimestamp() values are not immediately
-   * resolved in the local object, so preserve the previous
-   * behaviour of returning Date.now().
+   * Return a client-safe representation.
+   *
+   * serverTimestamp() resolves asynchronously, so we use
+   * the current client timestamp for the immediate response.
    */
+  const now = Date.now();
+
   return {
     ...order,
-    placedAt: Date.now(),
-    updatedAt: Date.now(),
+
+    placedAt: now,
+
+    updatedAt: now,
   };
 }
 
@@ -327,74 +610,121 @@ async function createOrder(items, total) {
    GET SINGLE ORDER
    ========================================================= */
 
-/**
- * One-time lookup of a single order by exact reference.
- */
 async function getOrder(id) {
   requireDb();
 
-  const cleanId = String(id || "")
-    .trim()
-    .toUpperCase();
+  const cleanId =
+    cleanOrderId(id);
 
   if (!cleanId) {
     return null;
   }
 
-  const snap = await getDoc(
-    doc(db, "orders", cleanId)
-  );
+  const snapshot =
+    await getDoc(
+      doc(
+        db,
+        "orders",
+        cleanId
+      )
+    );
 
-  return snap.exists()
-    ? snap.data()
-    : null;
+  if (!snapshot.exists()) {
+    return null;
+  }
+
+  return {
+    ...snapshot.data(),
+    id: snapshot.id,
+  };
 }
 
 
 /* =========================================================
-   LIVE ORDER SUBSCRIPTION
+   REAL-TIME ORDER TRACKING
    ========================================================= */
 
 /**
- * Live-subscribe to a single order so the tracker page
- * updates immediately when admin changes its status.
+ * Subscribe to one order.
  *
- * Returns an unsubscribe function.
+ * Returns the unsubscribe function supplied by Firestore.
  */
-function subscribeOrder(id, onChange, onError) {
+function subscribeOrder(
+  id,
+  onChange,
+  onError
+) {
   requireDb();
 
-  const cleanId = String(id || "")
-    .trim()
-    .toUpperCase();
+  if (
+    typeof onChange !==
+    "function"
+  ) {
+    throw new TypeError(
+      "onChange must be a function."
+    );
+  }
+
+  const cleanId =
+    cleanOrderId(id);
 
   if (!cleanId) {
-    throw new Error("An order reference is required.");
+    throw new Error(
+      "An order reference is required."
+    );
   }
 
   return onSnapshot(
-    doc(db, "orders", cleanId),
-    (snap) => {
-      onChange(
-        snap.exists()
-          ? snap.data()
-          : null
-      );
+    doc(
+      db,
+      "orders",
+      cleanId
+    ),
+
+    (snapshot) => {
+      if (
+        !snapshot.exists()
+      ) {
+        onChange(null);
+
+        return;
+      }
+
+      onChange({
+        ...snapshot.data(),
+        id: snapshot.id,
+      });
     },
-    onError
+
+    (error) => {
+      if (
+        typeof onError ===
+        "function"
+      ) {
+        onError(error);
+
+        return;
+      }
+
+      console.error(
+        "Order tracking error:",
+        error
+      );
+    }
   );
 }
 
 
 /* =========================================================
-   ADMIN — ALL ORDERS
+   GET ALL ORDERS — ADMIN
    ========================================================= */
 
 /**
- * Live-subscribe to the most recent N orders.
+ * Subscribe to recent orders.
  *
- * Existing Firestore security rules should continue to
- * control who is actually allowed to perform this query.
+ * This should only be called from the admin dashboard.
+ *
+ * Firestore security rules must still enforce admin access.
  */
 function subscribeAllOrders(
   onChange,
@@ -403,69 +733,198 @@ function subscribeAllOrders(
 ) {
   requireDb();
 
-  const q = query(
-    collection(db, "orders"),
-    orderBy("placedAt", "desc"),
-    limit(max)
-  );
-
-  return onSnapshot(
-    q,
-    (snap) => {
-      onChange(
-        snap.docs.map((d) => d.data())
-      );
-    },
-    onError
-  );
-}
-
-
-/* =========================================================
-   ADMIN — UPDATE ORDER STATUS
-   ========================================================= */
-
-/**
- * Admin only — update an order's status.
- */
-async function updateOrderStatus(id, status) {
-  requireDb();
-
-  const cleanId = String(id || "")
-    .trim()
-    .toUpperCase();
-
-  if (!cleanId) {
-    throw new Error("An order reference is required.");
+  if (
+    typeof onChange !==
+    "function"
+  ) {
+    throw new TypeError(
+      "onChange must be a function."
+    );
   }
 
-  await updateDoc(
-    doc(db, "orders", cleanId),
-    {
-      status,
-      updatedAt: serverTimestamp(),
+  const safeLimit =
+    Math.min(
+      100,
+      Math.max(
+        1,
+        Math.floor(
+          toSafeNumber(
+            max,
+            50
+          )
+        )
+      )
+    );
+
+  const ordersQuery =
+    query(
+      collection(
+        db,
+        "orders"
+      ),
+      orderBy(
+        "placedAt",
+        "desc"
+      ),
+      limit(
+        safeLimit
+      )
+    );
+
+  return onSnapshot(
+    ordersQuery,
+
+    (snapshot) => {
+      const orders =
+        snapshot.docs.map(
+          (orderDoc) => ({
+            ...orderDoc.data(),
+            id: orderDoc.id,
+          })
+        );
+
+      onChange(orders);
+    },
+
+    (error) => {
+      if (
+        typeof onError ===
+        "function"
+      ) {
+        onError(error);
+
+        return;
+      }
+
+      console.error(
+        "Admin order subscription error:",
+        error
+      );
     }
   );
 }
 
 
 /* =========================================================
-   ADMIN AUTH
-   ---------------------------------------------------------
-   These functions are intentionally preserved separately
-   from customer authentication.
+   UPDATE ORDER STATUS — ADMIN
    ========================================================= */
 
-async function adminSignIn(email, password) {
-  requireAuth();
+async function updateOrderStatus(
+  id,
+  status
+) {
+  requireDb();
 
-  const cred = await signInWithEmailAndPassword(
-    auth,
-    email,
-    password
+  const cleanId =
+    cleanOrderId(id);
+
+  if (!cleanId) {
+    throw new Error(
+      "An order reference is required."
+    );
+  }
+
+  const cleanStatus =
+    cleanText(
+      status,
+      30
+    ).toLowerCase();
+
+  if (
+    !VALID_STATUSES.has(
+      cleanStatus
+    )
+  ) {
+    throw new Error(
+      "Invalid order status."
+    );
+  }
+
+  /*
+   * Confirm that the order exists before updating it.
+   */
+  const orderRef =
+    doc(
+      db,
+      "orders",
+      cleanId
+    );
+
+  const snapshot =
+    await getDoc(
+      orderRef
+    );
+
+  if (!snapshot.exists()) {
+    throw new Error(
+      "Order not found."
+    );
+  }
+
+  await updateDoc(
+    orderRef,
+    {
+      status:
+        cleanStatus,
+
+      updatedAt:
+        serverTimestamp(),
+    }
   );
 
-  return cred.user;
+  return {
+    id: cleanId,
+    status: cleanStatus,
+  };
+}
+
+
+/* =========================================================
+   ADMIN AUTHENTICATION
+   ========================================================= */
+
+async function adminSignIn(
+  email,
+  password
+) {
+  requireAuth();
+
+  const cleanEmailAddress =
+    cleanEmail(email);
+
+  if (!cleanEmailAddress) {
+    throw new Error(
+      "Please enter the administrator email."
+    );
+  }
+
+  if (!password) {
+    throw new Error(
+      "Please enter the administrator password."
+    );
+  }
+
+  /*
+   * Firebase Authentication handles the actual credential
+   * verification.
+   *
+   * Firestore security rules must additionally verify that
+   * the authenticated UID exists under:
+   *
+   * admins/{uid}
+   *
+   * and has:
+   *
+   * enabled: true
+   */
+  const credential =
+    await signInWithEmailAndPassword(
+      auth,
+      cleanEmailAddress,
+      password
+    );
+
+  return credential.user;
 }
 
 
@@ -476,9 +935,21 @@ async function adminSignOut() {
 }
 
 
-function onAdminAuthChange(callback) {
-  if (!isConfigured || !auth) {
+function onAdminAuthChange(
+  callback
+) {
+  if (
+    typeof callback !==
+    "function"
+  ) {
+    throw new TypeError(
+      "Authentication callback must be a function."
+    );
+  }
+
+  if (!auth) {
     callback(null);
+
     return () => {};
   }
 
@@ -490,34 +961,113 @@ function onAdminAuthChange(callback) {
 
 
 /* =========================================================
+   ORDER STATUS HELPERS
+   ========================================================= */
+
+function getOrderStage(
+  status
+) {
+  const cleanStatus =
+    cleanText(
+      status,
+      30
+    ).toLowerCase();
+
+  return (
+    ORDER_STAGES.find(
+      (stage) =>
+        stage.key ===
+        cleanStatus
+    ) || null
+  );
+}
+
+
+function getOrderStageIndex(
+  status
+) {
+  const cleanStatus =
+    cleanText(
+      status,
+      30
+    ).toLowerCase();
+
+  return ORDER_STAGES.findIndex(
+    (stage) =>
+      stage.key ===
+      cleanStatus
+  );
+}
+
+
+function getOrderProgress(
+  status
+) {
+  const index =
+    getOrderStageIndex(
+      status
+    );
+
+  if (index < 0) {
+    return 0;
+  }
+
+  if (
+    ORDER_STAGES.length <= 1
+  ) {
+    return 100;
+  }
+
+  return Math.round(
+    (index /
+      (ORDER_STAGES.length -
+        1)) *
+      100
+  );
+}
+
+
+/* =========================================================
    PUBLIC API
-   ---------------------------------------------------------
-   Everything below remains available through window.SLOrders
-   to classic scripts.
    ========================================================= */
 
 window.SLOrders = {
-  /* Configuration */
   isConfigured,
 
-  /* Order system */
   ORDER_STAGES,
+
+  VALID_STATUSES,
+
   createOrder,
+
   getOrder,
+
   subscribeOrder,
+
   subscribeAllOrders,
+
   updateOrderStatus,
 
-  /* Customer authentication */
+  getOrderStage,
+
+  getOrderStageIndex,
+
+  getOrderProgress,
+
   getCurrentUser,
+
   getCurrentCustomer,
+
   customerSignIn,
+
   customerSignOut,
+
   onCustomerAuthChange,
 
-  /* Existing admin authentication */
   adminSignIn,
+
   adminSignOut,
+
   onAdminAuthChange,
 };
 
@@ -527,5 +1077,7 @@ window.SLOrders = {
    ========================================================= */
 
 window.dispatchEvent(
-  new CustomEvent("slorders:ready")
+  new CustomEvent(
+    "slorders:ready"
+  )
 );

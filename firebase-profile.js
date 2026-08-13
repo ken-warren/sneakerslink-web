@@ -29,6 +29,8 @@
 import { firebaseConfig } from "./firebase-config.js";
 
 import {
+  getApps,
+  getApp,
   initializeApp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -44,6 +46,7 @@ import {
 import {
   getAuth,
   onAuthStateChanged,
+  updateProfile as updateAuthProfile,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
@@ -69,7 +72,9 @@ let auth;
 let storage;
 
 if (isConfigured) {
-  app = initializeApp(firebaseConfig);
+  app = getApps().length
+    ? getApp()
+    : initializeApp(firebaseConfig);
 
   db = getFirestore(app);
   auth = getAuth(app);
@@ -303,6 +308,21 @@ async function updateProfile(fields = {}) {
     return getProfile();
   }
 
+  /*
+   * Keep Firebase Authentication's displayName
+   * synchronized with the Firestore customer profile.
+   */
+  if (
+    Object.prototype.hasOwnProperty.call(
+      updates,
+      "displayName"
+    )
+  ) {
+    await updateAuthProfile(user, {
+      displayName: updates.displayName,
+    });
+  }
+
   updates.updatedAt =
     serverTimestamp();
 
@@ -388,7 +408,6 @@ async function uploadAvatar(file) {
     `profile-images/${user.uid}/avatar`
   );
 
-
   const snapshot =
     await uploadBytes(
       avatarRef,
@@ -398,19 +417,16 @@ async function uploadAvatar(file) {
       }
     );
 
-
   const downloadURL =
     await getDownloadURL(
       snapshot.ref
     );
-
 
   const profileRef = doc(
     db,
     "customers",
     user.uid
   );
-
 
   await setDoc(
     profileRef,
@@ -422,7 +438,6 @@ async function uploadAvatar(file) {
       merge: true,
     }
   );
-
 
   return downloadURL;
 }
@@ -469,13 +484,11 @@ async function deleteAvatar() {
     }
   }
 
-
   const profileRef = doc(
     db,
     "customers",
     user.uid
   );
-
 
   await updateDoc(
     profileRef,
@@ -514,12 +527,16 @@ function onProfileAuthChange(callback) {
         user
           ? {
               uid: user.uid,
+
               email:
                 user.email || "",
+
               displayName:
                 user.displayName || "",
+
               photoURL:
                 user.photoURL || "",
+
               emailVerified:
                 !!user.emailVerified,
             }
