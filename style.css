@@ -80,6 +80,7 @@ html {
   padding: 0;
   margin: 0;
   background-color: var(--bg);
+  color: var(--text);
   transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
 }
 
@@ -304,7 +305,7 @@ nav ul a:hover::after {
 
 #sneakers1, #sneakers2 {
   text-align: center;
-  background-color: #fff;
+  background-color: var(--bg);
 }
 
 #sneakers1 .pro-container, #sneakers2 .pro-container {
@@ -653,7 +654,7 @@ footer .copyright {
 #prod-details {
   display: flex;
   margin-top: 20px;
-  background-color: #e3e6f3;
+  background-color: var(--input-bg);
 }
 
 #prod-details .single-pro-img {
@@ -1068,7 +1069,8 @@ footer .copyright {
     height: auto;
   }
   .navbutton,
-  .cart {
+  .cart,
+  .theme-toggle {
     display: block;
     font-size: 24px;
     line-height: 60px;
@@ -1220,7 +1222,8 @@ footer .copyright {
   }
 
   .navbutton,
-  .cart {
+  .cart,
+  .theme-toggle {
     line-height: 30px;
     font-size: 20px;
   }
@@ -1263,7 +1266,7 @@ footer .copyright {
 
   h3 {
     font-size: 12px;
-    background-color: #e3e6f3;
+    background-color: var(--input-bg);
   }
 
   h4 {
@@ -1440,7 +1443,8 @@ footer .copyright {
 
 @media (max-width: 360px) {
   .navbutton,
-  .cart {
+  .cart,
+  .theme-toggle {
     display: block;
     font-size: 17px;
     line-height: 20px;
@@ -2393,29 +2397,26 @@ footer .col img.logo:hover {
   border-color: var(--brand-dark);
 }
 
-/* ---- theme toggle button (in nav) ---- */
+/* ---- theme toggle button (in nav) ----
+   Rides along with .navbutton/.cart's float + line-height
+   sizing so it stays aligned at every breakpoint, instead of
+   using its own fixed offsets that only worked at one size. */
 .theme-toggle {
   background: transparent;
-  border: 1px solid var(--border);
+  border: none;
   color: var(--text);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  margin-right: 12px;
   float: right;
-  margin-top: 22px;
-  transition: transform 0.25s var(--ease), background-color 0.25s var(--ease), border-color 0.25s var(--ease);
+  line-height: 80px;
+  font-size: 22px;
+  margin-right: 20px;
+  padding: 0;
+  transition: color 0.25s var(--ease), transform 0.25s var(--ease);
 }
 
 .theme-toggle:hover {
-  transform: rotate(15deg) scale(1.08);
-  border-color: var(--brand);
   color: var(--brand);
+  transform: rotate(15deg) scale(1.1);
 }
 
 .theme-toggle .fa-sun { display: none; }
@@ -2423,10 +2424,3 @@ footer .col img.logo:hover {
 
 [data-theme="dark"] .theme-toggle .fa-sun { display: inline; }
 [data-theme="dark"] .theme-toggle .fa-moon { display: none; }
-
-@media (max-width: 870px) {
-  .theme-toggle {
-    margin-top: 22px;
-    margin-right: 20px;
-  }
-}
