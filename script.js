@@ -1,737 +1,1758 @@
 /* =========================================================
    SneakersLink — site-wide interactions
-   Cart engine (localStorage), nav behaviour, scroll reveal,
-   toasts, and small per-page form flows.
+   ---------------------------------------------------------
+   Includes:
+   - Cart engine with localStorage
+   - Cart badge
+   - Add-to-cart buttons
+   - Product-card navigation
+   - Cart-page rendering
+   - Quantity updates
+   - Remove-item handling
+   - Coupon handling
+   - Theme toggle
+   - Mobile navigation
+   - Scroll reveal
+   - Navbar scroll state
+   - Toast notifications
+   - Fly-to-cart animation
+   - Back-to-top button
+   - Newsletter form
+   - Product-page helpers
+   - Track-order helpers
+   - Cross-tab cart synchronization
+
+   Safe to load on every SneakersLink page.
    ========================================================= */
 
 (function () {
   "use strict";
 
-  /* ---------- helpers ---------- */
-  const $  = (sel, ctx = document) => ctx.querySelector(sel);
-  const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+  /* =========================================================
+     HELPERS
+     ========================================================= */
 
-  const money = (n) =>
-    "Kes " + Number(n).toLocaleString("en-KE", { maximumFractionDigits: 0 });
+  const $ = (selector, context = document) =>
+    context.querySelector(selector);
 
-  const parsePrice = (text) => {
-    const digits = String(text).replace(/[^\d]/g, "");
-    return digits ? parseInt(digits, 10) : 0;
+  const $$ = (selector, context = document) =>
+    Array.from(context.querySelectorAll(selector));
+
+  const STORAGE_KEY = "sneakerslink_cart";
+  const THEME_KEY = "sl_theme";
+
+  const money = (value) => {
+    const number = Number(value) || 0;
+
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
+      maximumFractionDigits: 0
+    }).format(number);
   };
 
-  const slugify = (text) =>
-    String(text)
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-
-  /* =========================================================
-     TOAST NOTIFICATIONS
-     ========================================================= */
-  function ensureToastRoot() {
-    let root = $("#toastRoot");
-    if (!root) {
-      root = document.createElement("div");
-      root.id = "toastRoot";
-      root.className = "toast-root";
-      document.body.appendChild(root);
+  const parsePrice = (value) => {
+    if (typeof value === "number") {
+      return value;
     }
-    return root;
-  }
 
-  function showToast(message, opts = {}) {
-    const root = ensureToastRoot();
-    const toast = document.createElement("div");
-    toast.className = "toast" + (opts.type ? ` toast--${opts.type}` : "");
-    toast.innerHTML = `<i class="fas fa-check-circle"></i><span>${message}</span>`;
-    root.appendChild(toast);
+    if (!value) {
+      return 0;
+    }
 
-    requestAnimationFrame(() => toast.classList.add("toast--show"));
+    const cleaned = String(value)
+      .replace(/KES/gi, "")
+      .replace(/Kes/gi, "")
+      .replace(/Ksh/gi, "")
+      .replace(/,/g, "")
+      .replace(/[^\d.-]/g, "");
 
-    setTimeout(() => {
-      toast.classList.remove("toast--show");
-      toast.addEventListener("transitionend", () => toast.remove(), { once: true });
-    }, 2600);
-  }
+    return Number(cleaned) || 0;
+  };
+
+  const safeStorageGet = (key, fallback = null) => {
+    try {
+      const value = localStorage.getItem(key);
+      return value === null ? fallback : value;
+    } catch (error) {
+      console.warn("localStorage read failed:", error);
+      return fallback;
+    }
+  };
+
+  const safeStorageSet = (key, value) => {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch (error) {
+      console.warn("localStorage write failed:", error);
+      return false;
+    }
+  };
+
+  const safeStorageRemove = (key) => {
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.warn("localStorage remove failed:", error);
+    }
+  };
 
   /* =========================================================
-     CART ENGINE (shared across every page via localStorage)
+     CART STORAGE
      ========================================================= */
-  const CART_KEY = "sl_cart_v1";
 
   function getCart() {
+    const raw = safeStorageGet(STORAGE_KEY, "[]");
+
     try {
-      return JSON.parse(localStorage.getItem(CART_KEY)) || [];
-    } catch (e) {
+      const parsed = JSON.parse(raw);
+
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed
+        .map((item) => ({
+          id: String(item.id || ""),
+          name: String(item.name || "Sneaker"),
+          brand: String(item.brand || ""),
+          price: Number(item.price) || 0,
+          image: String(item.image || ""),
+          quantity: Math.max(1, Number(item.quantity) || 1),
+          size: item.size ? String(item.size) : ""
+        }))
+        .filter((item) => item.id);
+    } catch (error) {
+      console.warn("Invalid cart data. Resetting cart.", error);
       return [];
     }
   }
 
   function saveCart(cart) {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
-    updateCartBadges();
+    safeStorageSet(STORAGE_KEY, JSON.stringify(cart));
+
+    updateCartBadge();
+
+    window.dispatchEvent(
+      new CustomEvent("sneakerslink:cart-updated", {
+        detail: {
+          cart
+        }
+      })
+    );
   }
 
-  function addToCart(item) {
-    const cart = getCart();
-    const existing = cart.find((p) => p.id === item.id && p.size === item.size);
-    if (existing) {
-      existing.qty += item.qty || 1;
-    } else {
-      cart.push({ ...item, qty: item.qty || 1 });
-    }
-    saveCart(cart);
-    renderCartPage();
+  function getCartCount() {
+    return getCart().reduce(
+      (total, item) => total + Math.max(0, Number(item.quantity) || 0),
+      0
+    );
   }
 
-  function removeFromCart(id, size) {
-    let cart = getCart();
-    cart = cart.filter((p) => !(p.id === id && p.size === size));
-    saveCart(cart);
-    renderCartPage();
-  }
-
-  function setQty(id, size, qty) {
-    const cart = getCart();
-    const item = cart.find((p) => p.id === id && p.size === size);
-    if (item) item.qty = Math.max(1, Math.min(20, qty | 0));
-    saveCart(cart);
-    renderCartPage();
-  }
-
-  function cartCount() {
-    return getCart().reduce((sum, p) => sum + p.qty, 0);
-  }
-
-  function cartTotal() {
-    return getCart().reduce((sum, p) => sum + p.qty * p.price, 0);
+  function getCartSubtotal() {
+    return getCart().reduce(
+      (total, item) =>
+        total +
+        (Number(item.price) || 0) *
+          Math.max(1, Number(item.quantity) || 1),
+      0
+    );
   }
 
   /* =========================================================
-     ORDER TRACKING ENGINE
-     ---------------------------------------------------------
-     Real order status now lives in Firestore (see
-     firebase-orders.js / window.SLOrders) so a human can
-     actually mark an order Confirmed / Packed / Delivered from
-     admin.html, and the customer sees it update live.
-
-     If Firebase hasn't been configured yet (firebase-config.js
-     still has placeholder keys), everything here quietly falls
-     back to a local, per-browser simulation so the site still
-     works end-to-end for a demo — it just can't be tracked from
-     a different device or updated by an admin until you finish
-     the setup in SETUP.md.
+     CART BADGE
      ========================================================= */
-  const ORDERS_KEY = "sl_orders_v1";
 
-  const ORDER_STAGES = [
-    { key: "placed",    label: "Order Placed",     icon: "fa-receipt",       afterMinutes: 0 },
-    { key: "confirmed", label: "Confirmed",         icon: "fa-check-circle",  afterMinutes: 2 },
-    { key: "packed",    label: "Packed",            icon: "fa-box",           afterMinutes: 10 },
-    { key: "out",       label: "Out for Delivery",  icon: "fa-truck",         afterMinutes: 30 },
-    { key: "delivered", label: "Delivered",         icon: "fa-home",          afterMinutes: 60 },
-  ];
+  function updateCartBadge(bump = false) {
+    const count = getCartCount();
 
-  function cloudReady() {
-    return window.SLOrders && window.SLOrders.isConfigured;
-  }
+    $$("[data-cart-count], .cart-count").forEach((badge) => {
+      badge.textContent = count > 99 ? "99+" : String(count);
 
-  function generateOrderId() {
-    const stamp = Date.now().toString(36).toUpperCase().slice(-5);
-    const rand = Math.random().toString(36).toUpperCase().slice(2, 5);
-    return `SL-${stamp}${rand}`;
-  }
-
-  function getLocalOrders() {
-    try {
-      return JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
-    } catch (e) {
-      return [];
-    }
-  }
-
-  function saveLocalOrders(orders) {
-    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
-  }
-
-  function rememberOrderIdLocally(id) {
-    // Convenience only — lets the tracker page offer "your recent
-    // orders on this device" without needing to be signed in.
-    const ids = JSON.parse(localStorage.getItem("sl_recent_order_ids") || "[]");
-    localStorage.setItem("sl_recent_order_ids", JSON.stringify([id, ...ids].slice(0, 5)));
-  }
-
-  function getRecentLocalOrderIds() {
-    return JSON.parse(localStorage.getItem("sl_recent_order_ids") || "[]");
-  }
-
-  /** Create an order — cloud if configured, local fallback otherwise. */
-  async function createOrder(cartItems, total) {
-    if (cloudReady()) {
-      try {
-        const order = await window.SLOrders.createOrder(cartItems, total);
-        rememberOrderIdLocally(order.id);
-        return order;
-      } catch (err) {
-        console.error("Cloud order creation failed, falling back to local:", err);
+      if (count > 0) {
+        badge.classList.add("cart-count--visible");
+      } else {
+        badge.classList.remove("cart-count--visible");
       }
+
+      if (bump) {
+        badge.classList.remove("cart-count--bump");
+
+        void badge.offsetWidth;
+
+        badge.classList.add("cart-count--bump");
+
+        setTimeout(() => {
+          badge.classList.remove("cart-count--bump");
+        }, 300);
+      }
+    });
+  }
+
+  /* =========================================================
+     PRODUCT DATA EXTRACTION
+     ========================================================= */
+
+  function getProductFromCard(card) {
+    if (!card) {
+      return null;
     }
-    const orders = getLocalOrders();
-    const order = {
-      id: generateOrderId(),
-      items: cartItems.map((i) => ({ name: i.name, size: i.size, qty: i.qty, price: i.price, img: i.img })),
-      total,
-      status: "placed",
-      placedAt: Date.now(),
+
+    const image = $("img", card);
+    const brandElement = $(".des span", card);
+    const nameElement = $(".des h5", card);
+    const priceElement = $(".des h4", card);
+
+    const imageSrc =
+      image?.getAttribute("src") ||
+      image?.src ||
+      "";
+
+    const name =
+      card.dataset.name ||
+      nameElement?.textContent?.trim() ||
+      "Sneaker";
+
+    const brand =
+      card.dataset.brand ||
+      brandElement?.textContent?.trim() ||
+      "";
+
+    const price =
+      parsePrice(card.dataset.price) ||
+      parsePrice(priceElement?.textContent);
+
+    const id =
+      card.dataset.productId ||
+      card.dataset.id ||
+      `${brand}-${name}-${imageSrc}`
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+
+    return {
+      id,
+      name,
+      brand,
+      price,
+      image: imageSrc,
+      quantity: 1,
+      size: card.dataset.size || ""
     };
-    orders.unshift(order);
-    saveLocalOrders(orders.slice(0, 25));
-    rememberOrderIdLocally(order.id);
-    return order;
   }
 
-  function getLocalOrderById(id) {
-    return getLocalOrders().find((o) => o.id.toLowerCase() === String(id).trim().toLowerCase());
-  }
+  /* =========================================================
+     ADD TO CART
+     ========================================================= */
 
-  /** Index of an order's current stage, whether it has a real `status`
-      field (cloud orders) or needs to be estimated from elapsed time
-      (local-fallback orders, which have no admin to set a status). */
-  function computeOrderStageIndex(order) {
-    if (order.status) {
-      const i = ORDER_STAGES.findIndex((s) => s.key === order.status);
-      return i === -1 ? 0 : i;
+  function addToCart(product, sourceElement = null) {
+    if (!product) {
+      return;
     }
-    const minutesElapsed = (Date.now() - order.placedAt) / 60000;
-    let currentIndex = 0;
-    ORDER_STAGES.forEach((stage, i) => {
-      if (minutesElapsed >= stage.afterMinutes) currentIndex = i;
-    });
-    return currentIndex;
+
+    const cart = getCart();
+
+    const existing = cart.find(
+      (item) =>
+        item.id === product.id &&
+        String(item.size || "") === String(product.size || "")
+    );
+
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({
+        ...product,
+        quantity: 1
+      });
+    }
+
+    saveCart(cart);
+
+    updateCartBadge(true);
+
+    if (sourceElement) {
+      sourceElement.classList.remove("add-cart-btn--pop");
+
+      void sourceElement.offsetWidth;
+
+      sourceElement.classList.add("add-cart-btn--pop");
+
+      setTimeout(() => {
+        sourceElement.classList.remove("add-cart-btn--pop");
+      }, 300);
+
+      flyToCart(sourceElement);
+    }
+
+    showToast(
+      `${product.name} added to your cart.`,
+      "success"
+    );
   }
 
-  function updateCartBadges() {
-    const count = cartCount();
-    $$("[data-cart-count]").forEach((el) => {
-      el.textContent = count;
-      el.classList.toggle("cart-count--visible", count > 0);
-      el.classList.add("cart-count--bump");
-      setTimeout(() => el.classList.remove("cart-count--bump"), 260);
-    });
-  }
+  /* =========================================================
+     FLY TO CART
+     ========================================================= */
 
-  /* ---------- fly-to-cart micro animation ---------- */
-  function flyToCart(sourceImg) {
-    const cartIcon = $(".cart");
-    if (!sourceImg || !cartIcon) return;
+  function flyToCart(sourceElement) {
+    if (!sourceElement) {
+      return;
+    }
 
-    const start = sourceImg.getBoundingClientRect();
-    const end = cartIcon.getBoundingClientRect();
+    const image =
+      sourceElement.closest(".pro")?.querySelector("img");
 
-    const clone = sourceImg.cloneNode(true);
-    clone.className = "fly-clone";
-    clone.style.width = start.width + "px";
-    clone.style.height = start.height + "px";
-    clone.style.left = start.left + "px";
-    clone.style.top = start.top + "px";
+    const cart =
+      $(".cart") ||
+      $('[href="cart.html"]');
+
+    if (!image || !cart) {
+      return;
+    }
+
+    const imageRect = image.getBoundingClientRect();
+    const cartRect = cart.getBoundingClientRect();
+
+    const clone = image.cloneNode(true);
+
+    clone.classList.add("fly-clone");
+
+    clone.style.left = `${imageRect.left}px`;
+    clone.style.top = `${imageRect.top}px`;
+    clone.style.width = `${imageRect.width}px`;
+    clone.style.height = `${imageRect.height}px`;
+    clone.style.opacity = "0.9";
+
     document.body.appendChild(clone);
 
     requestAnimationFrame(() => {
-      clone.style.left = end.left + "px";
-      clone.style.top = end.top + "px";
-      clone.style.width = "16px";
-      clone.style.height = "16px";
-      clone.style.opacity = "0.3";
-      clone.style.transform = "rotate(20deg)";
+      clone.style.left =
+        `${cartRect.left + cartRect.width / 2}px`;
+
+      clone.style.top =
+        `${cartRect.top + cartRect.height / 2}px`;
+
+      clone.style.width = "24px";
+      clone.style.height = "24px";
+      clone.style.opacity = "0.2";
+      clone.style.transform = "scale(0.6)";
     });
 
-    clone.addEventListener("transitionend", () => clone.remove(), { once: true });
-    setTimeout(() => clone.remove(), 900);
+    setTimeout(() => {
+      clone.remove();
+    }, 800);
   }
 
-  /* ---------- wire "add to cart" buttons on product-grid cards ---------- */
-  function wireAddToCartButtons() {
-    $$(".add-cart-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+  /* =========================================================
+     PRODUCT CARD CLICK HANDLING
+     ========================================================= */
 
-        const card = btn.closest(".pro");
-        if (!card) return;
+  function initProductCards() {
+    $$(".pro").forEach((card, index) => {
+      card.style.setProperty("--i", index);
 
-        const nameEl = card.querySelector(".des h5");
-        const priceEl = card.querySelector(".des h4");
-        const imgEl = card.querySelector("img");
-        if (!nameEl || !priceEl || !imgEl) return;
+      const addButton = $(".add-cart-btn", card);
 
-        const name = nameEl.textContent.trim();
-        const price = parsePrice(priceEl.textContent);
-        const img = imgEl.getAttribute("src");
+      if (addButton) {
+        addButton.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
 
-        addToCart({ id: slugify(name), name, price, img, size: "" });
-        showToast(`${name} added to cart`);
-        flyToCart(imgEl);
+          const product = getProductFromCard(card);
 
-        btn.classList.add("add-cart-btn--pop");
-        setTimeout(() => btn.classList.remove("add-cart-btn--pop"), 260);
+          addToCart(product, addButton);
+        });
+      }
+
+      card.addEventListener("click", (event) => {
+        if (
+          event.target.closest(".add-cart-btn") ||
+          event.target.closest("a") ||
+          event.target.closest("button") ||
+          event.target.closest("input") ||
+          event.target.closest("select")
+        ) {
+          return;
+        }
+
+        const href =
+          card.dataset.href ||
+          card.getAttribute("data-url");
+
+        if (href) {
+          window.location.href = href;
+        }
       });
+
+      card.addEventListener("keydown", (event) => {
+        if (
+          event.key !== "Enter" &&
+          event.key !== " "
+        ) {
+          return;
+        }
+
+        if (
+          event.target.closest(".add-cart-btn") ||
+          event.target.closest("button")
+        ) {
+          return;
+        }
+
+        const href =
+          card.dataset.href ||
+          card.getAttribute("data-url");
+
+        if (href) {
+          event.preventDefault();
+          window.location.href = href;
+        }
+      });
+
+      if (
+        card.dataset.href &&
+        !card.hasAttribute("tabindex")
+      ) {
+        card.setAttribute("tabindex", "0");
+      }
     });
   }
 
-  /* ---------- make whole product cards (with data-href) clickable ---------- */
-  function wireProductCardNavigation() {
-    $$(".pro[data-href]").forEach((card) => {
-      card.style.cursor = "pointer";
-      card.addEventListener("click", (e) => {
-        if (e.target.closest(".add-cart-btn")) return;
-        window.location.href = card.dataset.href;
-      });
-      card.setAttribute("tabindex", "0");
-      card.setAttribute("role", "link");
-      card.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") window.location.href = card.dataset.href;
-      });
+  /* =========================================================
+     CART PAGE
+     ========================================================= */
+
+  function initCartPage() {
+    const cartTable =
+      $("#cart table") ||
+      $("#cartTable");
+
+    if (!cartTable) {
+      return;
+    }
+
+    renderCartPage();
+  }
+
+  function renderCartPage() {
+    const cart = getCart();
+
+    const tbody =
+      $("#cart tbody") ||
+      $("#cart table tbody");
+
+    if (!tbody) {
+      return;
+    }
+
+    tbody.innerHTML = "";
+
+    if (!cart.length) {
+      renderEmptyCart(tbody);
+      updateCartTotals();
+      return;
+    }
+
+    cart.forEach((item) => {
+      const row = document.createElement("tr");
+
+      row.dataset.cartId = item.id;
+
+      row.innerHTML = `
+        <td>
+          <button
+            type="button"
+            class="remove-item"
+            data-remove-item="${escapeHtml(item.id)}"
+            aria-label="Remove ${escapeHtml(item.name)}">
+            <i class="far fa-times-circle"></i>
+          </button>
+        </td>
+
+        <td>
+          <img
+            src="${escapeHtml(item.image)}"
+            alt="${escapeHtml(item.name)}"
+            loading="lazy">
+        </td>
+
+        <td>
+          ${escapeHtml(item.name)}
+          ${
+            item.size
+              ? `<small style="display:block;color:var(--text-muted);">Size: ${escapeHtml(item.size)}</small>`
+              : ""
+          }
+        </td>
+
+        <td>
+          ${money(item.price)}
+        </td>
+
+        <td>
+          <input
+            type="number"
+            min="1"
+            max="99"
+            value="${item.quantity}"
+            class="cart-qty"
+            data-cart-qty="${escapeHtml(item.id)}"
+            aria-label="Quantity for ${escapeHtml(item.name)}">
+        </td>
+
+        <td>
+          ${money(item.price * item.quantity)}
+        </td>
+      `;
+
+      tbody.appendChild(row);
+    });
+
+    updateCartTotals();
+  }
+
+  function renderEmptyCart(tbody) {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td colspan="6">
+        <div class="empty-cart-msg">
+          <p>Your cart is currently empty.</p>
+          <a href="shop.html">Continue shopping</a>
+        </div>
+      </td>
+    `;
+
+    tbody.appendChild(row);
+  }
+
+  function updateCartTotals() {
+    const cart = getCart();
+
+    const subtotal = cart.reduce(
+      (sum, item) =>
+        sum + item.price * item.quantity,
+      0
+    );
+
+    const subtotalElement =
+      $("#subtotal-value") ||
+      $("#subtotal .subtotal-value") ||
+      $("[data-cart-subtotal]");
+
+    if (subtotalElement) {
+      subtotalElement.textContent = money(subtotal);
+    }
+
+    const totalElement =
+      $("#cart-total") ||
+      $("#total-value") ||
+      $("[data-cart-total]");
+
+    if (totalElement) {
+      totalElement.textContent = money(subtotal);
+    }
+
+    /*
+     * Existing subtotal tables often have:
+     * subtotal row + shipping row + total row.
+     * Update them conservatively by looking for
+     * data attributes first.
+     */
+
+    $$("[data-subtotal]").forEach((element) => {
+      element.textContent = money(subtotal);
+    });
+
+    $$("[data-total]").forEach((element) => {
+      element.textContent = money(subtotal);
+    });
+
+    updateCartBadge();
+  }
+
+  /* =========================================================
+     CART EVENT DELEGATION
+     ========================================================= */
+
+  function initCartEvents() {
+    document.addEventListener("click", (event) => {
+      const removeButton =
+        event.target.closest("[data-remove-item]");
+
+      if (removeButton) {
+        event.preventDefault();
+
+        const id =
+          removeButton.getAttribute("data-remove-item");
+
+        removeCartItem(id, removeButton);
+
+        return;
+      }
+    });
+
+    document.addEventListener("change", (event) => {
+      const quantityInput =
+        event.target.closest("[data-cart-qty]");
+
+      if (quantityInput) {
+        const id =
+          quantityInput.getAttribute("data-cart-qty");
+
+        updateCartQuantity(
+          id,
+          quantityInput.value
+        );
+      }
     });
   }
 
-  /* ---------- single-product page (sproduct.html) ---------- */
-  function wireSingleProductPage() {
-    const btn = $("#mainAddToCart");
-    if (!btn) return;
+  function updateCartQuantity(id, quantity) {
+    const cart = getCart();
 
-    const nameEl = $(".single-pro-details h4");
-    const priceEl = $(".single-pro-details h2");
-    const imgEl = $("#mainImg");
-    const sizeEl = $("#sizeSelect");
-    const qtyEl = $("#qtyInput");
+    const item = cart.find(
+      (product) => product.id === id
+    );
 
-    btn.addEventListener("click", () => {
-      if (sizeEl && (sizeEl.value === "" || sizeEl.selectedIndex === 0)) {
-        sizeEl.classList.add("field-error");
-        showToast("Please select a size first", { type: "warn" });
-        sizeEl.focus();
-        setTimeout(() => sizeEl.classList.remove("field-error"), 900);
+    if (!item) {
+      return;
+    }
+
+    let newQuantity =
+      parseInt(quantity, 10);
+
+    if (!Number.isFinite(newQuantity)) {
+      newQuantity = 1;
+    }
+
+    newQuantity = Math.max(
+      1,
+      Math.min(99, newQuantity)
+    );
+
+    item.quantity = newQuantity;
+
+    saveCart(cart);
+
+    renderCartPage();
+  }
+
+  function removeCartItem(id, sourceElement = null) {
+    const cart = getCart();
+
+    const itemIndex = cart.findIndex(
+      (item) => item.id === id
+    );
+
+    if (itemIndex === -1) {
+      return;
+    }
+
+    const item = cart[itemIndex];
+
+    const row =
+      sourceElement?.closest("tr");
+
+    if (row) {
+      row.classList.add("row-removing");
+
+      setTimeout(() => {
+        finishRemoveItem(id, item);
+      }, 250);
+    } else {
+      finishRemoveItem(id, item);
+    }
+  }
+
+  function finishRemoveItem(id, item) {
+    const cart = getCart().filter(
+      (product) => product.id !== id
+    );
+
+    saveCart(cart);
+
+    renderCartPage();
+
+    showToast(
+      `${item.name} removed from your cart.`,
+      "warn"
+    );
+  }
+
+  /* =========================================================
+     COUPONS
+     ========================================================= */
+
+  function initCoupon() {
+    const couponInput =
+      $("#coupon input");
+
+    const couponButton =
+      $("#coupon button");
+
+    if (!couponInput || !couponButton) {
+      return;
+    }
+
+    couponButton.addEventListener("click", () => {
+      const code =
+        couponInput.value
+          .trim()
+          .toUpperCase();
+
+      if (!code) {
+        showToast(
+          "Please enter a coupon code.",
+          "warn"
+        );
+
+        couponInput.classList.add(
+          "field-error"
+        );
+
+        setTimeout(() => {
+          couponInput.classList.remove(
+            "field-error"
+          );
+        }, 500);
+
         return;
       }
 
-      const name = nameEl ? nameEl.textContent.trim() : "Product";
-      const price = priceEl ? parsePrice(priceEl.textContent) : 0;
-      const img = imgEl ? imgEl.getAttribute("src") : "";
-      const size = sizeEl ? sizeEl.value : "";
-      const qty = qtyEl ? Math.max(1, parseInt(qtyEl.value, 10) || 1) : 1;
+      /*
+       * Demo coupon support.
+       *
+       * SL500:
+       * KES 500 discount when cart subtotal
+       * is at least KES 2,000.
+       */
 
-      addToCart({ id: slugify(name), name, price, img, size, qty });
-      showToast(`${name} (Size ${size}) added to cart`);
-      if (imgEl) flyToCart(imgEl);
+      const subtotal = getCartSubtotal();
+
+      if (code === "SL500") {
+        if (subtotal < 2000) {
+          showToast(
+            "SL500 requires a cart subtotal of at least KES 2,000.",
+            "warn"
+          );
+          return;
+        }
+
+        safeStorageSet(
+          "sl_coupon",
+          JSON.stringify({
+            code: "SL500",
+            discount: 500
+          })
+        );
+
+        showToast(
+          "Coupon applied — KES 500 discount.",
+          "success"
+        );
+
+        updateCouponMessage(
+          "SL500 applied — KES 500 discount."
+        );
+
+        updateCartTotals();
+
+        return;
+      }
+
+      showToast(
+        "That coupon code is not valid.",
+        "warn"
+      );
     });
+  }
+
+  function updateCouponMessage(message) {
+    const coupon =
+      $("#coupon");
+
+    if (!coupon) {
+      return;
+    }
+
+    let messageElement =
+      $(".coupon-msg", coupon);
+
+    if (!messageElement) {
+      messageElement =
+        document.createElement("p");
+
+      messageElement.className =
+        "coupon-msg";
+
+      coupon.appendChild(messageElement);
+    }
+
+    messageElement.textContent =
+      message;
   }
 
   /* =========================================================
-     CART PAGE RENDERING (cart.html)
+     THEME
      ========================================================= */
-  function renderCartPage() {
-    const body = $("#cartBody");
-    if (!body) return; // not on cart.html
 
-    const cart = getCart();
-    const emptyMsg = $("#emptyCartMsg");
-    const table = body.closest("table");
+  function getPreferredTheme() {
+    const saved =
+      safeStorageGet(THEME_KEY);
 
-    if (cart.length === 0) {
-      body.innerHTML = "";
-      if (table) table.style.display = "none";
-      if (emptyMsg) emptyMsg.hidden = false;
-    } else {
-      if (table) table.style.display = "";
-      if (emptyMsg) emptyMsg.hidden = true;
-
-      body.innerHTML = cart
-        .map(
-          (item) => `
-        <tr data-id="${item.id}" data-size="${item.size || ""}">
-          <td><button type="button" class="remove-item" aria-label="Remove ${item.name}"><i class="fas fa-times-circle"></i></button></td>
-          <td><img src="${item.img}" alt="${item.name}"></td>
-          <td>${item.name}${item.size ? ` <small>(Size ${item.size})</small>` : ""}</td>
-          <td>${money(item.price)}</td>
-          <td><input type="number" min="1" max="20" value="${item.qty}" class="qty-input"></td>
-          <td>${money(item.price * item.qty)}</td>
-        </tr>`
-        )
-        .join("");
+    if (
+      saved === "dark" ||
+      saved === "light"
+    ) {
+      return saved;
     }
 
-    const subtotal = cartTotal();
-    const subtotalEl = $("#cartSubtotal");
-    const totalEl = $("#cartTotal");
-    if (subtotalEl) subtotalEl.textContent = money(subtotal);
-    if (totalEl) totalEl.textContent = money(subtotal);
+    if (
+      window.matchMedia &&
+      window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches
+    ) {
+      return "dark";
+    }
+
+    return "light";
   }
 
-  function wireCartPageEvents() {
-    const body = $("#cartBody");
-    if (!body) return;
+  function applyTheme(theme, persist = true) {
+    const safeTheme =
+      theme === "dark"
+        ? "dark"
+        : "light";
 
-    body.addEventListener("click", (e) => {
-      const removeBtn = e.target.closest(".remove-item");
-      if (!removeBtn) return;
-      const row = removeBtn.closest("tr");
-      row.classList.add("row-removing");
-      setTimeout(() => {
-        removeFromCart(row.dataset.id, row.dataset.size);
-        showToast("Item removed from cart");
-      }, 180);
-    });
+    document.documentElement.setAttribute(
+      "data-theme",
+      safeTheme
+    );
 
-    body.addEventListener("change", (e) => {
-      if (!e.target.classList.contains("qty-input")) return;
-      const row = e.target.closest("tr");
-      setQty(row.dataset.id, row.dataset.size, parseInt(e.target.value, 10) || 1);
-    });
-
-    const couponBtn = $("#applyCouponBtn");
-    if (couponBtn) {
-      couponBtn.addEventListener("click", () => {
-        const input = $("#couponInput");
-        const msg = $("#couponMsg");
-        if (!input || !input.value.trim()) {
-          if (msg) msg.textContent = "Enter a coupon code first.";
-          return;
-        }
-        if (msg) {
-          msg.textContent = "This code isn't valid right now — DM us on WhatsApp for current offers!";
-        }
-      });
-    }
-
-    const checkoutBtn = $("#checkoutBtn");
-    if (checkoutBtn) {
-      checkoutBtn.addEventListener("click", async () => {
-        const cart = getCart();
-        if (cart.length === 0) {
-          showToast("Your cart is empty", { type: "warn" });
-          return;
-        }
-        checkoutBtn.disabled = true;
-        const originalLabel = checkoutBtn.textContent;
-        checkoutBtn.textContent = "Placing order…";
-
-        let order;
-        try {
-          order = await createOrder(cart, cartTotal());
-        } catch (err) {
-          console.error(err);
-          showToast("Couldn't place the order — please try again", { type: "warn" });
-          checkoutBtn.disabled = false;
-          checkoutBtn.textContent = originalLabel;
-          return;
-        }
-
-        const lines = cart
-          .map((i) => `- ${i.name}${i.size ? ` (Size ${i.size})` : ""} x${i.qty} — ${money(i.price * i.qty)}`)
-          .join("\n");
-        const message = `Hi SneakersLink! I'd like to order (Ref: ${order.id}):\n${lines}\n\nTotal: ${money(order.total)}`;
-        window.open("https://wa.me/254768372955?text=" + encodeURIComponent(message), "_blank");
-        showToast(`Order placed — reference ${order.id}. Track it anytime!`);
-        saveCart([]);
-        renderCartPage();
-        checkoutBtn.disabled = false;
-        checkoutBtn.textContent = originalLabel;
-      });
-    }
-  }
-
-  /* =========================================================
-     NAVIGATION — mobile menu, scroll shrink, active-link close
-     ========================================================= */
-  function wireNav() {
-    const nav = $("nav");
-    const check = $("#check");
-    const navLinks = $$("#navbar a");
-
-    if (nav) {
-      const onScroll = () => nav.classList.toggle("nav--scrolled", window.scrollY > 40);
-      onScroll();
-      window.addEventListener("scroll", onScroll, { passive: true });
-    }
-
-    if (check) {
-      navLinks.forEach((link) =>
-        link.addEventListener("click", () => {
-          check.checked = false;
-        })
+    if (persist) {
+      safeStorageSet(
+        THEME_KEY,
+        safeTheme
       );
     }
+
+    updateThemeToggle(safeTheme);
+  }
+
+  function updateThemeToggle(theme) {
+    const toggle =
+      $("#themeToggle");
+
+    if (!toggle) {
+      return;
+    }
+
+    const dark =
+      theme === "dark";
+
+    toggle.setAttribute(
+      "aria-label",
+      dark
+        ? "Switch to light mode"
+        : "Switch to dark mode"
+    );
+
+    toggle.setAttribute(
+      "title",
+      dark
+        ? "Switch to light mode"
+        : "Switch to dark mode"
+    );
+  }
+
+  function initTheme() {
+    const current =
+      document.documentElement.getAttribute(
+        "data-theme"
+      ) || getPreferredTheme();
+
+    applyTheme(current, false);
+
+    const toggle =
+      $("#themeToggle");
+
+    if (!toggle) {
+      return;
+    }
+
+    toggle.addEventListener("click", () => {
+      const currentTheme =
+        document.documentElement.getAttribute(
+          "data-theme"
+        );
+
+      const nextTheme =
+        currentTheme === "dark"
+          ? "light"
+          : "dark";
+
+      applyTheme(nextTheme, true);
+
+      showToast(
+        nextTheme === "dark"
+          ? "Dark mode enabled."
+          : "Light mode enabled.",
+        "success"
+      );
+    });
   }
 
   /* =========================================================
-     THEME — toggle button + live system-preference following
-     ---------------------------------------------------------
-     A tiny inline script in <head> already resolved the initial
-     data-theme attribute (localStorage override, else OS
-     preference) before first paint, to avoid a flash of the
-     wrong theme. This just wires the visible toggle button and
-     keeps the site following the OS live if the person hasn't
-     explicitly chosen a theme themselves.
+     MOBILE NAVIGATION
      ========================================================= */
-  function wireTheme() {
-    const toggleBtn = $("#themeToggle");
-    const media = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
 
-    function applyTheme(theme) {
-      document.documentElement.setAttribute("data-theme", theme);
+  function initMobileNavigation() {
+    const check =
+      $("#check");
+
+    const navbar =
+      $("#navbar");
+
+    if (!check || !navbar) {
+      return;
     }
 
-    if (toggleBtn) {
-      toggleBtn.addEventListener("click", () => {
-        const current = document.documentElement.getAttribute("data-theme");
-        const next = current === "dark" ? "light" : "dark";
-        applyTheme(next);
-        try {
-          localStorage.setItem("sl_theme", next);
-        } catch (e) {}
+    $$("#navbar a").forEach((link) => {
+      link.addEventListener("click", () => {
+        check.checked = false;
       });
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!check.checked) {
+        return;
+      }
+
+      const clickedInsideNav =
+        event.target.closest("nav");
+
+      if (!clickedInsideNav) {
+        check.checked = false;
+      }
+    });
+
+    check.addEventListener("change", () => {
+      const navButton =
+        $(".navbutton");
+
+      if (navButton) {
+        navButton.setAttribute(
+          "aria-expanded",
+          String(check.checked)
+        );
+      }
+    });
+  }
+
+  /* =========================================================
+     ACTIVE NAVIGATION
+     ========================================================= */
+
+  function initActiveNavigation() {
+    const currentPage =
+      window.location.pathname
+        .split("/")
+        .pop()
+        .toLowerCase() || "index.html";
+
+    $$("#navbar a").forEach((link) => {
+      const href =
+        link.getAttribute("href");
+
+      if (!href) {
+        return;
+      }
+
+      const linkPage =
+        href.split("#")[0]
+          .split("/")
+          .pop()
+          .toLowerCase();
+
+      link.classList.toggle(
+        "active",
+        linkPage === currentPage
+      );
+    });
+  }
+
+  /* =========================================================
+     NAVBAR SCROLL STATE
+     ========================================================= */
+
+  function initNavbarScroll() {
+    const nav =
+      $("nav");
+
+    if (!nav) {
+      return;
     }
 
-    // If the person hasn't explicitly picked a theme on this site,
-    // keep following their OS setting live while the page is open.
-    if (media) {
-      const onSystemChange = (e) => {
-        let hasOverride = false;
-        try {
-          hasOverride = !!localStorage.getItem("sl_theme");
-        } catch (err) {}
-        if (!hasOverride) applyTheme(e.matches ? "dark" : "light");
+    const update =
+      () => {
+        nav.classList.toggle(
+          "nav--scrolled",
+          window.scrollY > 20
+        );
       };
-      if (media.addEventListener) media.addEventListener("change", onSystemChange);
-      else if (media.addListener) media.addListener(onSystemChange); // older Safari
+
+    update();
+
+    window.addEventListener(
+      "scroll",
+      update,
+      {
+        passive: true
+      }
+    );
+  }
+
+  /* =========================================================
+     SCROLL REVEAL
+     ========================================================= */
+
+  function initScrollReveal() {
+    const elements =
+      $$(".reveal");
+
+    /*
+     * Product cards and sections can automatically
+     * receive reveal behavior without requiring every
+     * HTML element to be manually marked up.
+     */
+
+    $$(".pro-container .pro").forEach(
+      (element) => {
+        element.classList.add("reveal");
+      }
+    );
+
+    $$(
+      "#feature .ft-box, #banner, #sm-banner .banner-box, #banner3 .banner-box, #newsletter"
+    ).forEach((element) => {
+      element.classList.add("reveal");
+    });
+
+    const revealElements =
+      $$(".reveal");
+
+    if (
+      !("IntersectionObserver" in window)
+    ) {
+      revealElements.forEach(
+        (element) => {
+          element.classList.add(
+            "reveal--in"
+          );
+        }
+      );
+
+      return;
     }
+
+    const observer =
+      new IntersectionObserver(
+        (entries, obs) => {
+          entries.forEach(
+            (entry) => {
+              if (!entry.isIntersecting) {
+                return;
+              }
+
+              entry.target.classList.add(
+                "reveal--in"
+              );
+
+              obs.unobserve(
+                entry.target
+              );
+            }
+          );
+        },
+        {
+          threshold: 0.08,
+          rootMargin: "0px 0px -30px 0px"
+        }
+      );
+
+    revealElements.forEach(
+      (element) => {
+        observer.observe(element);
+      }
+    );
+  }
+
+  /* =========================================================
+     TOASTS
+     ========================================================= */
+
+  function ensureToastRoot() {
+    let root =
+      $(".toast-root");
+
+    if (root) {
+      return root;
+    }
+
+    root =
+      document.createElement("div");
+
+    root.className =
+      "toast-root";
+
+    root.setAttribute(
+      "aria-live",
+      "polite"
+    );
+
+    root.setAttribute(
+      "aria-atomic",
+      "true"
+    );
+
+    document.body.appendChild(root);
+
+    return root;
+  }
+
+  function showToast(
+    message,
+    type = "success",
+    duration = 3000
+  ) {
+    if (!message) {
+      return;
+    }
+
+    const root =
+      ensureToastRoot();
+
+    const toast =
+      document.createElement("div");
+
+    toast.className =
+      "toast";
+
+    if (type === "warn") {
+      toast.classList.add(
+        "toast--warn"
+      );
+    }
+
+    const icon =
+      type === "warn"
+        ? "fa-exclamation-circle"
+        : "fa-check-circle";
+
+    toast.innerHTML = `
+      <i class="fas ${icon}" aria-hidden="true"></i>
+      <span>${escapeHtml(message)}</span>
+    `;
+
+    root.appendChild(toast);
+
+    requestAnimationFrame(() => {
+      toast.classList.add(
+        "toast--show"
+      );
+    });
+
+    setTimeout(() => {
+      toast.classList.remove(
+        "toast--show"
+      );
+
+      setTimeout(() => {
+        toast.remove();
+      }, 350);
+    }, duration);
   }
 
   /* =========================================================
      BACK TO TOP
      ========================================================= */
-  function wireBackToTop() {
-    const btn = $("#backToTop");
-    if (!btn) return;
-    const toggle = () => btn.classList.toggle("back-to-top--visible", window.scrollY > 500);
-    toggle();
-    window.addEventListener("scroll", toggle, { passive: true });
-    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
-  }
 
-  /* =========================================================
-     SCROLL-REVEAL ANIMATIONS
-     ========================================================= */
-  function wireScrollReveal() {
-    const targets = $$(
-      ".pro, .ft-box, .banner-box, .blog-box, section#header, section#feature, section#sneakers1 > h2, .staff, #contact-details, #form-details"
-    );
-    if (!("IntersectionObserver" in window) || targets.length === 0) {
-      targets.forEach((t) => t.classList.add("reveal--in"));
+  function initBackToTop() {
+    const button =
+      $("#backToTop");
+
+    if (!button) {
       return;
     }
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("reveal--in");
-            io.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+    const update =
+      () => {
+        button.classList.toggle(
+          "back-to-top--visible",
+          window.scrollY > 450
+        );
+      };
+
+    update();
+
+    window.addEventListener(
+      "scroll",
+      update,
+      {
+        passive: true
+      }
     );
 
-    targets.forEach((t) => {
-      t.classList.add("reveal");
-      io.observe(t);
-    });
-  }
-
-  /* =========================================================
-     NEWSLETTER + CONTACT FORM (front-end only, no backend)
-     ========================================================= */
-  function wireNewsletterForm() {
-    const form = $("#newsletterForm");
-    if (!form) return;
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const input = form.querySelector("input[type='email']");
-      if (!input || !input.checkValidity()) {
-        showToast("Please enter a valid email address", { type: "warn" });
-        input && input.focus();
-        return;
-      }
-      showToast("You're subscribed! Watch your inbox for drops 🔥");
-      form.reset();
-    });
-  }
-
-  function wireContactForm() {
-    const form = $("#contactForm");
-    if (!form) return;
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (!form.checkValidity()) {
-        showToast("Please fill in every field before sending", { type: "warn" });
-        return;
-      }
-      showToast("Message sent! We'll get back to you soon.");
-      form.reset();
-    });
-  }
-
-  /* =========================================================
-     TRACK ORDER PAGE (track-order.html)
-     ========================================================= */
-  function renderOrderTimeline(order) {
-    const wrap = $("#trackResult");
-    if (!wrap) return;
-
-    const currentIndex = computeOrderStageIndex(order);
-    const placedAtMs = order.placedAt && order.placedAt.toMillis ? order.placedAt.toMillis() : order.placedAt;
-    const placedDate = new Date(placedAtMs);
-
-    const stepsHtml = ORDER_STAGES.map((stage, i) => {
-      const state = i < currentIndex ? "done" : i === currentIndex ? "active" : "upcoming";
-      return `
-        <li class="track-step track-step--${state}">
-          <span class="track-step-icon"><i class="fas ${stage.icon}"></i></span>
-          <span class="track-step-label">${stage.label}</span>
-        </li>`;
-    }).join("");
-
-    const itemsHtml = order.items
-      .map(
-        (i) => `
-        <div class="track-item">
-          <img src="${i.img}" alt="${i.name}">
-          <div>
-            <p class="track-item-name">${i.name}${i.size ? ` <small>(Size ${i.size})</small>` : ""}</p>
-            <p class="track-item-qty">Qty ${i.qty} · ${money(i.price * i.qty)}</p>
-          </div>
-        </div>`
-      )
-      .join("");
-
-    wrap.innerHTML = `
-      <div class="track-card">
-        <div class="track-card-head">
-          <div>
-            <p class="track-order-id">Order ${order.id}</p>
-            <p class="track-order-date">Placed ${placedDate.toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short" })}</p>
-          </div>
-          <p class="track-order-total">${money(order.total)}</p>
-        </div>
-        <ol class="track-steps">${stepsHtml}</ol>
-        <div class="track-items">${itemsHtml}</div>
-        ${!order.status ? '<p class="track-demo-note"><i class="fas fa-info-circle"></i> Cloud tracking isn\'t set up yet, so this status is only an estimate based on time elapsed — see SETUP.md.</p>' : ""}
-      </div>
-    `;
-    wrap.hidden = false;
-  }
-
-  function wireTrackOrderPage() {
-    const form = $("#trackForm");
-    if (!form) return;
-
-    const input = $("#trackOrderId");
-    const notFound = $("#trackNotFound");
-    const resultWrap = $("#trackResult");
-    let unsubscribe = null;
-
-    function showNotFound() {
-      if (resultWrap) resultWrap.hidden = true;
-      if (notFound) notFound.hidden = false;
-    }
-
-    function lookup(id) {
-      if (unsubscribe) {
-        unsubscribe();
-        unsubscribe = null;
-      }
-
-      if (cloudReady()) {
-        unsubscribe = window.SLOrders.subscribeOrder(
-          id,
-          (order) => {
-            if (!order) {
-              showNotFound();
-              return;
-            }
-            if (notFound) notFound.hidden = true;
-            renderOrderTimeline(order);
-          },
-          () => showNotFound()
-        );
-        return;
-      }
-
-      const order = getLocalOrderById(id);
-      if (!order) {
-        showNotFound();
-        return;
-      }
-      if (notFound) notFound.hidden = true;
-      renderOrderTimeline(order);
-    }
-
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (!input.value.trim()) {
-        showToast("Enter an order reference first", { type: "warn" });
-        return;
-      }
-      lookup(input.value);
-    });
-
-    // Deep-link support: track-order.html?id=SL-XXXXX
-    const params = new URLSearchParams(window.location.search);
-    const idParam = params.get("id");
-    if (idParam) {
-      input.value = idParam;
-      lookup(idParam);
-    }
-
-    // Offer quick access to the visitor's own recent orders, if any
-    // (this list is always local — it's just a convenience shortcut,
-    // not where order data actually lives once Firebase is configured).
-    const recentWrap = $("#recentOrders");
-    if (recentWrap) {
-      const ids = getRecentLocalOrderIds();
-      if (ids.length) {
-        recentWrap.hidden = false;
-        recentWrap.querySelector("ul").innerHTML = ids
-          .map((id) => `<li><button type="button" class="recent-order-btn" data-id="${id}">${id}</button></li>`)
-          .join("");
-        recentWrap.querySelectorAll(".recent-order-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            input.value = btn.dataset.id;
-            lookup(btn.dataset.id);
-          });
+    button.addEventListener(
+      "click",
+      () => {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
         });
       }
-    }
+    );
   }
 
   /* =========================================================
-     INIT
+     NEWSLETTER
      ========================================================= */
-  document.addEventListener("DOMContentLoaded", () => {
-    wireNav();
-    wireTheme();
-    wireBackToTop();
-    wireAddToCartButtons();
-    wireProductCardNavigation();
-    wireSingleProductPage();
-    wireCartPageEvents();
-    wireNewsletterForm();
-    wireContactForm();
-    wireTrackOrderPage();
-    renderCartPage();
-    updateCartBadges();
-    wireScrollReveal();
-  });
+
+  function initNewsletter() {
+    const form =
+      $("#newsletterForm");
+
+    if (!form) {
+      return;
+    }
+
+    form.addEventListener(
+      "submit",
+      (event) => {
+        event.preventDefault();
+
+        const input =
+          $("input[type='email']", form);
+
+        if (!input) {
+          return;
+        }
+
+        const email =
+          input.value.trim();
+
+        if (!email || !input.checkValidity()) {
+          input.classList.add(
+            "field-error"
+          );
+
+          showToast(
+            "Please enter a valid email address.",
+            "warn"
+          );
+
+          setTimeout(() => {
+            input.classList.remove(
+              "field-error"
+            );
+          }, 500);
+
+          return;
+        }
+
+        safeStorageSet(
+          "sl_newsletter_email",
+          email
+        );
+
+        input.value = "";
+
+        showToast(
+          "Thanks! You are subscribed to SneakersLink updates.",
+          "success"
+        );
+      }
+    );
+  }
+
+  /* =========================================================
+     PRODUCT DETAIL PAGE
+     ========================================================= */
+
+  function initProductPage() {
+    const mainImage =
+      $("#mainImg");
+
+    if (!mainImage) {
+      return;
+    }
+
+    $$(".small-img-col img").forEach(
+      (thumbnail) => {
+        thumbnail.setAttribute(
+          "tabindex",
+          "0"
+        );
+
+        const changeImage =
+          () => {
+            const source =
+              thumbnail.getAttribute("src");
+
+            if (source) {
+              mainImage.setAttribute(
+                "src",
+                source
+              );
+            }
+          };
+
+        thumbnail.addEventListener(
+          "click",
+          changeImage
+        );
+
+        thumbnail.addEventListener(
+          "keydown",
+          (event) => {
+            if (
+              event.key === "Enter" ||
+              event.key === " "
+            ) {
+              event.preventDefault();
+              changeImage();
+            }
+          }
+        );
+      }
+    );
+
+    /*
+     * Product detail "Add to cart" support.
+     * The detail page may use #addToCart or
+     * a normal button inside .single-pro-details.
+     */
+
+    const details =
+      $(".single-pro-details");
+
+    if (!details) {
+      return;
+    }
+
+    const addButton =
+      $("#addToCart", details) ||
+      $(
+        "button.add-cart-btn",
+        details
+      ) ||
+      $("button", details);
+
+    if (!addButton) {
+      return;
+    }
+
+    addButton.addEventListener(
+      "click",
+      (event) => {
+        /*
+         * Only intercept a button that actually
+         * represents an add-to-cart action.
+         */
+        const buttonText =
+          addButton.textContent
+            .trim()
+            .toLowerCase();
+
+        if (
+          !addButton.matches(
+            ".add-cart-btn, #addToCart"
+          ) &&
+          !buttonText.includes("cart") &&
+          !buttonText.includes("add")
+        ) {
+          return;
+        }
+
+        event.preventDefault();
+
+        const nameElement =
+          $("h2", details) ||
+          $("h4", details);
+
+        const priceElement =
+          $("h4", details);
+
+        const quantityInput =
+          $("input[type='number']", details);
+
+        const sizeSelect =
+          $("select", details);
+
+        const quantity =
+          Math.max(
+            1,
+            parseInt(
+              quantityInput?.value || "1",
+              10
+            ) || 1
+          );
+
+        const product = {
+          id:
+            document.body.dataset.productId ||
+            `detail-${(
+              nameElement?.textContent ||
+              "sneaker"
+            )
+              .trim()
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")}`,
+
+          name:
+            nameElement?.textContent?.trim() ||
+            "Sneaker",
+
+          brand:
+            document.body.dataset.brand ||
+            "",
+
+          price:
+            parsePrice(
+              priceElement?.textContent
+            ),
+
+          image:
+            mainImage.getAttribute("src") ||
+            "",
+
+          size:
+            sizeSelect?.value || "",
+
+          quantity
+        };
+
+        const cart =
+          getCart();
+
+        const existing =
+          cart.find(
+            (item) =>
+              item.id === product.id &&
+              item.size === product.size
+          );
+
+        if (existing) {
+          existing.quantity +=
+            product.quantity;
+        } else {
+          cart.push(product);
+        }
+
+        saveCart(cart);
+
+        updateCartBadge(true);
+
+        showToast(
+          `${product.name} added to your cart.`,
+          "success"
+        );
+      }
+    );
+  }
+
+  /* =========================================================
+     TRACK ORDER PAGE
+     ========================================================= */
+
+  function initTrackOrder() {
+    const form =
+      $(".track-form");
+
+    if (!form) {
+      return;
+    }
+
+    const input =
+      $("input", form);
+
+    if (!input) {
+      return;
+    }
+
+    form.addEventListener(
+      "submit",
+      (event) => {
+        event.preventDefault();
+
+        const orderId =
+          input.value.trim();
+
+        if (!orderId) {
+          input.classList.add(
+            "field-error"
+          );
+
+          showToast(
+            "Enter your order number to continue.",
+            "warn"
+          );
+
+          setTimeout(() => {
+            input.classList.remove(
+              "field-error"
+            );
+          }, 500);
+
+          return;
+        }
+
+        /*
+         * If the track-order page already contains
+         * its own Firebase/order lookup logic,
+         * do not interfere with it.
+         *
+         * This fallback only provides a friendly
+         * notification when no dedicated handler
+         * has been attached.
+         */
+
+        if (
+          typeof window.trackOrder ===
+          "function"
+        ) {
+          return;
+        }
+
+        showToast(
+          `Searching for order ${orderId}…`,
+          "success"
+        );
+      }
+    );
+  }
+
+  /* =========================================================
+     RECENT ORDERS
+     ========================================================= */
+
+  function initRecentOrders() {
+    $$(".recent-order-btn").forEach(
+      (button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            const id =
+              button.dataset.orderId ||
+              button.textContent.trim();
+
+            const input =
+              $(".track-form input");
+
+            if (input) {
+              input.value = id;
+              input.focus();
+
+              const form =
+                $(".track-form");
+
+              if (form) {
+                form.dispatchEvent(
+                  new Event("submit", {
+                    bubbles: true,
+                    cancelable: true
+                  })
+                );
+              }
+            }
+          }
+        );
+      }
+    );
+  }
+
+  /* =========================================================
+     TICKER ACCESSIBILITY
+     ========================================================= */
+
+  function initTicker() {
+    const ticker =
+      $(".ticker-track");
+
+    if (!ticker) {
+      return;
+    }
+
+    ticker.setAttribute(
+      "aria-live",
+      "off"
+    );
+  }
+
+  /* =========================================================
+     IMAGE FALLBACKS
+     ========================================================= */
+
+  function initImageFallbacks() {
+    $$("img").forEach((image) => {
+      image.addEventListener(
+        "error",
+        () => {
+          image.classList.add(
+            "image-load-error"
+          );
+        },
+        {
+          once: true
+        }
+      );
+    });
+  }
+
+  /* =========================================================
+     ESCAPE HTML
+     ========================================================= */
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  /* =========================================================
+     CROSS-TAB CART SYNC
+     ========================================================= */
+
+  function initStorageSync() {
+    window.addEventListener(
+      "storage",
+      (event) => {
+        if (event.key === STORAGE_KEY) {
+          updateCartBadge();
+
+          if (
+            $("#cart table tbody")
+          ) {
+            renderCartPage();
+          }
+        }
+
+        if (
+          event.key === THEME_KEY &&
+          event.newValue
+        ) {
+          applyTheme(
+            event.newValue,
+            false
+          );
+        }
+      }
+    );
+  }
+
+  /* =========================================================
+     GLOBAL CART API
+     ---------------------------------------------------------
+     Allows other SneakersLink scripts such as
+     firebase-orders.js / firebase-profile.js to
+     interact with the cart without duplicating
+     localStorage logic.
+     ========================================================= */
+
+  window.SneakersLinkCart = {
+    get: getCart,
+
+    count: getCartCount,
+
+    subtotal: getCartSubtotal,
+
+    add: (product) => {
+      addToCart(product);
+    },
+
+    remove: (id) => {
+      removeCartItem(id);
+    },
+
+    updateQuantity: (
+      id,
+      quantity
+    ) => {
+      updateCartQuantity(
+        id,
+        quantity
+      );
+    },
+
+    clear: () => {
+      saveCart([]);
+      renderCartPage();
+    }
+  };
+
+  /* =========================================================
+     INITIALIZATION
+     ========================================================= */
+
+  function init() {
+    /*
+     * Theme first so the page never spends long
+     * in the wrong visual state.
+     */
+    initTheme();
+
+    updateCartBadge();
+
+    initMobileNavigation();
+    initActiveNavigation();
+    initNavbarScroll();
+
+    initProductCards();
+
+    initCartPage();
+    initCartEvents();
+    initCoupon();
+
+    initScrollReveal();
+
+    initBackToTop();
+
+    initNewsletter();
+
+    initProductPage();
+
+    initTrackOrder();
+    initRecentOrders();
+
+    initTicker();
+    initImageFallbacks();
+
+    initStorageSync();
+  }
+
+  /* =========================================================
+     START
+     ========================================================= */
+
+  if (
+    document.readyState === "loading"
+  ) {
+    document.addEventListener(
+      "DOMContentLoaded",
+      init,
+      {
+        once: true
+      }
+    );
+  } else {
+    init();
+  }
+
 })();
