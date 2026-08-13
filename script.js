@@ -110,10 +110,18 @@
 
   /* =========================================================
      ORDER TRACKING ENGINE
-     No backend exists yet, so an order's progress is derived
-     deterministically from how long ago it was placed. This
-     keeps the tracker page honest (nothing is faked per-visit)
-     while still demoing a real end-to-end flow.
+     ---------------------------------------------------------
+     Real order status now lives in Firestore (see
+     firebase-orders.js / window.SLOrders) so a human can
+     actually mark an order Confirmed / Packed / Delivered from
+     admin.html, and the customer sees it update live.
+
+     If Firebase hasn't been configured yet (firebase-config.js
+     still has placeholder keys), everything here quietly falls
+     back to a local, per-browser simulation so the site still
+     works end-to-end for a demo — it just can't be tracked from
+     a different device or updated by an admin until you finish
+     the setup in SETUP.md.
      ========================================================= */
   const ORDERS_KEY = "sl_orders_v1";
 
@@ -125,13 +133,17 @@
     { key: "delivered", label: "Delivered",         icon: "fa-home",          afterMinutes: 60 },
   ];
 
+  function cloudReady() {
+    return window.SLOrders && window.SLOrders.isConfigured;
+  }
+
   function generateOrderId() {
     const stamp = Date.now().toString(36).toUpperCase().slice(-5);
     const rand = Math.random().toString(36).toUpperCase().slice(2, 5);
     return `SL-${stamp}${rand}`;
   }
 
-  function getOrders() {
+  function getLocalOrders() {
     try {
       return JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
     } catch (e) {
@@ -139,28 +151,58 @@
     }
   }
 
-  function saveOrders(orders) {
+  function saveLocalOrders(orders) {
     localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
   }
 
-  function createOrder(cartItems, total) {
-    const orders = getOrders();
+  function rememberOrderIdLocally(id) {
+    // Convenience only — lets the tracker page offer "your recent
+    // orders on this device" without needing to be signed in.
+    const ids = JSON.parse(localStorage.getItem("sl_recent_order_ids") || "[]");
+    localStorage.setItem("sl_recent_order_ids", JSON.stringify([id, ...ids].slice(0, 5)));
+  }
+
+  function getRecentLocalOrderIds() {
+    return JSON.parse(localStorage.getItem("sl_recent_order_ids") || "[]");
+  }
+
+  /** Create an order — cloud if configured, local fallback otherwise. */
+  async function createOrder(cartItems, total) {
+    if (cloudReady()) {
+      try {
+        const order = await window.SLOrders.createOrder(cartItems, total);
+        rememberOrderIdLocally(order.id);
+        return order;
+      } catch (err) {
+        console.error("Cloud order creation failed, falling back to local:", err);
+      }
+    }
+    const orders = getLocalOrders();
     const order = {
       id: generateOrderId(),
       items: cartItems.map((i) => ({ name: i.name, size: i.size, qty: i.qty, price: i.price, img: i.img })),
       total,
+      status: "placed",
       placedAt: Date.now(),
     };
     orders.unshift(order);
-    saveOrders(orders.slice(0, 25)); // keep it tidy
+    saveLocalOrders(orders.slice(0, 25));
+    rememberOrderIdLocally(order.id);
     return order;
   }
 
-  function getOrderById(id) {
-    return getOrders().find((o) => o.id.toLowerCase() === String(id).trim().toLowerCase());
+  function getLocalOrderById(id) {
+    return getLocalOrders().find((o) => o.id.toLowerCase() === String(id).trim().toLowerCase());
   }
 
-  function computeOrderProgress(order) {
+  /** Index of an order's current stage, whether it has a real `status`
+      field (cloud orders) or needs to be estimated from elapsed time
+      (local-fallback orders, which have no admin to set a status). */
+  function computeOrderStageIndex(order) {
+    if (order.status) {
+      const i = ORDER_STAGES.findIndex((s) => s.key === order.status);
+      return i === -1 ? 0 : i;
+    }
     const minutesElapsed = (Date.now() - order.placedAt) / 60000;
     let currentIndex = 0;
     ORDER_STAGES.forEach((stage, i) => {
@@ -364,13 +406,27 @@
 
     const checkoutBtn = $("#checkoutBtn");
     if (checkoutBtn) {
-      checkoutBtn.addEventListener("click", () => {
+      checkoutBtn.addEventListener("click", async () => {
         const cart = getCart();
         if (cart.length === 0) {
           showToast("Your cart is empty", { type: "warn" });
           return;
         }
-        const order = createOrder(cart, cartTotal());
+        checkoutBtn.disabled = true;
+        const originalLabel = checkoutBtn.textContent;
+        checkoutBtn.textContent = "Placing order…";
+
+        let order;
+        try {
+          order = await createOrder(cart, cartTotal());
+        } catch (err) {
+          console.error(err);
+          showToast("Couldn't place the order — please try again", { type: "warn" });
+          checkoutBtn.disabled = false;
+          checkoutBtn.textContent = originalLabel;
+          return;
+        }
+
         const lines = cart
           .map((i) => `- ${i.name}${i.size ? ` (Size ${i.size})` : ""} x${i.qty} — ${money(i.price * i.qty)}`)
           .join("\n");
@@ -379,6 +435,8 @@
         showToast(`Order placed — reference ${order.id}. Track it anytime!`);
         saveCart([]);
         renderCartPage();
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = originalLabel;
       });
     }
   }
@@ -488,8 +546,9 @@
     const wrap = $("#trackResult");
     if (!wrap) return;
 
-    const currentIndex = computeOrderProgress(order);
-    const placedDate = new Date(order.placedAt);
+    const currentIndex = computeOrderStageIndex(order);
+    const placedAtMs = order.placedAt && order.placedAt.toMillis ? order.placedAt.toMillis() : order.placedAt;
+    const placedDate = new Date(placedAtMs);
 
     const stepsHtml = ORDER_STAGES.map((stage, i) => {
       const state = i < currentIndex ? "done" : i === currentIndex ? "active" : "upcoming";
@@ -524,6 +583,7 @@
         </div>
         <ol class="track-steps">${stepsHtml}</ol>
         <div class="track-items">${itemsHtml}</div>
+        ${!order.status ? '<p class="track-demo-note"><i class="fas fa-info-circle"></i> Cloud tracking isn\'t set up yet, so this status is only an estimate based on time elapsed — see SETUP.md.</p>' : ""}
       </div>
     `;
     wrap.hidden = false;
@@ -536,12 +596,38 @@
     const input = $("#trackOrderId");
     const notFound = $("#trackNotFound");
     const resultWrap = $("#trackResult");
+    let unsubscribe = null;
+
+    function showNotFound() {
+      if (resultWrap) resultWrap.hidden = true;
+      if (notFound) notFound.hidden = false;
+    }
 
     function lookup(id) {
-      const order = getOrderById(id);
+      if (unsubscribe) {
+        unsubscribe();
+        unsubscribe = null;
+      }
+
+      if (cloudReady()) {
+        unsubscribe = window.SLOrders.subscribeOrder(
+          id,
+          (order) => {
+            if (!order) {
+              showNotFound();
+              return;
+            }
+            if (notFound) notFound.hidden = true;
+            renderOrderTimeline(order);
+          },
+          () => showNotFound()
+        );
+        return;
+      }
+
+      const order = getLocalOrderById(id);
       if (!order) {
-        if (resultWrap) resultWrap.hidden = true;
-        if (notFound) notFound.hidden = false;
+        showNotFound();
         return;
       }
       if (notFound) notFound.hidden = true;
@@ -565,14 +651,16 @@
       lookup(idParam);
     }
 
-    // Offer quick access to the visitor's own recent orders, if any.
+    // Offer quick access to the visitor's own recent orders, if any
+    // (this list is always local — it's just a convenience shortcut,
+    // not where order data actually lives once Firebase is configured).
     const recentWrap = $("#recentOrders");
     if (recentWrap) {
-      const orders = getOrders().slice(0, 3);
-      if (orders.length) {
+      const ids = getRecentLocalOrderIds();
+      if (ids.length) {
         recentWrap.hidden = false;
-        recentWrap.querySelector("ul").innerHTML = orders
-          .map((o) => `<li><button type="button" class="recent-order-btn" data-id="${o.id}">${o.id} — ${money(o.total)}</button></li>`)
+        recentWrap.querySelector("ul").innerHTML = ids
+          .map((id) => `<li><button type="button" class="recent-order-btn" data-id="${id}">${id}</button></li>`)
           .join("");
         recentWrap.querySelectorAll(".recent-order-btn").forEach((btn) => {
           btn.addEventListener("click", () => {

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin — SneakersLink</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
+</head>
+
+<style>
+    @import url("https://fonts.googleapis.com/css2?family=Spartan:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Spartan", sans-serif; }
+    html, body { min-height: 100%; background: #f6f7fb; }
+
+    header.admin-bar {
+        background: #1a1a1a;
+        color: #fff;
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    header.admin-bar .brand { font-weight: 800; letter-spacing: 0.4px; }
+    header.admin-bar .brand span { color: #35c9bd; }
+
+    header.admin-bar .who { font-size: 13px; color: #ccc; display: flex; align-items: center; gap: 14px; }
+
+    header.admin-bar button {
+        background: transparent;
+        border: 1px solid #444;
+        color: #fff;
+        padding: 8px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: background-color 0.2s;
+    }
+
+    header.admin-bar button:hover { background: #333; }
+
+    main { max-width: 1000px; margin: 0 auto; padding: 32px 20px 60px; }
+
+    /* ---- config / sign-in states ---- */
+    .state-card {
+        max-width: 420px;
+        margin: 60px auto;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+        padding: 36px 32px;
+        text-align: center;
+    }
+
+    .state-card i.big { font-size: 34px; color: #088178; margin-bottom: 14px; }
+    .state-card h2 { font-size: 19px; margin-bottom: 8px; color: #1a1a1a; }
+    .state-card p { font-size: 13.5px; color: #777; line-height: 1.6; margin-bottom: 20px; }
+
+    .input-field {
+        background: #f0f2fa;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        border: 1px solid transparent;
+        transition: border-color 0.2s;
+    }
+
+    .input-field:focus-within { border-color: #088178; }
+    .input-field i { margin-left: 14px; color: #999; width: 14px; text-align: center; }
+    .input-field input { flex: 1; border: 0; background: transparent; outline: 0; padding: 13px 12px; font-size: 14px; }
+
+    .error-msg { display: block; text-align: left; font-size: 12px; color: #e61010; margin: -6px 0 10px 4px; min-height: 14px; }
+
+    .submit-btn {
+        width: 100%;
+        background: #088178;
+        color: #fff;
+        height: 44px;
+        border-radius: 8px;
+        border: 0;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 14px;
+        transition: background-color 0.2s;
+    }
+
+    .submit-btn:hover { background: #066b63; }
+    .submit-btn:disabled { opacity: 0.6; cursor: default; }
+
+    /* ---- stats ---- */
+    .stats { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 26px; }
+
+    .stat-box {
+        flex: 1;
+        min-width: 130px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 18px 20px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+    }
+
+    .stat-box .num { font-size: 24px; font-weight: 800; color: #1a1a1a; }
+    .stat-box .label { font-size: 12px; color: #888; margin-top: 4px; }
+
+    /* ---- orders ---- */
+    .orders-empty {
+        text-align: center;
+        color: #999;
+        padding: 60px 20px;
+        font-size: 14px;
+    }
+
+    .order-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 18px 20px;
+        margin-bottom: 14px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+        transition: box-shadow 0.2s;
+    }
+
+    .order-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+
+    .order-card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .order-id { font-weight: 800; font-size: 15px; color: #1a1a1a; }
+    .order-date { font-size: 12px; color: #999; margin-top: 2px; }
+    .order-total { font-weight: 800; color: #088178; font-size: 15px; }
+
+    .order-items { font-size: 12.5px; color: #555; margin-bottom: 14px; line-height: 1.7; }
+
+    .order-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+    .status-select {
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid #ddd;
+        font-size: 12.5px;
+        font-weight: 700;
+        cursor: pointer;
+        outline: none;
+    }
+
+    .status-badge--placed { color: #999; }
+    .status-badge--confirmed { color: #2f6fed; }
+    .status-badge--packed { color: #a9720c; }
+    .status-badge--out { color: #d2691e; }
+    .status-badge--delivered { color: #088178; }
+
+    .order-updated { font-size: 11px; color: #bbb; }
+
+    @media (max-width: 560px) {
+        main { padding: 20px 14px 50px; }
+        .order-card-head { flex-direction: column; }
+    }
+</style>
+
+<body>
+
+    <header class="admin-bar">
+        <div class="brand">SNEAKERS<span>LINK</span> · Admin</div>
+        <div class="who" id="whoBar" hidden>
+            <span id="whoEmail"></span>
+            <button type="button" id="signOutBtn">Sign Out</button>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- Firebase not configured yet -->
+        <div class="state-card" id="notConfiguredState" hidden>
+            <i class="fas fa-plug big"></i>
+            <h2>Cloud order tracking isn't set up yet</h2>
+            <p>
+                This admin page needs a Firebase project to store and update orders.
+                Follow the steps in <strong>SETUP.md</strong> (create a free Firebase
+                project, enable Firestore + Authentication, then paste your keys into
+                <code>firebase-config.js</code>), then reload this page.
+            </p>
+        </div>
+
+        <!-- Sign in -->
+        <div class="state-card" id="signInState" hidden>
+            <i class="fas fa-lock big"></i>
+            <h2>Admin Sign In</h2>
+            <p>Sign in with the admin account you created in the Firebase console.</p>
+
+            <form id="signInForm" novalidate>
+                <div class="input-field">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="adminEmail" placeholder="Email" autocomplete="username" required>
+                </div>
+                <div class="input-field">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="adminPassword" placeholder="Password" autocomplete="current-password" required>
+                </div>
+                <span class="error-msg" id="signInError"></span>
+                <button type="submit" class="submit-btn" id="signInBtn">Sign In</button>
+            </form>
+        </div>
+
+        <!-- Signed-in dashboard -->
+        <div id="dashboard" hidden>
+            <div class="stats">
+                <div class="stat-box"><div class="num" id="statTotal">0</div><div class="label">Total Orders</div></div>
+                <div class="stat-box"><div class="num" id="statPending">0</div><div class="label">Not Delivered Yet</div></div>
+                <div class="stat-box"><div class="num" id="statToday">0</div><div class="label">Placed Today</div></div>
+            </div>
+
+            <div id="ordersList"></div>
+            <p class="orders-empty" id="ordersEmpty" hidden>No orders yet — they'll show up here the moment a customer checks out.</p>
+        </div>
+
+    </main>
+
+    <script type="module" src="firebase-orders.js"></script>
+    <script>
+        (function () {
+            const $ = (s) => document.querySelector(s);
+
+            const notConfiguredState = $("#notConfiguredState");
+            const signInState = $("#signInState");
+            const dashboard = $("#dashboard");
+            const whoBar = $("#whoBar");
+            const whoEmail = $("#whoEmail");
+
+            let ordersUnsubscribe = null;
+
+            function money(n) {
+                return "Kes " + Number(n).toLocaleString("en-KE", { maximumFractionDigits: 0 });
+            }
+
+            function showState(state) {
+                notConfiguredState.hidden = state !== "not-configured";
+                signInState.hidden = state !== "signed-out";
+                dashboard.hidden = state !== "signed-in";
+                whoBar.hidden = state !== "signed-in";
+            }
+
+            function renderOrders(orders) {
+                const stages = window.SLOrders.ORDER_STAGES;
+                const list = $("#ordersList");
+                const empty = $("#ordersEmpty");
+
+                $("#statTotal").textContent = orders.length;
+                $("#statPending").textContent = orders.filter((o) => o.status !== "delivered").length;
+                const todayStr = new Date().toDateString();
+                $("#statToday").textContent = orders.filter((o) => {
+                    const ms = o.placedAt && o.placedAt.toMillis ? o.placedAt.toMillis() : o.placedAt;
+                    return ms && new Date(ms).toDateString() === todayStr;
+                }).length;
+
+                if (orders.length === 0) {
+                    list.innerHTML = "";
+                    empty.hidden = false;
+                    return;
+                }
+                empty.hidden = true;
+
+                list.innerHTML = orders.map((o) => {
+                    const placedMs = o.placedAt && o.placedAt.toMillis ? o.placedAt.toMillis() : o.placedAt;
+                    const updatedMs = o.updatedAt && o.updatedAt.toMillis ? o.updatedAt.toMillis() : o.updatedAt;
+                    const placedStr = placedMs ? new Date(placedMs).toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short" }) : "—";
+                    const updatedStr = updatedMs ? new Date(updatedMs).toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short" }) : "";
+
+                    const itemsStr = o.items.map((i) => `${i.name}${i.size ? ` (Size ${i.size})` : ""} × ${i.qty}`).join(", ");
+
+                    const optionsHtml = stages.map((s) =>
+                        `<option value="${s.key}" ${o.status === s.key ? "selected" : ""}>${s.label}</option>`
+                    ).join("");
+
+                    return `
+                        <div class="order-card" data-id="${o.id}">
+                            <div class="order-card-head">
+                                <div>
+                                    <div class="order-id">${o.id}</div>
+                                    <div class="order-date">Placed ${placedStr}</div>
+                                </div>
+                                <div class="order-total">${money(o.total)}</div>
+                            </div>
+                            <div class="order-items">${itemsStr}</div>
+                            <div class="order-footer">
+                                <select class="status-select status-badge--${o.status}" data-id="${o.id}">
+                                    ${optionsHtml}
+                                </select>
+                                <span class="order-updated">${updatedStr ? "Updated " + updatedStr : ""}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+
+                list.querySelectorAll(".status-select").forEach((sel) => {
+                    sel.addEventListener("change", async () => {
+                        const id = sel.dataset.id;
+                        const newStatus = sel.value;
+                        sel.disabled = true;
+                        try {
+                            await window.SLOrders.updateOrderStatus(id, newStatus);
+                            sel.className = "status-select status-badge--" + newStatus;
+                        } catch (err) {
+                            console.error(err);
+                            alert("Couldn't update that order's status — please try again.");
+                        } finally {
+                            sel.disabled = false;
+                        }
+                    });
+                });
+            }
+
+            function watchOrders() {
+                if (ordersUnsubscribe) ordersUnsubscribe();
+                ordersUnsubscribe = window.SLOrders.subscribeAllOrders(
+                    renderOrders,
+                    (err) => console.error("Orders subscription error:", err)
+                );
+            }
+
+            function init() {
+                if (!window.SLOrders || !window.SLOrders.isConfigured) {
+                    showState("not-configured");
+                    return;
+                }
+
+                window.SLOrders.onAdminAuthChange((user) => {
+                    if (user) {
+                        whoEmail.textContent = user.email;
+                        showState("signed-in");
+                        watchOrders();
+                    } else {
+                        if (ordersUnsubscribe) { ordersUnsubscribe(); ordersUnsubscribe = null; }
+                        showState("signed-out");
+                    }
+                });
+            }
+
+            $("#signInForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const email = $("#adminEmail").value.trim();
+                const password = $("#adminPassword").value;
+                const errorEl = $("#signInError");
+                const btn = $("#signInBtn");
+                errorEl.textContent = "";
+
+                if (!email || !password) {
+                    errorEl.textContent = "Enter your email and password.";
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.textContent = "Signing in…";
+                try {
+                    await window.SLOrders.adminSignIn(email, password);
+                } catch (err) {
+                    errorEl.textContent = "Sign-in failed — check your email and password.";
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = "Sign In";
+                }
+            });
+
+            $("#signOutBtn").addEventListener("click", async () => {
+                await window.SLOrders.adminSignOut();
+            });
+
+            // firebase-orders.js is a deferred module; by DOMContentLoaded it has
+            // already run, but guard with the ready event too just in case.
+            if (window.SLOrders) {
+                init();
+            } else {
+                window.addEventListener("slorders:ready", init, { once: true });
+            }
+        })();
+    </script>
+</body>
+
+</html>
