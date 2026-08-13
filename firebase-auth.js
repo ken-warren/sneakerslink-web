@@ -146,13 +146,12 @@ function currentUser() {
 
 window.SLAuth = {
   isConfigured,
-
-  register: registerUser,
-  login: loginUser,
-
-  logout: logoutUser,
-  getCurrentUser,
-  onUserAuthChange
+  register,
+  login,
+  logout,
+  resetPassword,
+  onAuthChange,
+  currentUser,
 };
 
 
