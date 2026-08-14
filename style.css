@@ -4447,3 +4447,194 @@ footer .col img.logo:hover {
         padding-right: 10px;
     }
 }
+
+/* =========================================================
+   ACCOUNT DROPDOWN — PROFILE HEADER
+   ========================================================= */
+
+.account-profile-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 16px 14px;
+    min-width: 260px;
+}
+
+
+/* ---------------------------------------------------------
+   PROFILE AVATAR
+   --------------------------------------------------------- */
+
+.account-profile-avatar {
+    width: 54px;
+    height: 54px;
+    min-width: 54px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+    border-radius: 50%;
+
+    background: linear-gradient(
+        135deg,
+        #111,
+        #444
+    );
+
+    color: #fff;
+
+    font-size: 20px;
+    font-weight: 600;
+
+    box-shadow:
+        0 3px 12px rgba(0, 0, 0, 0.16);
+
+    border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
+
+/* Actual profile image */
+
+.account-profile-avatar img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+}
+
+
+/* Initial fallback */
+
+.account-profile-avatar
+.account-avatar-initial {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #fff;
+
+    font-size: 20px;
+    font-weight: 600;
+}
+
+
+/* ---------------------------------------------------------
+   PROFILE TEXT
+   --------------------------------------------------------- */
+
+.account-profile-info {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+
+    gap: 3px;
+}
+
+
+/* Customer name */
+
+.account-profile-name {
+    display: block;
+
+    color: #111;
+
+    font-size: 16px;
+    line-height: 1.25;
+    font-weight: 600;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    max-width: 175px;
+}
+
+
+/* Email caption */
+
+.account-profile-email {
+    display: block;
+
+    color: #777;
+
+    font-size: 11px;
+    line-height: 1.35;
+    font-weight: 400;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    max-width: 175px;
+}
+
+
+/* ---------------------------------------------------------
+   DIVIDER
+   --------------------------------------------------------- */
+
+.account-dropdown-divider {
+    height: 1px;
+
+    margin: 0 12px 6px;
+
+    background: rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   DARK MODE
+   ========================================================= */
+
+[data-theme="dark"] .account-profile-name {
+    color: #fff;
+}
+
+[data-theme="dark"] .account-profile-email {
+    color: rgba(255, 255, 255, 0.58);
+}
+
+[data-theme="dark"] .account-dropdown-divider {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 576px) {
+
+    .account-profile-header {
+        min-width: 235px;
+        padding: 14px;
+        gap: 12px;
+    }
+
+    .account-profile-avatar {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+    }
+
+    .account-profile-name {
+        font-size: 15px;
+        max-width: 150px;
+    }
+
+    .account-profile-email {
+        font-size: 10.5px;
+        max-width: 150px;
+    }
+
+}
