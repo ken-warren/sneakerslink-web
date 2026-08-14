@@ -1,737 +1,2767 @@
 /* =========================================================
-   SneakersLink — site-wide interactions
-   Cart engine (localStorage), nav behaviour, scroll reveal,
-   toasts, and small per-page form flows.
+   SneakersLink — production storefront interactions
    ========================================================= */
-
-(function () {
+(() => {
   "use strict";
 
-  /* ---------- helpers ---------- */
-  const $  = (sel, ctx = document) => ctx.querySelector(sel);
-  const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+  const STORAGE_KEY = "sneakerslink_cart";
+  const THEME_KEY = "sl_theme";
+  const COUPON_KEY = "sl_coupon";
+  const RECENT_ORDERS_KEY = "sl_recent_orders";
+  const LOCAL_ORDERS_KEY = "sl_local_orders";
+  const WHATSAPP_NUMBER = "254768372955";
+  const MAX_QTY = 99;
 
-  const money = (n) =>
-    "Kes " + Number(n).toLocaleString("en-KE", { maximumFractionDigits: 0 });
+  const $ = (selector, context = document) => context.querySelector(selector);
+  const $$ = (selector, context = document) => [...context.querySelectorAll(selector)];
 
-  const parsePrice = (text) => {
-    const digits = String(text).replace(/[^\d]/g, "");
-    return digits ? parseInt(digits, 10) : 0;
+  const money = (value) =>
+    new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
+      maximumFractionDigits: 0,
+    }).format(Number(value) || 0);
+
+  const parsePrice = (value) => {
+    if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+    if (!value) return 0;
+
+    const cleaned = String(value)
+      .replace(/KES|KSh|Kes/gi, "")
+      .replace(/,/g, "")
+      .replace(/[^\d.-]/g, "");
+
+    return Number(cleaned) || 0;
   };
 
-  const slugify = (text) =>
-    String(text)
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-
-  /* =========================================================
-     TOAST NOTIFICATIONS
-     ========================================================= */
-  function ensureToastRoot() {
-    let root = $("#toastRoot");
-    if (!root) {
-      root = document.createElement("div");
-      root.id = "toastRoot";
-      root.className = "toast-root";
-      document.body.appendChild(root);
+  const safeStorageGet = (key, fallback = null) => {
+    try {
+      const value = localStorage.getItem(key);
+      return value === null ? fallback : value;
+    } catch {
+      return fallback;
     }
-    return root;
+  };
+
+  const safeStorageSet = (key, value) => {
+    try {
+      localStorage.setItem(key, value);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const safeStorageRemove = (key) => {
+    try {
+      localStorage.removeItem(key);
+    } catch {}
+  };
+
+  const escapeHtml = (value) =>
+    String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  const normaliseId = (value) =>
+    String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+  function normaliseCartItem(item) {
+    if (!item || !item.id) return null;
+
+    return {
+      id: String(item.id),
+      name: String(item.name || "Sneaker").trim(),
+      brand: String(item.brand || "").trim(),
+      price: Math.max(0, Number(item.price) || 0),
+      image: String(item.image || ""),
+      quantity: Math.min(
+        MAX_QTY,
+        Math.max(
+          1,
+          Math.floor(
+            Number(item.quantity) || 1
+          )
+        )
+      ),
+      size: item.size ? String(item.size) : "",
+    };
   }
-
-  function showToast(message, opts = {}) {
-    const root = ensureToastRoot();
-    const toast = document.createElement("div");
-    toast.className = "toast" + (opts.type ? ` toast--${opts.type}` : "");
-    toast.innerHTML = `<i class="fas fa-check-circle"></i><span>${message}</span>`;
-    root.appendChild(toast);
-
-    requestAnimationFrame(() => toast.classList.add("toast--show"));
-
-    setTimeout(() => {
-      toast.classList.remove("toast--show");
-      toast.addEventListener("transitionend", () => toast.remove(), { once: true });
-    }, 2600);
-  }
-
-  /* =========================================================
-     CART ENGINE (shared across every page via localStorage)
-     ========================================================= */
-  const CART_KEY = "sl_cart_v1";
 
   function getCart() {
+    const raw = safeStorageGet(
+      STORAGE_KEY,
+      "[]"
+    );
+
     try {
-      return JSON.parse(localStorage.getItem(CART_KEY)) || [];
-    } catch (e) {
+      const parsed = JSON.parse(raw);
+
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed
+        .map(normaliseCartItem)
+        .filter(Boolean);
+    } catch {
+      safeStorageRemove(STORAGE_KEY);
       return [];
     }
+  }
+
+  function emitCartUpdate(cart) {
+    window.dispatchEvent(
+      new CustomEvent(
+        "sneakerslink:cart-updated",
+        {
+          detail: {
+            cart: [...cart],
+          },
+        }
+      )
+    );
   }
 
   function saveCart(cart) {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
-    updateCartBadges();
+    const clean = cart
+      .map(normaliseCartItem)
+      .filter(Boolean);
+
+    safeStorageSet(
+      STORAGE_KEY,
+      JSON.stringify(clean)
+    );
+
+    updateCartBadge();
+    emitCartUpdate(clean);
   }
 
-  function addToCart(item) {
-    const cart = getCart();
-    const existing = cart.find((p) => p.id === item.id && p.size === item.size);
-    if (existing) {
-      existing.qty += item.qty || 1;
-    } else {
-      cart.push({ ...item, qty: item.qty || 1 });
-    }
-    saveCart(cart);
-    renderCartPage();
+  function getCartCount() {
+    return getCart().reduce(
+      (sum, item) =>
+        sum + item.quantity,
+      0
+    );
   }
 
-  function removeFromCart(id, size) {
-    let cart = getCart();
-    cart = cart.filter((p) => !(p.id === id && p.size === size));
-    saveCart(cart);
-    renderCartPage();
+  function getCartSubtotal() {
+    return getCart().reduce(
+      (sum, item) =>
+        sum +
+        item.price *
+          item.quantity,
+      0
+    );
   }
 
-  function setQty(id, size, qty) {
-    const cart = getCart();
-    const item = cart.find((p) => p.id === id && p.size === size);
-    if (item) item.qty = Math.max(1, Math.min(20, qty | 0));
-    saveCart(cart);
-    renderCartPage();
-  }
-
-  function cartCount() {
-    return getCart().reduce((sum, p) => sum + p.qty, 0);
-  }
-
-  function cartTotal() {
-    return getCart().reduce((sum, p) => sum + p.qty * p.price, 0);
-  }
-
-  /* =========================================================
-     ORDER TRACKING ENGINE
-     ---------------------------------------------------------
-     Real order status now lives in Firestore (see
-     firebase-orders.js / window.SLOrders) so a human can
-     actually mark an order Confirmed / Packed / Delivered from
-     admin.html, and the customer sees it update live.
-
-     If Firebase hasn't been configured yet (firebase-config.js
-     still has placeholder keys), everything here quietly falls
-     back to a local, per-browser simulation so the site still
-     works end-to-end for a demo — it just can't be tracked from
-     a different device or updated by an admin until you finish
-     the setup in SETUP.md.
-     ========================================================= */
-  const ORDERS_KEY = "sl_orders_v1";
-
-  const ORDER_STAGES = [
-    { key: "placed",    label: "Order Placed",     icon: "fa-receipt",       afterMinutes: 0 },
-    { key: "confirmed", label: "Confirmed",         icon: "fa-check-circle",  afterMinutes: 2 },
-    { key: "packed",    label: "Packed",            icon: "fa-box",           afterMinutes: 10 },
-    { key: "out",       label: "Out for Delivery",  icon: "fa-truck",         afterMinutes: 30 },
-    { key: "delivered", label: "Delivered",         icon: "fa-home",          afterMinutes: 60 },
-  ];
-
-  function cloudReady() {
-    return window.SLOrders && window.SLOrders.isConfigured;
-  }
-
-  function generateOrderId() {
-    const stamp = Date.now().toString(36).toUpperCase().slice(-5);
-    const rand = Math.random().toString(36).toUpperCase().slice(2, 5);
-    return `SL-${stamp}${rand}`;
-  }
-
-  function getLocalOrders() {
+  function getCoupon() {
     try {
-      return JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
-    } catch (e) {
-      return [];
-    }
-  }
-
-  function saveLocalOrders(orders) {
-    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
-  }
-
-  function rememberOrderIdLocally(id) {
-    // Convenience only — lets the tracker page offer "your recent
-    // orders on this device" without needing to be signed in.
-    const ids = JSON.parse(localStorage.getItem("sl_recent_order_ids") || "[]");
-    localStorage.setItem("sl_recent_order_ids", JSON.stringify([id, ...ids].slice(0, 5)));
-  }
-
-  function getRecentLocalOrderIds() {
-    return JSON.parse(localStorage.getItem("sl_recent_order_ids") || "[]");
-  }
-
-  /** Create an order — cloud if configured, local fallback otherwise. */
-  async function createOrder(cartItems, total) {
-    if (cloudReady()) {
-      try {
-        const order = await window.SLOrders.createOrder(cartItems, total);
-        rememberOrderIdLocally(order.id);
-        return order;
-      } catch (err) {
-        console.error("Cloud order creation failed, falling back to local:", err);
-      }
-    }
-    const orders = getLocalOrders();
-    const order = {
-      id: generateOrderId(),
-      items: cartItems.map((i) => ({ name: i.name, size: i.size, qty: i.qty, price: i.price, img: i.img })),
-      total,
-      status: "placed",
-      placedAt: Date.now(),
-    };
-    orders.unshift(order);
-    saveLocalOrders(orders.slice(0, 25));
-    rememberOrderIdLocally(order.id);
-    return order;
-  }
-
-  function getLocalOrderById(id) {
-    return getLocalOrders().find((o) => o.id.toLowerCase() === String(id).trim().toLowerCase());
-  }
-
-  /** Index of an order's current stage, whether it has a real `status`
-      field (cloud orders) or needs to be estimated from elapsed time
-      (local-fallback orders, which have no admin to set a status). */
-  function computeOrderStageIndex(order) {
-    if (order.status) {
-      const i = ORDER_STAGES.findIndex((s) => s.key === order.status);
-      return i === -1 ? 0 : i;
-    }
-    const minutesElapsed = (Date.now() - order.placedAt) / 60000;
-    let currentIndex = 0;
-    ORDER_STAGES.forEach((stage, i) => {
-      if (minutesElapsed >= stage.afterMinutes) currentIndex = i;
-    });
-    return currentIndex;
-  }
-
-  function updateCartBadges() {
-    const count = cartCount();
-    $$("[data-cart-count]").forEach((el) => {
-      el.textContent = count;
-      el.classList.toggle("cart-count--visible", count > 0);
-      el.classList.add("cart-count--bump");
-      setTimeout(() => el.classList.remove("cart-count--bump"), 260);
-    });
-  }
-
-  /* ---------- fly-to-cart micro animation ---------- */
-  function flyToCart(sourceImg) {
-    const cartIcon = $(".cart");
-    if (!sourceImg || !cartIcon) return;
-
-    const start = sourceImg.getBoundingClientRect();
-    const end = cartIcon.getBoundingClientRect();
-
-    const clone = sourceImg.cloneNode(true);
-    clone.className = "fly-clone";
-    clone.style.width = start.width + "px";
-    clone.style.height = start.height + "px";
-    clone.style.left = start.left + "px";
-    clone.style.top = start.top + "px";
-    document.body.appendChild(clone);
-
-    requestAnimationFrame(() => {
-      clone.style.left = end.left + "px";
-      clone.style.top = end.top + "px";
-      clone.style.width = "16px";
-      clone.style.height = "16px";
-      clone.style.opacity = "0.3";
-      clone.style.transform = "rotate(20deg)";
-    });
-
-    clone.addEventListener("transitionend", () => clone.remove(), { once: true });
-    setTimeout(() => clone.remove(), 900);
-  }
-
-  /* ---------- wire "add to cart" buttons on product-grid cards ---------- */
-  function wireAddToCartButtons() {
-    $$(".add-cart-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const card = btn.closest(".pro");
-        if (!card) return;
-
-        const nameEl = card.querySelector(".des h5");
-        const priceEl = card.querySelector(".des h4");
-        const imgEl = card.querySelector("img");
-        if (!nameEl || !priceEl || !imgEl) return;
-
-        const name = nameEl.textContent.trim();
-        const price = parsePrice(priceEl.textContent);
-        const img = imgEl.getAttribute("src");
-
-        addToCart({ id: slugify(name), name, price, img, size: "" });
-        showToast(`${name} added to cart`);
-        flyToCart(imgEl);
-
-        btn.classList.add("add-cart-btn--pop");
-        setTimeout(() => btn.classList.remove("add-cart-btn--pop"), 260);
-      });
-    });
-  }
-
-  /* ---------- make whole product cards (with data-href) clickable ---------- */
-  function wireProductCardNavigation() {
-    $$(".pro[data-href]").forEach((card) => {
-      card.style.cursor = "pointer";
-      card.addEventListener("click", (e) => {
-        if (e.target.closest(".add-cart-btn")) return;
-        window.location.href = card.dataset.href;
-      });
-      card.setAttribute("tabindex", "0");
-      card.setAttribute("role", "link");
-      card.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") window.location.href = card.dataset.href;
-      });
-    });
-  }
-
-  /* ---------- single-product page (sproduct.html) ---------- */
-  function wireSingleProductPage() {
-    const btn = $("#mainAddToCart");
-    if (!btn) return;
-
-    const nameEl = $(".single-pro-details h4");
-    const priceEl = $(".single-pro-details h2");
-    const imgEl = $("#mainImg");
-    const sizeEl = $("#sizeSelect");
-    const qtyEl = $("#qtyInput");
-
-    btn.addEventListener("click", () => {
-      if (sizeEl && (sizeEl.value === "" || sizeEl.selectedIndex === 0)) {
-        sizeEl.classList.add("field-error");
-        showToast("Please select a size first", { type: "warn" });
-        sizeEl.focus();
-        setTimeout(() => sizeEl.classList.remove("field-error"), 900);
-        return;
-      }
-
-      const name = nameEl ? nameEl.textContent.trim() : "Product";
-      const price = priceEl ? parsePrice(priceEl.textContent) : 0;
-      const img = imgEl ? imgEl.getAttribute("src") : "";
-      const size = sizeEl ? sizeEl.value : "";
-      const qty = qtyEl ? Math.max(1, parseInt(qtyEl.value, 10) || 1) : 1;
-
-      addToCart({ id: slugify(name), name, price, img, size, qty });
-      showToast(`${name} (Size ${size}) added to cart`);
-      if (imgEl) flyToCart(imgEl);
-    });
-  }
-
-  /* =========================================================
-     CART PAGE RENDERING (cart.html)
-     ========================================================= */
-  function renderCartPage() {
-    const body = $("#cartBody");
-    if (!body) return; // not on cart.html
-
-    const cart = getCart();
-    const emptyMsg = $("#emptyCartMsg");
-    const table = body.closest("table");
-
-    if (cart.length === 0) {
-      body.innerHTML = "";
-      if (table) table.style.display = "none";
-      if (emptyMsg) emptyMsg.hidden = false;
-    } else {
-      if (table) table.style.display = "";
-      if (emptyMsg) emptyMsg.hidden = true;
-
-      body.innerHTML = cart
-        .map(
-          (item) => `
-        <tr data-id="${item.id}" data-size="${item.size || ""}">
-          <td><button type="button" class="remove-item" aria-label="Remove ${item.name}"><i class="fas fa-times-circle"></i></button></td>
-          <td><img src="${item.img}" alt="${item.name}"></td>
-          <td>${item.name}${item.size ? ` <small>(Size ${item.size})</small>` : ""}</td>
-          <td>${money(item.price)}</td>
-          <td><input type="number" min="1" max="20" value="${item.qty}" class="qty-input"></td>
-          <td>${money(item.price * item.qty)}</td>
-        </tr>`
+      const coupon = JSON.parse(
+        safeStorageGet(
+          COUPON_KEY,
+          "null"
         )
-        .join("");
-    }
+      );
 
-    const subtotal = cartTotal();
-    const subtotalEl = $("#cartSubtotal");
-    const totalEl = $("#cartTotal");
-    if (subtotalEl) subtotalEl.textContent = money(subtotal);
-    if (totalEl) totalEl.textContent = money(subtotal);
-  }
-
-  function wireCartPageEvents() {
-    const body = $("#cartBody");
-    if (!body) return;
-
-    body.addEventListener("click", (e) => {
-      const removeBtn = e.target.closest(".remove-item");
-      if (!removeBtn) return;
-      const row = removeBtn.closest("tr");
-      row.classList.add("row-removing");
-      setTimeout(() => {
-        removeFromCart(row.dataset.id, row.dataset.size);
-        showToast("Item removed from cart");
-      }, 180);
-    });
-
-    body.addEventListener("change", (e) => {
-      if (!e.target.classList.contains("qty-input")) return;
-      const row = e.target.closest("tr");
-      setQty(row.dataset.id, row.dataset.size, parseInt(e.target.value, 10) || 1);
-    });
-
-    const couponBtn = $("#applyCouponBtn");
-    if (couponBtn) {
-      couponBtn.addEventListener("click", () => {
-        const input = $("#couponInput");
-        const msg = $("#couponMsg");
-        if (!input || !input.value.trim()) {
-          if (msg) msg.textContent = "Enter a coupon code first.";
-          return;
-        }
-        if (msg) {
-          msg.textContent = "This code isn't valid right now — DM us on WhatsApp for current offers!";
-        }
-      });
-    }
-
-    const checkoutBtn = $("#checkoutBtn");
-    if (checkoutBtn) {
-      checkoutBtn.addEventListener("click", async () => {
-        const cart = getCart();
-        if (cart.length === 0) {
-          showToast("Your cart is empty", { type: "warn" });
-          return;
-        }
-        checkoutBtn.disabled = true;
-        const originalLabel = checkoutBtn.textContent;
-        checkoutBtn.textContent = "Placing order…";
-
-        let order;
-        try {
-          order = await createOrder(cart, cartTotal());
-        } catch (err) {
-          console.error(err);
-          showToast("Couldn't place the order — please try again", { type: "warn" });
-          checkoutBtn.disabled = false;
-          checkoutBtn.textContent = originalLabel;
-          return;
-        }
-
-        const lines = cart
-          .map((i) => `- ${i.name}${i.size ? ` (Size ${i.size})` : ""} x${i.qty} — ${money(i.price * i.qty)}`)
-          .join("\n");
-        const message = `Hi SneakersLink! I'd like to order (Ref: ${order.id}):\n${lines}\n\nTotal: ${money(order.total)}`;
-        window.open("https://wa.me/254768372955?text=" + encodeURIComponent(message), "_blank");
-        showToast(`Order placed — reference ${order.id}. Track it anytime!`);
-        saveCart([]);
-        renderCartPage();
-        checkoutBtn.disabled = false;
-        checkoutBtn.textContent = originalLabel;
-      });
+      return coupon?.code ===
+        "SL500" &&
+        Number(coupon.discount) > 0
+        ? {
+            code: "SL500",
+            discount: 500,
+          }
+        : null;
+    } catch {
+      return null;
     }
   }
 
-  /* =========================================================
-     NAVIGATION — mobile menu, scroll shrink, active-link close
-     ========================================================= */
-  function wireNav() {
-    const nav = $("nav");
-    const check = $("#check");
-    const navLinks = $$("#navbar a");
+  function getTotals() {
+    const subtotal =
+      getCartSubtotal();
 
-    if (nav) {
-      const onScroll = () => nav.classList.toggle("nav--scrolled", window.scrollY > 40);
-      onScroll();
-      window.addEventListener("scroll", onScroll, { passive: true });
+    const coupon =
+      getCoupon();
+
+    const discount = Math.min(
+      subtotal,
+      coupon?.discount || 0
+    );
+
+    return {
+      subtotal,
+      discount,
+      total: Math.max(
+        0,
+        subtotal - discount
+      ),
+      coupon,
+      shipping: 0,
+    };
+  }
+
+  function updateCartBadge(
+    bump = false
+  ) {
+    const count =
+      getCartCount();
+
+    $$(
+      "[data-cart-count], .cart-count"
+    ).forEach((badge) => {
+      badge.textContent =
+        count > 99
+          ? "99+"
+          : String(count);
+
+      badge.classList.toggle(
+        "cart-count--visible",
+        count > 0
+      );
+
+      if (bump) {
+        badge.classList.remove(
+          "cart-count--bump"
+        );
+
+        void badge.offsetWidth;
+
+        badge.classList.add(
+          "cart-count--bump"
+        );
+
+        window.setTimeout(
+          () =>
+            badge.classList.remove(
+              "cart-count--bump"
+            ),
+          350
+        );
+      }
+    });
+  }
+
+  function getProductFromCard(
+    card
+  ) {
+    if (!card) return null;
+
+    const image = $("img", card);
+
+    const brand =
+      card.dataset.brand ||
+      $(".des span", card)
+        ?.textContent?.trim() ||
+      "";
+
+    const name =
+      card.dataset.name ||
+      $(".des h5", card)
+        ?.textContent?.trim() ||
+      "Sneaker";
+
+    const price =
+      parsePrice(
+        card.dataset.price
+      ) ||
+      parsePrice(
+        $(".des h4", card)
+          ?.textContent
+      );
+
+    const imageSrc =
+      image?.getAttribute(
+        "src"
+      ) ||
+      image?.src ||
+      "";
+
+    const id =
+      card.dataset.productId ||
+      card.dataset.id ||
+      normaliseId(
+        `${brand}-${name}`
+      );
+
+    return normaliseCartItem({
+      id,
+      name,
+      brand,
+      price,
+      image: imageSrc,
+      quantity: 1,
+      size:
+        card.dataset.size ||
+        "",
+    });
+  }
+
+  function addToCart(
+    product,
+    sourceElement = null
+  ) {
+    const cleanProduct =
+      normaliseCartItem(
+        product
+      );
+
+    if (!cleanProduct) {
+      return;
     }
 
-    if (check) {
-      navLinks.forEach((link) =>
-        link.addEventListener("click", () => {
-          check.checked = false;
-        })
+    const cart =
+      getCart();
+
+    const existing =
+      cart.find(
+        (item) =>
+          item.id ===
+            cleanProduct.id &&
+          item.size ===
+            cleanProduct.size
+      );
+
+    if (existing) {
+      existing.quantity =
+        Math.min(
+          MAX_QTY,
+          existing.quantity +
+            cleanProduct.quantity
+        );
+    } else {
+      cart.push(
+        cleanProduct
+      );
+    }
+
+    saveCart(cart);
+    updateCartBadge(true);
+
+    if (sourceElement) {
+      sourceElement.classList.remove(
+        "add-cart-btn--pop"
+      );
+
+      void sourceElement.offsetWidth;
+
+      sourceElement.classList.add(
+        "add-cart-btn--pop"
+      );
+
+      window.setTimeout(
+        () =>
+          sourceElement.classList.remove(
+            "add-cart-btn--pop"
+          ),
+        350
+      );
+
+      flyToCart(
+        sourceElement
+      );
+    }
+
+    showToast(
+      `${cleanProduct.name} added to your cart.`
+    );
+  }
+
+  function flyToCart(
+    sourceElement
+  ) {
+    const image =
+      sourceElement
+        ?.closest(".pro")
+        ?.querySelector("img");
+
+    const cartIcon =
+      $(
+        ".cart[href='cart.html'], .cart, [data-cart-count]"
+      )?.closest("a") ||
+      $(".cart");
+
+    if (!image || !cartIcon) {
+      return;
+    }
+
+    const imageRect =
+      image.getBoundingClientRect();
+
+    const cartRect =
+      cartIcon.getBoundingClientRect();
+
+    const clone =
+      image.cloneNode(true);
+
+    clone.className =
+      "fly-clone";
+
+    Object.assign(
+      clone.style,
+      {
+        left:
+          `${imageRect.left}px`,
+        top:
+          `${imageRect.top}px`,
+        width:
+          `${imageRect.width}px`,
+        height:
+          `${imageRect.height}px`,
+        opacity: "0.9",
+      }
+    );
+
+    document.body.appendChild(
+      clone
+    );
+
+    requestAnimationFrame(
+      () => {
+        Object.assign(
+          clone.style,
+          {
+            left:
+              `${
+                cartRect.left +
+                cartRect.width /
+                  2
+              }px`,
+            top:
+              `${
+                cartRect.top +
+                cartRect.height /
+                  2
+              }px`,
+            width: "24px",
+            height: "24px",
+            opacity: "0.15",
+            transform:
+              "scale(.6)",
+          }
+        );
+      }
+    );
+
+    window.setTimeout(
+      () => clone.remove(),
+      850
+    );
+  }
+
+  function initProductCards() {
+    $$(".pro").forEach(
+      (card, index) => {
+        card.style.setProperty(
+          "--i",
+          index
+        );
+
+        const addButton =
+          $(".add-cart-btn", card);
+
+        if (addButton) {
+          addButton.addEventListener(
+            "click",
+            (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+
+              addToCart(
+                getProductFromCard(
+                  card
+                ),
+                addButton
+              );
+            }
+          );
+        }
+
+        const href =
+          card.dataset.href ||
+          card.dataset.url;
+
+        if (href) {
+          card.setAttribute(
+            "tabindex",
+            "0"
+          );
+
+          card.setAttribute(
+            "role",
+            "link"
+          );
+
+          card.addEventListener(
+            "click",
+            (event) => {
+              if (
+                event.target.closest(
+                  "button,a,input,select"
+                )
+              ) {
+                return;
+              }
+
+              window.location.href =
+                href;
+            }
+          );
+
+          card.addEventListener(
+            "keydown",
+            (event) => {
+              if (
+                (
+                  event.key ===
+                    "Enter" ||
+                  event.key ===
+                    " "
+                ) &&
+                !event.target.closest(
+                  "button,a,input,select"
+                )
+              ) {
+                event.preventDefault();
+                window.location.href =
+                  href;
+              }
+            }
+          );
+        }
+      }
+    );
+  }
+
+  function renderCartPage() {
+    const table =
+      $("#cart table") ||
+      $("#cartTable");
+
+    const tbody =
+      $("#cart tbody") ||
+      $("#cart table tbody");
+
+    if (!table || !tbody) {
+      return;
+    }
+
+    const cart =
+      getCart();
+
+    tbody.innerHTML = "";
+
+    const emptyMessage =
+      $("#emptyCartMsg");
+
+    if (!cart.length) {
+      table.classList.add(
+        "cart-table--empty"
+      );
+
+      if (emptyMessage) {
+        emptyMessage.hidden =
+          false;
+      }
+
+      const row =
+        document.createElement(
+          "tr"
+        );
+
+      row.innerHTML = `
+        <td colspan="6">
+          <div class="empty-cart-msg">
+            <p>Your cart is currently empty.</p>
+            <a href="shop.html">Continue shopping →</a>
+          </div>
+        </td>`;
+
+      tbody.appendChild(row);
+
+      updateCartTotals();
+
+      return;
+    }
+
+    table.classList.remove(
+      "cart-table--empty"
+    );
+
+    if (emptyMessage) {
+      emptyMessage.hidden =
+        true;
+    }
+
+    cart.forEach(
+      (item) => {
+        const row =
+          document.createElement(
+            "tr"
+          );
+
+        row.dataset.cartId =
+          item.id;
+
+        row.dataset.cartSize =
+          item.size;
+
+        row.innerHTML = `
+        <td>
+          <button type="button"
+            class="remove-item"
+            data-remove-item="${escapeHtml(item.id)}"
+            data-remove-size="${escapeHtml(item.size)}"
+            aria-label="Remove ${escapeHtml(item.name)}">
+            <i class="far fa-times-circle"
+               aria-hidden="true"></i>
+          </button>
+        </td>
+
+        <td>
+          <img
+            src="${escapeHtml(item.image)}"
+            alt="${escapeHtml(item.name)}"
+            loading="lazy">
+        </td>
+
+        <td>
+          <strong>
+            ${escapeHtml(item.name)}
+          </strong>
+
+          ${
+            item.brand
+              ? `<small class="cart-item-brand">
+                  ${escapeHtml(item.brand)}
+                </small>`
+              : ""
+          }
+
+          ${
+            item.size
+              ? `<small class="cart-item-size">
+                  Size: ${escapeHtml(item.size)}
+                </small>`
+              : ""
+          }
+        </td>
+
+        <td>
+          ${money(item.price)}
+        </td>
+
+        <td>
+          <input
+            type="number"
+            min="1"
+            max="${MAX_QTY}"
+            value="${item.quantity}"
+            class="cart-qty"
+            data-cart-qty="${escapeHtml(item.id)}"
+            data-cart-size="${escapeHtml(item.size)}"
+            inputmode="numeric"
+            aria-label="Quantity for ${escapeHtml(item.name)}">
+        </td>
+
+        <td>
+          ${money(
+            item.price *
+              item.quantity
+          )}
+        </td>`;
+
+        tbody.appendChild(row);
+      }
+    );
+
+    updateCartTotals();
+  }
+
+  function updateCartTotals() {
+    const totals =
+      getTotals();
+
+    const setMoney = (
+      selectors,
+      value
+    ) => {
+      const el =
+        selectors
+          .map(
+            (selector) =>
+              $(selector)
+          )
+          .find(Boolean);
+
+      if (el) {
+        el.textContent =
+          money(value);
+      }
+    };
+
+    setMoney(
+      [
+        "#cartSubtotal",
+        "#subtotal-value",
+        "#subtotal .subtotal-value",
+        "[data-cart-subtotal]",
+      ],
+      totals.subtotal
+    );
+
+    setMoney(
+      [
+        "#cartTotal",
+        "#cart-total",
+        "#total-value",
+        "[data-cart-total]",
+      ],
+      totals.total
+    );
+
+    $$(
+      "[data-subtotal]"
+    ).forEach(
+      (el) =>
+        (el.textContent =
+          money(
+            totals.subtotal
+          ))
+    );
+
+    $$(
+      "[data-discount]"
+    ).forEach(
+      (el) =>
+        (el.textContent =
+          `−${money(
+            totals.discount
+          )}`)
+    );
+
+    $$(
+      "[data-total]"
+    ).forEach(
+      (el) =>
+        (el.textContent =
+          money(
+            totals.total
+          ))
+    );
+
+    const discountRow =
+      $("#discountRow");
+
+    if (discountRow) {
+      discountRow.hidden =
+        totals.discount <=
+        0;
+    }
+
+    const couponMsg =
+      $("#couponMsg");
+
+    if (
+      couponMsg &&
+      totals.coupon
+    ) {
+      couponMsg.textContent =
+        `${totals.coupon.code} applied — ${money(
+          totals.discount
+        )} discount.`;
+    }
+
+    updateCartBadge();
+  }
+
+  function updateCartQuantity(
+    id,
+    size,
+    quantity
+  ) {
+    const cart =
+      getCart();
+
+    const item =
+      cart.find(
+        (product) =>
+          product.id === id &&
+          String(
+            product.size || ""
+          ) ===
+            String(
+              size || ""
+            )
+      );
+
+    if (!item) {
+      return;
+    }
+
+    const parsed =
+      Number.parseInt(
+        quantity,
+        10
+      );
+
+    item.quantity =
+      Number.isFinite(
+        parsed
+      )
+        ? Math.min(
+            MAX_QTY,
+            Math.max(
+              1,
+              parsed
+            )
+          )
+        : 1;
+
+    saveCart(cart);
+    renderCartPage();
+  }
+
+  function removeCartItem(
+    id,
+    size,
+    sourceElement = null
+  ) {
+    const cart =
+      getCart();
+
+    const item =
+      cart.find(
+        (product) =>
+          product.id === id &&
+          String(
+            product.size || ""
+          ) ===
+            String(
+              size || ""
+            )
+      );
+
+    if (!item) {
+      return;
+    }
+
+    const remove = () => {
+      saveCart(
+        cart.filter(
+          (product) =>
+            !(
+              product.id ===
+                id &&
+              String(
+                product.size || ""
+              ) ===
+                String(
+                  size || ""
+                )
+            )
+        )
+      );
+
+      renderCartPage();
+
+      showToast(
+        `${item.name} removed from your cart.`,
+        "warn"
+      );
+    };
+
+    const row =
+      sourceElement?.closest(
+        "tr"
+      );
+
+    if (row) {
+      row.classList.add(
+        "row-removing"
+      );
+
+      window.setTimeout(
+        remove,
+        220
+      );
+    } else {
+      remove();
+    }
+  }
+
+  function initCartEvents() {
+    document.addEventListener(
+      "click",
+      (event) => {
+        const button =
+          event.target.closest(
+            "[data-remove-item]"
+          );
+
+        if (!button) {
+          return;
+        }
+
+        event.preventDefault();
+
+        removeCartItem(
+          button.dataset
+            .removeItem,
+          button.dataset
+            .removeSize ||
+            "",
+          button
+        );
+      }
+    );
+
+    document.addEventListener(
+      "change",
+      (event) => {
+        const input =
+          event.target.closest(
+            "[data-cart-qty]"
+          );
+
+        if (!input) {
+          return;
+        }
+
+        updateCartQuantity(
+          input.dataset
+            .cartQty,
+          input.dataset
+            .cartSize ||
+            "",
+          input.value
+        );
+      }
+    );
+  }
+
+  function applyCoupon() {
+    const input =
+      $("#couponInput") ||
+      $("#coupon input");
+
+    const button =
+      $("#applyCouponBtn") ||
+      $("#coupon button");
+
+    if (!input || !button) {
+      return;
+    }
+
+    const code =
+      input.value
+        .trim()
+        .toUpperCase();
+
+    if (!code) {
+      showToast(
+        "Enter a coupon code.",
+        "warn"
+      );
+
+      input.focus();
+
+      return;
+    }
+
+    if (code !== "SL500") {
+      safeStorageRemove(
+        COUPON_KEY
+      );
+
+      updateCouponTotalsAndMessage(
+        "That coupon code is not valid.",
+        true
+      );
+
+      return;
+    }
+
+    if (
+      getCartSubtotal() <
+      2000
+    ) {
+      showToast(
+        "SL500 requires a cart subtotal of at least KES 2,000.",
+        "warn"
+      );
+
+      return;
+    }
+
+    safeStorageSet(
+      COUPON_KEY,
+      JSON.stringify({
+        code: "SL500",
+        discount: 500,
+      })
+    );
+
+    updateCouponTotalsAndMessage(
+      "SL500 applied — KES 500 discount."
+    );
+
+    showToast(
+      "Coupon applied."
+    );
+  }
+
+  function updateCouponTotalsAndMessage(
+    message,
+    warning = false
+  ) {
+    const msg =
+      $("#couponMsg") ||
+      $(
+        ".coupon-msg",
+        $("#coupon") ||
+          document
+      );
+
+    if (msg) {
+      msg.textContent =
+        message;
+    }
+
+    if (warning) {
+      showToast(
+        message,
+        "warn"
+      );
+    }
+
+    updateCartTotals();
+  }
+
+  function initCoupon() {
+    const button =
+      $("#applyCouponBtn") ||
+      $("#coupon button");
+
+    button?.addEventListener(
+      "click",
+      applyCoupon
+    );
+
+    const input =
+      $("#couponInput") ||
+      $("#coupon input");
+
+    input?.addEventListener(
+      "keydown",
+      (event) => {
+        if (
+          event.key ===
+          "Enter"
+        ) {
+          event.preventDefault();
+          applyCoupon();
+        }
+      }
+    );
+  }
+
+  function getPreferredTheme() {
+    const saved =
+      safeStorageGet(
+        THEME_KEY
+      );
+
+    if (
+      saved === "dark" ||
+      saved === "light"
+    ) {
+      return saved;
+    }
+
+    return window
+      .matchMedia?.(
+        "(prefers-color-scheme: dark)"
+      ).matches
+      ? "dark"
+      : "light";
+  }
+
+  function applyTheme(
+    theme,
+    persist = true
+  ) {
+    const safeTheme =
+      theme === "dark"
+        ? "dark"
+        : "light";
+
+    document.documentElement.setAttribute(
+      "data-theme",
+      safeTheme
+    );
+
+    if (persist) {
+      safeStorageSet(
+        THEME_KEY,
+        safeTheme
+      );
+    }
+
+    const toggle =
+      $("#themeToggle");
+
+    if (toggle) {
+      const dark =
+        safeTheme ===
+        "dark";
+
+      toggle.setAttribute(
+        "aria-label",
+        dark
+          ? "Switch to light mode"
+          : "Switch to dark mode"
+      );
+
+      toggle.setAttribute(
+        "title",
+        dark
+          ? "Switch to light mode"
+          : "Switch to dark mode"
       );
     }
   }
 
-  /* =========================================================
-     THEME — toggle button + live system-preference following
-     ---------------------------------------------------------
-     A tiny inline script in <head> already resolved the initial
-     data-theme attribute (localStorage override, else OS
-     preference) before first paint, to avoid a flash of the
-     wrong theme. This just wires the visible toggle button and
-     keeps the site following the OS live if the person hasn't
-     explicitly chosen a theme themselves.
-     ========================================================= */
-  function wireTheme() {
-    const toggleBtn = $("#themeToggle");
-    const media = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+  function initTheme() {
+    applyTheme(
+      document.documentElement.getAttribute(
+        "data-theme"
+      ) ||
+        getPreferredTheme(),
+      false
+    );
 
-    function applyTheme(theme) {
-      document.documentElement.setAttribute("data-theme", theme);
+    $("#themeToggle")?.addEventListener(
+      "click",
+      () => {
+        const next =
+          document.documentElement.getAttribute(
+            "data-theme"
+          ) ===
+          "dark"
+            ? "light"
+            : "dark";
+
+        applyTheme(next);
+
+        showToast(
+          next === "dark"
+            ? "Dark mode enabled."
+            : "Light mode enabled."
+        );
+      }
+    );
+  }
+
+  function initAccountMenu() {
+    const guestLinks = $("#accountGuestLinks");
+    const menu = $("#accountMenu");
+    const toggleBtn = $("#accountToggle");
+    const dropdown = $("#accountDropdown");
+    const emailEl = $("#accountDropdownEmail");
+    const signOutBtn = $("#accountSignOutBtn");
+    const inlineThemeBtn = $("#accountThemeToggle");
+    const inlineThemeLabel = $("#accountThemeLabel");
+
+    if (!guestLinks && !menu) return; // page has no account area
+
+    function setLoggedInView(user) {
+      if (guestLinks) guestLinks.hidden = true;
+      if (menu) menu.hidden = false;
+      if (emailEl) {
+        emailEl.textContent =
+          (user && (user.email || user.displayName)) || "Signed in";
+      }
     }
 
-    if (toggleBtn) {
-      toggleBtn.addEventListener("click", () => {
-        const current = document.documentElement.getAttribute("data-theme");
-        const next = current === "dark" ? "light" : "dark";
+    function setLoggedOutView() {
+      if (guestLinks) guestLinks.hidden = false;
+      if (menu) menu.hidden = true;
+      closeDropdown();
+    }
+
+    function openDropdown() {
+      dropdown?.classList.add("is-open");
+      toggleBtn?.classList.add("is-open");
+      toggleBtn?.setAttribute("aria-expanded", "true");
+    }
+
+    function closeDropdown() {
+      dropdown?.classList.remove("is-open");
+      toggleBtn?.classList.remove("is-open");
+      toggleBtn?.setAttribute("aria-expanded", "false");
+    }
+
+    toggleBtn?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dropdown?.classList.contains("is-open") ? closeDropdown() : openDropdown();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (menu && !menu.hidden && !menu.contains(e.target)) closeDropdown();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeDropdown();
+    });
+
+    signOutBtn?.addEventListener("click", async () => {
+      try {
+        if (window.SLAuth?.logout) await window.SLAuth.logout();
+        showToast("Signed out.");
+      } catch (error) {
+        console.error("Sign out failed:", error);
+        showToast("Couldn't sign out — please try again.", "warn");
+      }
+      closeDropdown();
+    });
+
+    if (inlineThemeBtn) {
+      const syncLabel = () => {
+        const isDark =
+          document.documentElement.getAttribute("data-theme") === "dark";
+        if (inlineThemeLabel)
+          inlineThemeLabel.textContent = isDark ? "Light Mode" : "Dark Mode";
+      };
+      syncLabel();
+      inlineThemeBtn.addEventListener("click", () => {
+        const next =
+          document.documentElement.getAttribute("data-theme") === "dark"
+            ? "light"
+            : "dark";
         applyTheme(next);
-        try {
-          localStorage.setItem("sl_theme", next);
-        } catch (e) {}
+        syncLabel();
+        closeDropdown();
       });
     }
 
-    // If the person hasn't explicitly picked a theme on this site,
-    // keep following their OS setting live while the page is open.
-    if (media) {
-      const onSystemChange = (e) => {
-        let hasOverride = false;
-        try {
-          hasOverride = !!localStorage.getItem("sl_theme");
-        } catch (err) {}
-        if (!hasOverride) applyTheme(e.matches ? "dark" : "light");
-      };
-      if (media.addEventListener) media.addEventListener("change", onSystemChange);
-      else if (media.addListener) media.addListener(onSystemChange); // older Safari
+    // React to auth state as soon as it's known. firebase-auth.js is a
+    // deferred module, so window.SLAuth may not exist the instant
+    // DOMContentLoaded fires — listen for its ready event as a fallback.
+    function wireAuthState() {
+      if (!window.SLAuth) return false;
+      window.SLAuth.onAuthStateChanged((user) => {
+        if (user) setLoggedInView(user);
+        else setLoggedOutView();
+      });
+      return true;
+    }
+
+    if (!wireAuthState()) {
+      window.addEventListener("slauth:ready", wireAuthState, { once: true });
     }
   }
 
-  /* =========================================================
-     BACK TO TOP
-     ========================================================= */
-  function wireBackToTop() {
-    const btn = $("#backToTop");
-    if (!btn) return;
-    const toggle = () => btn.classList.toggle("back-to-top--visible", window.scrollY > 500);
-    toggle();
-    window.addEventListener("scroll", toggle, { passive: true });
-    btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
-  }
+  function initMobileNavigation() {
+    const check =
+      $("#check");
 
-  /* =========================================================
-     SCROLL-REVEAL ANIMATIONS
-     ========================================================= */
-  function wireScrollReveal() {
-    const targets = $$(
-      ".pro, .ft-box, .banner-box, .blog-box, section#header, section#feature, section#sneakers1 > h2, .staff, #contact-details, #form-details"
-    );
-    if (!("IntersectionObserver" in window) || targets.length === 0) {
-      targets.forEach((t) => t.classList.add("reveal--in"));
+    const navbar =
+      $("#navbar");
+
+    if (!check || !navbar) {
       return;
     }
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("reveal--in");
-            io.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+    const button =
+      $(".navbutton");
+
+    button?.setAttribute(
+      "aria-controls",
+      "navbar"
     );
 
-    targets.forEach((t) => {
-      t.classList.add("reveal");
-      io.observe(t);
-    });
-  }
+    button?.setAttribute(
+      "aria-expanded",
+      "false"
+    );
 
-  /* =========================================================
-     NEWSLETTER + CONTACT FORM (front-end only, no backend)
-     ========================================================= */
-  function wireNewsletterForm() {
-    const form = $("#newsletterForm");
-    if (!form) return;
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const input = form.querySelector("input[type='email']");
-      if (!input || !input.checkValidity()) {
-        showToast("Please enter a valid email address", { type: "warn" });
-        input && input.focus();
-        return;
-      }
-      showToast("You're subscribed! Watch your inbox for drops 🔥");
-      form.reset();
-    });
-  }
+    $$("#navbar a").forEach(
+      (link) =>
+        link.addEventListener(
+          "click",
+          () => {
+            check.checked =
+              false;
 
-  function wireContactForm() {
-    const form = $("#contactForm");
-    if (!form) return;
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (!form.checkValidity()) {
-        showToast("Please fill in every field before sending", { type: "warn" });
-        return;
-      }
-      showToast("Message sent! We'll get back to you soon.");
-      form.reset();
-    });
-  }
+            button?.setAttribute(
+              "aria-expanded",
+              "false"
+            );
+          }
+        )
+    );
 
-  /* =========================================================
-     TRACK ORDER PAGE (track-order.html)
-     ========================================================= */
-  function renderOrderTimeline(order) {
-    const wrap = $("#trackResult");
-    if (!wrap) return;
-
-    const currentIndex = computeOrderStageIndex(order);
-    const placedAtMs = order.placedAt && order.placedAt.toMillis ? order.placedAt.toMillis() : order.placedAt;
-    const placedDate = new Date(placedAtMs);
-
-    const stepsHtml = ORDER_STAGES.map((stage, i) => {
-      const state = i < currentIndex ? "done" : i === currentIndex ? "active" : "upcoming";
-      return `
-        <li class="track-step track-step--${state}">
-          <span class="track-step-icon"><i class="fas ${stage.icon}"></i></span>
-          <span class="track-step-label">${stage.label}</span>
-        </li>`;
-    }).join("");
-
-    const itemsHtml = order.items
-      .map(
-        (i) => `
-        <div class="track-item">
-          <img src="${i.img}" alt="${i.name}">
-          <div>
-            <p class="track-item-name">${i.name}${i.size ? ` <small>(Size ${i.size})</small>` : ""}</p>
-            <p class="track-item-qty">Qty ${i.qty} · ${money(i.price * i.qty)}</p>
-          </div>
-        </div>`
-      )
-      .join("");
-
-    wrap.innerHTML = `
-      <div class="track-card">
-        <div class="track-card-head">
-          <div>
-            <p class="track-order-id">Order ${order.id}</p>
-            <p class="track-order-date">Placed ${placedDate.toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short" })}</p>
-          </div>
-          <p class="track-order-total">${money(order.total)}</p>
-        </div>
-        <ol class="track-steps">${stepsHtml}</ol>
-        <div class="track-items">${itemsHtml}</div>
-        ${!order.status ? '<p class="track-demo-note"><i class="fas fa-info-circle"></i> Cloud tracking isn\'t set up yet, so this status is only an estimate based on time elapsed — see SETUP.md.</p>' : ""}
-      </div>
-    `;
-    wrap.hidden = false;
-  }
-
-  function wireTrackOrderPage() {
-    const form = $("#trackForm");
-    if (!form) return;
-
-    const input = $("#trackOrderId");
-    const notFound = $("#trackNotFound");
-    const resultWrap = $("#trackResult");
-    let unsubscribe = null;
-
-    function showNotFound() {
-      if (resultWrap) resultWrap.hidden = true;
-      if (notFound) notFound.hidden = false;
-    }
-
-    function lookup(id) {
-      if (unsubscribe) {
-        unsubscribe();
-        unsubscribe = null;
-      }
-
-      if (cloudReady()) {
-        unsubscribe = window.SLOrders.subscribeOrder(
-          id,
-          (order) => {
-            if (!order) {
-              showNotFound();
-              return;
-            }
-            if (notFound) notFound.hidden = true;
-            renderOrderTimeline(order);
-          },
-          () => showNotFound()
+    check.addEventListener(
+      "change",
+      () => {
+        button?.setAttribute(
+          "aria-expanded",
+          String(
+            check.checked
+          )
         );
-        return;
       }
+    );
 
-      const order = getLocalOrderById(id);
-      if (!order) {
-        showNotFound();
-        return;
+    document.addEventListener(
+      "click",
+      (event) => {
+        if (
+          check.checked &&
+          !event.target.closest(
+            "nav"
+          )
+        ) {
+          check.checked =
+            false;
+
+          button?.setAttribute(
+            "aria-expanded",
+            "false"
+          );
+        }
       }
-      if (notFound) notFound.hidden = true;
-      renderOrderTimeline(order);
+    );
+  }
+
+  function initActiveNavigation() {
+    const current =
+      (
+        window.location
+          .pathname
+          .split("/")
+          .pop() ||
+        "index.html"
+      ).toLowerCase();
+
+    $$("#navbar a").forEach(
+      (link) => {
+        const page =
+          (
+            link
+              .getAttribute(
+                "href"
+              ) ||
+            ""
+          )
+            .split("#")[0]
+            .split("/")
+            .pop()
+            .toLowerCase();
+
+        link.classList.toggle(
+          "active",
+          page ===
+            current
+        );
+      }
+    );
+  }
+
+  function initNavbarScroll() {
+    const nav =
+      $("nav");
+
+    if (!nav) {
+      return;
     }
 
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (!input.value.trim()) {
-        showToast("Enter an order reference first", { type: "warn" });
-        return;
-      }
-      lookup(input.value);
-    });
+    const update =
+      () =>
+        nav.classList.toggle(
+          "nav--scrolled",
+          window.scrollY >
+            20
+        );
 
-    // Deep-link support: track-order.html?id=SL-XXXXX
-    const params = new URLSearchParams(window.location.search);
-    const idParam = params.get("id");
-    if (idParam) {
-      input.value = idParam;
-      lookup(idParam);
+    update();
+
+    window.addEventListener(
+      "scroll",
+      update,
+      {
+        passive: true,
+      }
+    );
+  }
+
+  function initScrollReveal() {
+    $$(
+      ".pro-container .pro, #feature .ft-box, #banner, #sm-banner .banner-box, #banner3 .banner-box, #newsletter"
+    ).forEach(
+      (el) =>
+        el.classList.add(
+          "reveal"
+        )
+    );
+
+    const elements =
+      $$(".reveal");
+
+    if (
+      !(
+        "IntersectionObserver" in
+        window
+      )
+    ) {
+      elements.forEach(
+        (el) =>
+          el.classList.add(
+            "reveal--in"
+          )
+      );
+
+      return;
     }
 
-    // Offer quick access to the visitor's own recent orders, if any
-    // (this list is always local — it's just a convenience shortcut,
-    // not where order data actually lives once Firebase is configured).
-    const recentWrap = $("#recentOrders");
-    if (recentWrap) {
-      const ids = getRecentLocalOrderIds();
-      if (ids.length) {
-        recentWrap.hidden = false;
-        recentWrap.querySelector("ul").innerHTML = ids
-          .map((id) => `<li><button type="button" class="recent-order-btn" data-id="${id}">${id}</button></li>`)
-          .join("");
-        recentWrap.querySelectorAll(".recent-order-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            input.value = btn.dataset.id;
-            lookup(btn.dataset.id);
-          });
-        });
+    const observer =
+      new IntersectionObserver(
+        (entries, obs) => {
+          entries.forEach(
+            (entry) => {
+              if (
+                !entry.isIntersecting
+              ) {
+                return;
+              }
+
+              entry.target.classList.add(
+                "reveal--in"
+              );
+
+              obs.unobserve(
+                entry.target
+              );
+            }
+          );
+        },
+        {
+          threshold: 0.08,
+          rootMargin:
+            "0px 0px -30px 0px",
+        }
+      );
+
+    elements.forEach(
+      (el) =>
+        observer.observe(el)
+    );
+  }
+
+  function ensureToastRoot() {
+    let root =
+      $(".toast-root") ||
+      $("#toast-root");
+
+    if (root) {
+      return root;
+    }
+
+    root =
+      document.createElement(
+        "div"
+      );
+
+    root.className =
+      "toast-root";
+
+    root.setAttribute(
+      "aria-live",
+      "polite"
+    );
+
+    root.setAttribute(
+      "aria-atomic",
+      "true"
+    );
+
+    document.body.appendChild(
+      root
+    );
+
+    return root;
+  }
+
+  function showToast(
+    message,
+    type = "success",
+    duration = 3200
+  ) {
+    if (!message) {
+      return;
+    }
+
+    const root =
+      ensureToastRoot();
+
+    const toast =
+      document.createElement(
+        "div"
+      );
+
+    toast.className =
+      `toast${
+        type === "warn"
+          ? " toast--warn"
+          : ""
+      }`;
+
+    toast.innerHTML = `
+      <i class="fas ${
+        type === "warn"
+          ? "fa-exclamation-circle"
+          : "fa-check-circle"
+      }"
+         aria-hidden="true"></i>
+      <span>
+        ${escapeHtml(message)}
+      </span>`;
+
+    root.appendChild(
+      toast
+    );
+
+    requestAnimationFrame(
+      () =>
+        toast.classList.add(
+          "toast--show"
+        )
+    );
+
+    window.setTimeout(
+      () => {
+        toast.classList.remove(
+          "toast--show"
+        );
+
+        window.setTimeout(
+          () =>
+            toast.remove(),
+          350
+        );
+      },
+      duration
+    );
+  }
+
+  function initBackToTop() {
+    const button =
+      $("#backToTop");
+
+    if (!button) {
+      return;
+    }
+
+    const update =
+      () =>
+        button.classList.toggle(
+          "back-to-top--visible",
+          window.scrollY >
+            450
+        );
+
+    update();
+
+    window.addEventListener(
+      "scroll",
+      update,
+      {
+        passive: true,
+      }
+    );
+
+    button.addEventListener(
+      "click",
+      () =>
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        })
+    );
+  }
+
+  function initNewsletter() {
+    const form =
+      $("#newsletterForm");
+
+    if (!form) {
+      return;
+    }
+
+    form.addEventListener(
+      "submit",
+      (event) => {
+        event.preventDefault();
+
+        const input =
+          $(
+            "input[type='email']",
+            form
+          );
+
+        if (
+          !input ||
+          !input.checkValidity()
+        ) {
+          input?.classList.add(
+            "field-error"
+          );
+
+          showToast(
+            "Please enter a valid email address.",
+            "warn"
+          );
+
+          window.setTimeout(
+            () =>
+              input?.classList.remove(
+                "field-error"
+              ),
+            500
+          );
+
+          return;
+        }
+
+        safeStorageSet(
+          "sl_newsletter_email",
+          input.value
+            .trim()
+            .toLowerCase()
+        );
+
+        input.value =
+          "";
+
+        showToast(
+          "Thanks! You are subscribed to SneakersLink updates."
+        );
+      }
+    );
+  }
+
+  function getProductDetailData() {
+    const details =
+      $(".single-pro-details");
+
+    if (!details) {
+      return null;
+    }
+
+    const name =
+      details.dataset
+        .productName ||
+      $(
+        "#productName",
+        details
+      )?.textContent?.trim() ||
+      document.body.dataset
+        .productName ||
+      $("h4", details)
+        ?.textContent?.trim() ||
+      "Sneaker";
+
+    const price =
+      parsePrice(
+        details.dataset
+          .productPrice
+      ) ||
+      parsePrice(
+        $(
+          "#productPrice",
+          details
+        )?.textContent
+      ) ||
+      parsePrice(
+        $("h2", details)
+          ?.textContent
+      );
+
+    const image =
+      $("#mainImg")
+        ?.getAttribute(
+          "src"
+        ) || "";
+
+    const brand =
+      details.dataset
+        .brand ||
+      document.body.dataset
+        .brand ||
+      "";
+
+    return {
+      id:
+        details.dataset
+          .productId ||
+        document.body.dataset
+          .productId ||
+        normaliseId(
+          `${brand}-${name}`
+        ),
+      name,
+      brand,
+      price,
+      image,
+    };
+  }
+
+  function initProductPage() {
+    const mainImage =
+      $("#mainImg");
+
+    const details =
+      $(".single-pro-details");
+
+    if (!mainImage || !details) {
+      return;
+    }
+
+    $$(
+      ".small-img-col img, .small-img"
+    ).forEach(
+      (thumbnail) => {
+        thumbnail.setAttribute(
+          "tabindex",
+          "0"
+        );
+
+        const change =
+          () => {
+            const src =
+              thumbnail.getAttribute(
+                "src"
+              );
+
+            if (src) {
+              mainImage.src =
+                src;
+
+              mainImage.alt =
+                thumbnail.alt ||
+                mainImage.alt;
+            }
+          };
+
+        thumbnail.addEventListener(
+          "click",
+          change
+        );
+
+        thumbnail.addEventListener(
+          "keydown",
+          (event) => {
+            if (
+              event.key ===
+                "Enter" ||
+              event.key ===
+                " "
+            ) {
+              event.preventDefault();
+              change();
+            }
+          }
+        );
+      }
+    );
+
+    const button =
+      $(
+        "#mainAddToCart",
+        details
+      ) ||
+      $(
+        "#addToCart",
+        details
+      );
+
+    if (!button) {
+      return;
+    }
+
+    button.addEventListener(
+      "click",
+      () => {
+        const sizeSelect =
+          $(
+            "#sizeSelect",
+            details
+          );
+
+        const quantityInput =
+          $(
+            "#qtyInput",
+            details
+          );
+
+        const size =
+          sizeSelect?.value?.trim() ||
+          "";
+
+        if (
+          sizeSelect &&
+          (
+            !size ||
+            size
+              .toLowerCase()
+              .includes(
+                "select"
+              )
+          )
+        ) {
+          showToast(
+            "Please select a size before adding this product.",
+            "warn"
+          );
+
+          sizeSelect.focus();
+
+          return;
+        }
+
+        const quantity =
+          Math.min(
+            MAX_QTY,
+            Math.max(
+              1,
+              Number.parseInt(
+                quantityInput
+                  ?.value ||
+                  "1",
+                10
+              ) || 1
+            )
+          );
+
+        const product =
+          getProductDetailData();
+
+        addToCart(
+          {
+            ...product,
+            size,
+            quantity,
+          },
+          button
+        );
+      }
+    );
+  }
+
+  function getRecentOrderIds() {
+    try {
+      const ids =
+        JSON.parse(
+          safeStorageGet(
+            RECENT_ORDERS_KEY,
+            "[]"
+          )
+        );
+
+      return Array.isArray(
+        ids
+      )
+        ? ids
+            .filter(Boolean)
+            .slice(0, 10)
+        : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function rememberOrder(id) {
+    const ids = [
+      id,
+      ...getRecentOrderIds().filter(
+        (existing) =>
+          existing !== id
+      ),
+    ].slice(0, 10);
+
+    safeStorageSet(
+      RECENT_ORDERS_KEY,
+      JSON.stringify(ids)
+    );
+  }
+
+  function getLocalOrders() {
+    try {
+      const orders =
+        JSON.parse(
+          safeStorageGet(
+            LOCAL_ORDERS_KEY,
+            "[]"
+          )
+        );
+
+      return Array.isArray(
+        orders
+      )
+        ? orders
+        : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveLocalOrder(
+    order
+  ) {
+    const orders = [
+      order,
+      ...getLocalOrders().filter(
+        (existing) =>
+          existing.id !==
+          order.id
+      ),
+    ].slice(0, 20);
+
+    safeStorageSet(
+      LOCAL_ORDERS_KEY,
+      JSON.stringify(
+        orders
+      )
+    );
+  }
+
+  function generateLocalOrderId() {
+    const time =
+      Date.now()
+        .toString(36)
+        .toUpperCase()
+        .slice(-6);
+
+    const random =
+      Math.random()
+        .toString(36)
+        .slice(2, 7)
+        .toUpperCase();
+
+    return `SL-${time}${random}`;
+  }
+
+  function buildWhatsAppMessage(
+    order
+  ) {
+    const lines = [
+      "Hello SneakersLink, I'd like to complete my order.",
+      "",
+      `Order reference: ${order.id}`,
+
+      ...order.items.map(
+        (item) =>
+          `• ${item.name}${
+            item.size
+              ? ` (Size ${item.size})`
+              : ""
+          } × ${item.qty} — ${money(
+            item.price *
+              item.qty
+          )}`
+      ),
+
+      "",
+
+      `Subtotal: ${money(
+        order.subtotal
+      )}`,
+
+      ...(order.discount
+        ? [
+            `Discount: −${money(
+              order.discount
+            )}`,
+          ]
+        : []),
+
+      `Total: ${money(
+        order.total
+      )}`,
+
+      "",
+
+      "Please confirm availability, delivery details and payment instructions.",
+    ];
+
+    return lines.join(
+      "\n"
+    );
+  }
+
+  async function checkoutViaWhatsApp() {
+    const cart =
+      getCart();
+
+    if (!cart.length) {
+      showToast(
+        "Your cart is empty.",
+        "warn"
+      );
+
+      return;
+    }
+
+    const totals =
+      getTotals();
+
+    /*
+     * Open the tab synchronously from the click gesture so
+     * popup blockers do not prevent the WhatsApp hand-off
+     * while Firebase is creating the order.
+     */
+    const whatsappWindow =
+      window.open(
+        "about:blank",
+        "_blank",
+        "noopener,noreferrer"
+      );
+
+    const button =
+      $("#checkoutBtn");
+
+    if (button) {
+      button.disabled =
+        true;
+
+      button.dataset
+        .originalText ||=
+        button.textContent;
+
+      button.textContent =
+        "Creating order…";
+    }
+
+    const items =
+      cart.map(
+        (item) => ({
+          name:
+            item.name,
+          size:
+            item.size,
+          qty:
+            item.quantity,
+          price:
+            item.price,
+          img:
+            item.image,
+        })
+      );
+
+    let order = {
+      id:
+        generateLocalOrderId(),
+
+      items,
+
+      subtotal:
+        totals.subtotal,
+
+      discount:
+        totals.discount,
+
+      total:
+        totals.total,
+
+      status:
+        "placed",
+
+      placedAt:
+        Date.now(),
+
+      updatedAt:
+        Date.now(),
+    };
+
+    try {
+      if (
+        window.SLOrders
+          ?.isConfigured &&
+        typeof window.SLOrders
+          .createOrder ===
+          "function"
+      ) {
+        const created =
+          await window.SLOrders.createOrder(
+            items,
+            totals.total,
+            {
+              subtotal:
+                totals.subtotal,
+
+              discount:
+                totals.discount,
+
+              coupon:
+                totals.coupon
+                  ?.code ||
+                "",
+            }
+          );
+
+        order = {
+          ...order,
+          ...created,
+
+          subtotal:
+            totals.subtotal,
+
+          discount:
+            totals.discount,
+
+          total:
+            totals.total,
+        };
+      } else {
+        saveLocalOrder(
+          order
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Order creation failed:",
+        error
+      );
+
+      saveLocalOrder(
+        order
+      );
+
+      showToast(
+        "Cloud order tracking is unavailable, but your WhatsApp order can still continue.",
+        "warn"
+      );
+    } finally {
+      saveLocalOrder(
+        order
+      );
+
+      rememberOrder(
+        order.id
+      );
+
+      if (button) {
+        button.disabled =
+          false;
+
+        button.textContent =
+          button.dataset
+            .originalText ||
+          "Checkout via WhatsApp";
+      }
+    }
+
+    const message =
+      encodeURIComponent(
+        buildWhatsAppMessage(
+          order
+        )
+      );
+
+    const url =
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+
+    if (
+      whatsappWindow &&
+      !whatsappWindow.closed
+    ) {
+      whatsappWindow.location.href =
+        url;
+    } else {
+      window.location.href =
+        url;
+    }
+
+    showToast(
+      `Order ${order.id} created. Opening WhatsApp…`
+    );
+  }
+
+  function initCheckout() {
+    $(
+      "#checkoutBtn"
+    )?.addEventListener(
+      "click",
+      checkoutViaWhatsApp
+    );
+  }
+
+  function renderTrackResult(
+    order
+  ) {
+    const result =
+      $("#trackResult");
+
+    const notFound =
+      $("#trackNotFound");
+
+    if (!result) {
+      return;
+    }
+
+    notFound &&
+      (notFound.hidden =
+        true);
+
+    result.hidden =
+      false;
+
+    const status =
+      order?.status ||
+      "placed";
+
+    const stages =
+      window.SLOrders
+        ?.ORDER_STAGES ||
+      [
+        {
+          key: "placed",
+          label: "Order Placed",
+          icon: "fa-receipt",
+        },
+        {
+          key: "confirmed",
+          label: "Confirmed",
+          icon: "fa-check-circle",
+        },
+        {
+          key: "packed",
+          label: "Packed",
+          icon: "fa-box",
+        },
+        {
+          key: "out",
+          label: "Out for Delivery",
+          icon: "fa-truck",
+        },
+        {
+          key: "delivered",
+          label: "Delivered",
+          icon: "fa-home",
+        },
+      ];
+
+    const currentIndex =
+      Math.max(
+        0,
+        stages.findIndex(
+          (stage) =>
+            stage.key ===
+            status
+        )
+      );
+
+    result.innerHTML = `
+      <div class="track-result-card">
+
+        <div class="track-result-head">
+          <div>
+            <span class="track-eyebrow">
+              Order reference
+            </span>
+
+            <h3>
+              ${escapeHtml(
+                order.id ||
+                  "Order"
+              )}
+            </h3>
+          </div>
+
+          <strong>
+            ${money(
+              order.total
+            )}
+          </strong>
+        </div>
+
+        <ol class="order-timeline">
+
+          ${stages
+            .map(
+              (
+                stage,
+                index
+              ) => `
+            <li class="${
+              index <=
+              currentIndex
+                ? "is-complete"
+                : ""
+            } ${
+                index ===
+                currentIndex
+                  ? "is-current"
+                  : ""
+              }">
+
+              <span class="timeline-icon">
+                <i
+                  class="fas ${
+                    stage.icon
+                  }"
+                  aria-hidden="true">
+                </i>
+              </span>
+
+              <span>
+                ${escapeHtml(
+                  stage.label
+                )}
+              </span>
+
+            </li>
+          `
+            )
+            .join("")}
+
+        </ol>
+
+        <p class="track-updated">
+          ${
+            order.updatedAt
+              ? `Last updated ${formatDate(
+                  order.updatedAt
+                )}`
+              : "Status is being processed."
+          }
+        </p>
+
+      </div>`;
+  }
+
+  function formatDate(
+    value
+  ) {
+    let ms = value;
+
+    if (
+      value?.toMillis
+    ) {
+      ms =
+        value.toMillis();
+    }
+
+    if (
+      value?.seconds
+    ) {
+      ms =
+        value.seconds *
+        1000;
+    }
+
+    const date =
+      new Date(ms);
+
+    return Number.isNaN(
+      date.getTime()
+    )
+      ? "recently"
+      : date.toLocaleString(
+          "en-KE",
+          {
+            dateStyle:
+              "medium",
+            timeStyle:
+              "short",
+          }
+        );
+  }
+
+  function renderRecentOrders() {
+    const container =
+      $("#recentOrders");
+
+    const list =
+      $("ul", container || document);
+
+    if (!container || !list) {
+      return;
+    }
+
+    const ids =
+      getRecentOrderIds();
+
+    if (!ids.length) {
+      container.hidden =
+        true;
+
+      return;
+    }
+
+    list.innerHTML =
+      ids
+        .map(
+          (id) => `
+      <li>
+        <button
+          type="button"
+          class="recent-order-btn"
+          data-order-id="${escapeHtml(
+            id
+          )}">
+          ${escapeHtml(id)}
+        </button>
+      </li>`
+        )
+        .join("");
+
+    container.hidden =
+      false;
+
+    $$(".recent-order-btn", container)
+      .forEach(
+        (button) => {
+          button.addEventListener(
+            "click",
+            () => {
+              const input =
+                $("#trackOrderId");
+
+              if (input) {
+                input.value =
+                  button.dataset
+                    .orderId;
+
+                $(
+                  "#trackForm"
+                )?.requestSubmit();
+              }
+            }
+          );
+        }
+      );
+  }
+
+  let activeTrackUnsubscribe =
+    null;
+
+  async function trackOrder(
+    orderId
+  ) {
+    const cleanId =
+      String(
+        orderId || ""
+      )
+        .trim()
+        .toUpperCase();
+
+    if (!cleanId) {
+      showToast(
+        "Enter your order reference.",
+        "warn"
+      );
+
+      return;
+    }
+
+    activeTrackUnsubscribe?.();
+
+    activeTrackUnsubscribe =
+      null;
+
+    const result =
+      $("#trackResult");
+
+    if (result) {
+      result.hidden =
+        false;
+
+      result.innerHTML =
+        `<div class="track-loading">
+          Looking up ${escapeHtml(
+            cleanId
+          )}…
+        </div>`;
+    }
+
+    try {
+      if (
+        window.SLOrders
+          ?.isConfigured &&
+        typeof window.SLOrders
+          .subscribeOrder ===
+          "function"
+      ) {
+        activeTrackUnsubscribe =
+          window.SLOrders.subscribeOrder(
+            cleanId,
+
+            (order) => {
+              if (!order) {
+                if (result) {
+                  result.hidden =
+                    true;
+                }
+
+                $(
+                  "#trackNotFound"
+                ) &&
+                  ($(
+                    "#trackNotFound"
+                  ).hidden =
+                    false);
+
+                return;
+              }
+
+              renderTrackResult(
+                {
+                  ...order,
+                  id: cleanId,
+                }
+              );
+            },
+
+            (error) => {
+              console.error(
+                "Order tracking error:",
+                error
+              );
+
+              showToast(
+                "We couldn't retrieve that order right now.",
+                "warn"
+              );
+            }
+          );
+      } else {
+        const order =
+          getLocalOrders().find(
+            (item) =>
+              item.id ===
+              cleanId
+          );
+
+        if (order) {
+          renderTrackResult(
+            order
+          );
+        } else {
+          if (result) {
+            result.hidden =
+              true;
+          }
+
+          $(
+            "#trackNotFound"
+          ) &&
+            ($(
+              "#trackNotFound"
+            ).hidden =
+              false);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+
+      const order =
+        getLocalOrders().find(
+          (item) =>
+            item.id ===
+            cleanId
+        );
+
+      if (order) {
+        renderTrackResult(
+          order
+        );
+      } else {
+        if (result) {
+          result.hidden =
+            true;
+        }
+
+        $(
+          "#trackNotFound"
+        ) &&
+          ($(
+            "#trackNotFound"
+          ).hidden =
+            false);
       }
     }
   }
 
-  /* =========================================================
-     INIT
-     ========================================================= */
-  document.addEventListener("DOMContentLoaded", () => {
-    wireNav();
-    wireTheme();
-    wireBackToTop();
-    wireAddToCartButtons();
-    wireProductCardNavigation();
-    wireSingleProductPage();
-    wireCartPageEvents();
-    wireNewsletterForm();
-    wireContactForm();
-    wireTrackOrderPage();
+  function initTrackOrder() {
+    const form =
+      $("#trackForm") ||
+      $(".track-form");
+
+    const input =
+      $("#trackOrderId") ||
+      $("input", form || document);
+
+    if (!form || !input) {
+      return;
+    }
+
+    form.addEventListener(
+      "submit",
+      (event) => {
+        event.preventDefault();
+
+        trackOrder(
+          input.value
+        );
+      }
+    );
+
+    renderRecentOrders();
+
+    if (
+      input.value.trim()
+    ) {
+      trackOrder(
+        input.value
+      );
+    }
+  }
+
+  function initStorageSync() {
+    window.addEventListener(
+      "storage",
+      (event) => {
+        if (
+          event.key ===
+          STORAGE_KEY
+        ) {
+          updateCartBadge();
+          renderCartPage();
+        }
+
+        if (
+          event.key ===
+          COUPON_KEY
+        ) {
+          updateCartTotals();
+        }
+
+        if (
+          event.key ===
+            THEME_KEY &&
+          event.newValue
+        ) {
+          applyTheme(
+            event.newValue,
+            false
+          );
+        }
+      }
+    );
+  }
+
+  window.SneakersLinkCart = {
+    get:
+      getCart,
+
+    count:
+      getCartCount,
+
+    subtotal:
+      getCartSubtotal,
+
+    totals:
+      getTotals,
+
+    add:
+      addToCart,
+
+    remove:
+      (
+        id,
+        size = ""
+      ) =>
+        removeCartItem(
+          id,
+          size
+        ),
+
+    updateQuantity:
+      (
+        id,
+        size,
+        quantity
+      ) =>
+        updateCartQuantity(
+          id,
+          size,
+          quantity
+        ),
+
+    clear: () => {
+      saveCart([]);
+
+      renderCartPage();
+    },
+  };
+
+  function init() {
+    initTheme();
+
+    initAccountMenu();
+
+    updateCartBadge();
+
+    initMobileNavigation();
+
+    initActiveNavigation();
+
+    initNavbarScroll();
+
+    initProductCards();
+
+    initCartEvents();
+
     renderCartPage();
-    updateCartBadges();
-    wireScrollReveal();
-  });
+
+    initCoupon();
+
+    initScrollReveal();
+
+    initBackToTop();
+
+    initNewsletter();
+
+    initProductPage();
+
+    initCheckout();
+
+    initTrackOrder();
+
+    initStorageSync();
+  }
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+    document.addEventListener(
+      "DOMContentLoaded",
+      init,
+      {
+        once: true,
+      }
+    );
+  } else {
+    init();
+  }
 })();

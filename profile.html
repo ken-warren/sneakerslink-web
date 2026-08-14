@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>My Profile — SneakersLink</title>
+
+  <!-- Prevent theme flash -->
+  <script>
+    (function () {
+      try {
+        const saved =
+          localStorage.getItem("sl-theme");
+
+        if (saved === "dark") {
+          document.documentElement.dataset.theme =
+            "dark";
+        }
+      } catch (error) {
+        // Ignore localStorage errors.
+      }
+    })();
+  </script>
+
+  <!-- Existing SneakersLink stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  >
+</head>
+
+<body>
+
+  <!-- =====================================================
+       NAVIGATION
+       ===================================================== -->
+
+  <nav>
+
+    <input
+      type="checkbox"
+      id="check"
+    >
+
+    <label
+      for="check"
+      class="navbutton"
+    >
+      <i class="fas fa-bars"></i>
+    </label>
+
+    <label class="logo">
+      Sneakers<span>Link</span>
+    </label>
+
+    <a
+      href="cart.html"
+      class="cart"
+      aria-label="Shopping cart"
+    >
+      <i class="fas fa-shopping-bag"></i>
+      <span
+        class="cart-count"
+        aria-hidden="true"
+      >
+        0
+      </span>
+    </a>
+
+    <button
+      type="button"
+      class="theme-toggle"
+      aria-label="Toggle dark mode"
+      title="Toggle dark mode"
+    >
+      <i class="fas fa-moon"></i>
+      <i class="fas fa-sun"></i>
+    </button>
+
+    <ul>
+      <li>
+        <a href="index.html">
+          Home
+        </a>
+      </li>
+
+      <li>
+        <a href="shop.html">
+          Shop
+        </a>
+      </li>
+
+      <li>
+        <a href="blog.html">
+          Blog
+        </a>
+      </li>
+
+      <li>
+        <a href="about.html">
+          About
+        </a>
+      </li>
+
+      <li>
+        <a href="contact.html">
+          Contact
+        </a>
+      </li>
+
+      <li>
+        <a
+          href="track-order.html"
+        >
+          Track Order
+        </a>
+      </li>
+
+      <li>
+        <a
+          href="profile.html"
+          class="active"
+        >
+          Account
+        </a>
+      </li>
+    </ul>
+
+  </nav>
+
+
+  <!-- =====================================================
+       PROFILE HEADER
+       ===================================================== -->
+
+  <section
+    id="header"
+    class="about-header"
+  >
+    <h2>
+      My Account
+    </h2>
+
+    <p>
+      Manage your SneakersLink profile and account details.
+    </p>
+  </section>
+
+
+  <!-- =====================================================
+       PROFILE PAGE
+       ===================================================== -->
+
+  <section
+    id="profile-page"
+    class="section-p1"
+  >
+
+    <div class="profile-shell">
+
+      <!-- PROFILE CARD -->
+
+      <div class="profile-card">
+
+        <div class="profile-card-header">
+
+          <div>
+            <span class="profile-eyebrow">
+              CUSTOMER ACCOUNT
+            </span>
+
+            <h2>
+              My Profile
+            </h2>
+
+            <p>
+              Keep your details up to date for faster
+              checkout and order management.
+            </p>
+          </div>
+
+        </div>
+
+
+        <!-- AUTH / LOADING MESSAGE -->
+
+        <div
+          id="profile-loading"
+          class="profile-message"
+        >
+          <i class="fas fa-spinner fa-spin"></i>
+          Loading your profile...
+        </div>
+
+
+        <!-- PROFILE CONTENT -->
+
+        <div
+          id="profile-content"
+          class="profile-content"
+          hidden
+        >
+
+          <!-- AVATAR -->
+
+          <div class="profile-avatar-section">
+
+            <div
+              class="profile-avatar"
+              id="profile-avatar"
+            >
+              <span
+                id="profile-avatar-initials"
+              >
+                SL
+              </span>
+
+              <img
+                id="profile-avatar-image"
+                src=""
+                alt="Profile photo"
+                hidden
+              >
+            </div>
+
+            <div class="profile-avatar-actions">
+
+              <h3>
+                Profile photo
+              </h3>
+
+              <p>
+                JPG, PNG, WEBP or GIF. Maximum 5 MB.
+              </p>
+
+              <div class="profile-avatar-buttons">
+
+                <label
+                  for="profile-avatar-input"
+                  class="normal profile-upload-button"
+                >
+                  <i class="fas fa-camera"></i>
+                  Change Photo
+                </label>
+
+                <input
+                  type="file"
+                  id="profile-avatar-input"
+                  accept="image/*"
+                  hidden
+                >
+
+                <button
+                  type="button"
+                  id="profile-remove-avatar"
+                  class="white profile-remove-button"
+                >
+                  Remove
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- PROFILE FORM -->
+
+          <form
+            id="profile-form"
+            class="profile-form"
+          >
+
+            <div class="profile-form-heading">
+              <h3>
+                Personal Information
+              </h3>
+
+              <p>
+                Your email address is linked to your
+                SneakersLink account.
+              </p>
+            </div>
+
+
+            <div class="profile-form-grid">
+
+              <div class="profile-field">
+
+                <label for="profile-name">
+                  Full Name
+                </label>
+
+                <input
+                  type="text"
+                  id="profile-name"
+                  name="displayName"
+                  autocomplete="name"
+                  placeholder="Your full name"
+                >
+
+              </div>
+
+
+              <div class="profile-field">
+
+                <label for="profile-email">
+                  Email Address
+                </label>
+
+                <input
+                  type="email"
+                  id="profile-email"
+                  name="email"
+                  autocomplete="email"
+                  readonly
+                >
+
+              </div>
+
+
+              <div class="profile-field">
+
+                <label for="profile-phone">
+                  Phone Number
+                </label>
+
+                <input
+                  type="tel"
+                  id="profile-phone"
+                  name="phone"
+                  autocomplete="tel"
+                  placeholder="+254..."
+                >
+
+              </div>
+
+
+              <div class="profile-field">
+
+                <label for="profile-country">
+                  Country
+                </label>
+
+                <input
+                  type="text"
+                  id="profile-country"
+                  name="country"
+                  autocomplete="country-name"
+                  placeholder="Country"
+                >
+
+              </div>
+
+
+              <div class="profile-field profile-field-full">
+
+                <label for="profile-address">
+                  Address
+                </label>
+
+                <input
+                  type="text"
+                  id="profile-address"
+                  name="address"
+                  autocomplete="street-address"
+                  placeholder="Street address"
+                >
+
+              </div>
+
+
+              <div class="profile-field">
+
+                <label for="profile-city">
+                  City
+                </label>
+
+                <input
+                  type="text"
+                  id="profile-city"
+                  name="city"
+                  autocomplete="address-level2"
+                  placeholder="City"
+                >
+
+              </div>
+
+
+              <div class="profile-field">
+
+                <label for="profile-postal">
+                  Postal Code
+                </label>
+
+                <input
+                  type="text"
+                  id="profile-postal"
+                  name="postalCode"
+                  autocomplete="postal-code"
+                  placeholder="Postal code"
+                >
+
+              </div>
+
+            </div>
+
+
+            <div
+              id="profile-form-message"
+              class="profile-form-message"
+              role="status"
+              aria-live="polite"
+            ></div>
+
+
+            <div class="profile-form-actions">
+
+              <button
+                type="submit"
+                class="normal profile-save-button"
+                id="profile-save-button"
+              >
+                <i class="fas fa-save"></i>
+                Save Changes
+              </button>
+
+              <button
+                type="button"
+                class="white profile-signout-button"
+                id="profile-signout-button"
+              >
+                <i class="fas fa-right-from-bracket"></i>
+                Sign Out
+              </button>
+
+            </div>
+
+          </form>
+
+        </div>
+
+
+        <!-- NOT SIGNED IN -->
+
+        <div
+          id="profile-login-required"
+          class="profile-login-required"
+          hidden
+        >
+
+          <div class="profile-login-icon">
+            <i class="fas fa-user-circle"></i>
+          </div>
+
+          <h3>
+            Sign in to view your profile
+          </h3>
+
+          <p>
+            You need to be signed in to manage your
+            SneakersLink account.
+          </p>
+
+          <a
+            href="login.html"
+            class="normal"
+          >
+            <i class="fas fa-right-to-bracket"></i>
+            Sign In
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       FOOTER
+       ===================================================== -->
+
+  <footer class="section-p1">
+
+    <div class="col">
+
+      <label class="logo">
+        Sneakers<span>Link</span>
+      </label>
+
+      <h4>
+        Contact
+      </h4>
+
+      <p>
+        <strong>Address:</strong>
+        Nairobi, Kenya
+      </p>
+
+      <p>
+        <strong>Phone:</strong>
+        +254 700 000 000
+      </p>
+
+      <p>
+        <strong>Hours:</strong>
+        Mon - Sat: 8:00 - 18:00
+      </p>
+
+      <div class="socials">
+
+        <i class="fab fa-facebook-f"></i>
+        <i class="fab fa-instagram"></i>
+        <i class="fab fa-twitter"></i>
+
+      </div>
+
+    </div>
+
+
+    <div class="col">
+
+      <h4>
+        About
+      </h4>
+
+      <a href="about.html">
+        About Us
+      </a>
+
+      <a href="contact.html">
+        Contact Us
+      </a>
+
+      <a href="track-order.html">
+        Track Order
+      </a>
+
+      <a href="profile.html">
+        My Account
+      </a>
+
+    </div>
+
+
+    <div class="col">
+
+      <h4>
+        My Account
+      </h4>
+
+      <a href="profile.html">
+        My Profile
+      </a>
+
+      <a href="cart.html">
+        View Cart
+      </a>
+
+      <a href="track-order.html">
+        Track My Order
+      </a>
+
+    </div>
+
+
+    <div class="copyright">
+
+      <p>
+        © 2026 SneakersLink. All rights reserved.
+      </p>
+
+    </div>
+
+  </footer>
+
+
+  <!-- =====================================================
+       TOAST CONTAINER
+       ===================================================== -->
+
+  <div
+    class="toast-root"
+    id="toast-root"
+    aria-live="polite"
+    aria-atomic="true"
+  ></div>
+
+
+  <!-- =====================================================
+       BACK TO TOP
+       ===================================================== -->
+
+  <button
+    type="button"
+    class="back-to-top"
+    aria-label="Back to top"
+  >
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+
+  <!-- =====================================================
+       FIREBASE MODULES
+       ===================================================== -->
+
+  <script
+    type="module"
+    src="firebase-orders.js"
+  ></script>
+
+  <script
+    type="module"
+    src="firebase-profile.js"
+  ></script>
+
+
+  <!-- Existing site scripts -->
+  <script src="script.js"></script>
+
+  <!-- Profile page controller -->
+  <script>
+    (function () {
+      "use strict";
+
+      let profileReady = false;
+      let ordersReady = false;
+
+      function startProfilePage() {
+        if (
+          !profileReady ||
+          !ordersReady
+        ) {
+          return;
+        }
+
+        initProfilePage();
+      }
+
+
+      function $(selector) {
+        return document.querySelector(
+          selector
+        );
+      }
+
+
+      function showElement(element) {
+        if (element) {
+          element.hidden = false;
+        }
+      }
+
+
+      function hideElement(element) {
+        if (element) {
+          element.hidden = true;
+        }
+      }
+
+
+      function setMessage(
+        message,
+        type = ""
+      ) {
+        const box =
+          $("#profile-form-message");
+
+        if (!box) {
+          return;
+        }
+
+        box.textContent = message;
+        box.className =
+          `profile-form-message ${type}`
+            .trim();
+      }
+
+
+      function showToast(
+        message,
+        type = "success"
+      ) {
+        const root =
+          $("#toast-root");
+
+        if (!root) {
+          return;
+        }
+
+        const toast =
+          document.createElement("div");
+
+        toast.className =
+          `toast toast--${type}`;
+
+        toast.innerHTML = `
+          <i class="fas ${
+            type === "warn"
+              ? "fa-triangle-exclamation"
+              : "fa-circle-check"
+          }"></i>
+          <span></span>
+        `;
+
+        toast
+          .querySelector("span")
+          .textContent = message;
+
+        root.appendChild(toast);
+
+        requestAnimationFrame(() => {
+          toast.classList.add(
+            "toast--show"
+          );
+        });
+
+        setTimeout(() => {
+          toast.classList.remove(
+            "toast--show"
+          );
+
+          setTimeout(() => {
+            toast.remove();
+          }, 300);
+        }, 3000);
+      }
+
+
+      function getInitials(name, email) {
+        const value =
+          String(name || "").trim();
+
+        if (value) {
+          const parts =
+            value.split(/\s+/);
+
+          if (parts.length >= 2) {
+            return (
+              parts[0][0] +
+              parts[parts.length - 1][0]
+            ).toUpperCase();
+          }
+
+          return value
+            .slice(0, 2)
+            .toUpperCase();
+        }
+
+        return String(email || "SL")
+          .slice(0, 2)
+          .toUpperCase();
+      }
+
+
+      function renderAvatar(profile) {
+        const image =
+          $("#profile-avatar-image");
+
+        const initials =
+          $("#profile-avatar-initials");
+
+        if (!image || !initials) {
+          return;
+        }
+
+        if (profile.photoURL) {
+          image.src =
+            profile.photoURL;
+
+          image.alt =
+            `${profile.displayName || "Customer"} profile photo`;
+
+          image.hidden = false;
+          initials.hidden = true;
+        } else {
+          image.src = "";
+          image.hidden = true;
+
+          initials.textContent =
+            getInitials(
+              profile.displayName,
+              profile.email
+            );
+
+          initials.hidden = false;
+        }
+      }
+
+
+      function fillProfile(profile) {
+        $("#profile-name").value =
+          profile.displayName || "";
+
+        $("#profile-email").value =
+          profile.email || "";
+
+        $("#profile-phone").value =
+          profile.phone || "";
+
+        $("#profile-address").value =
+          profile.address || "";
+
+        $("#profile-city").value =
+          profile.city || "";
+
+        $("#profile-postal").value =
+          profile.postalCode || "";
+
+        $("#profile-country").value =
+          profile.country || "";
+
+        renderAvatar(profile);
+      }
+
+
+      async function loadProfile() {
+        try {
+          const profile =
+            await window.SLProfile.getProfile();
+
+          fillProfile(profile);
+
+          hideElement(
+            $("#profile-loading")
+          );
+
+          showElement(
+            $("#profile-content")
+          );
+        } catch (error) {
+          console.error(
+            "Unable to load profile:",
+            error
+          );
+
+          hideElement(
+            $("#profile-loading")
+          );
+
+          setMessage(
+            error.message ||
+              "Unable to load your profile.",
+            "error"
+          );
+        }
+      }
+
+
+      async function handleProfileSubmit(
+        event
+      ) {
+        event.preventDefault();
+
+        const button =
+          $("#profile-save-button");
+
+        if (!button) {
+          return;
+        }
+
+        button.disabled = true;
+
+        const originalHTML =
+          button.innerHTML;
+
+        button.innerHTML = `
+          <i class="fas fa-spinner fa-spin"></i>
+          Saving...
+        `;
+
+        setMessage("");
+
+        try {
+          const profile =
+            await window.SLProfile.updateProfile({
+              displayName:
+                $("#profile-name").value,
+
+              phone:
+                $("#profile-phone").value,
+
+              address:
+                $("#profile-address").value,
+
+              city:
+                $("#profile-city").value,
+
+              postalCode:
+                $("#profile-postal").value,
+
+              country:
+                $("#profile-country").value,
+            });
+
+          fillProfile(profile);
+
+          setMessage(
+            "Your profile has been saved.",
+            "success"
+          );
+
+          showToast(
+            "Profile updated successfully."
+          );
+        } catch (error) {
+          console.error(
+            "Profile update failed:",
+            error
+          );
+
+          setMessage(
+            error.message ||
+              "Unable to save your profile.",
+            "error"
+          );
+
+          showToast(
+            "Unable to save your profile.",
+            "warn"
+          );
+        } finally {
+          button.disabled = false;
+          button.innerHTML =
+            originalHTML;
+        }
+      }
+
+
+      async function handleAvatarChange(
+        event
+      ) {
+        const file =
+          event.target.files?.[0];
+
+        if (!file) {
+          return;
+        }
+
+        try {
+          showToast(
+            "Uploading profile photo..."
+          );
+
+          const url =
+            await window.SLProfile.uploadAvatar(
+              file
+            );
+
+          const image =
+            $("#profile-avatar-image");
+
+          const initials =
+            $("#profile-avatar-initials");
+
+          image.src = url;
+          image.hidden = false;
+
+          initials.hidden = true;
+
+          showToast(
+            "Profile photo updated."
+          );
+        } catch (error) {
+          console.error(
+            "Avatar upload failed:",
+            error
+          );
+
+          showToast(
+            error.message ||
+              "Unable to upload profile photo.",
+            "warn"
+          );
+        } finally {
+          event.target.value = "";
+        }
+      }
+
+
+      async function handleRemoveAvatar() {
+        try {
+          await window.SLProfile.deleteAvatar();
+
+          const image =
+            $("#profile-avatar-image");
+
+          const initials =
+            $("#profile-avatar-initials");
+
+          const profile =
+            await window.SLProfile.getProfile();
+
+          image.src = "";
+          image.hidden = true;
+
+          initials.textContent =
+            getInitials(
+              profile.displayName,
+              profile.email
+            );
+
+          initials.hidden = false;
+
+          showToast(
+            "Profile photo removed."
+          );
+        } catch (error) {
+          console.error(
+            "Avatar removal failed:",
+            error
+          );
+
+          showToast(
+            error.message ||
+              "Unable to remove profile photo.",
+            "warn"
+          );
+        }
+      }
+
+
+      async function handleSignOut() {
+        try {
+          await window.SLOrders.customerSignOut();
+
+          window.location.href =
+            "index.html";
+        } catch (error) {
+          console.error(
+            "Sign out failed:",
+            error
+          );
+
+          showToast(
+            "Unable to sign out.",
+            "warn"
+          );
+        }
+      }
+
+
+      function initProfilePage() {
+        if (
+          !window.SLProfile ||
+          !window.SLOrders
+        ) {
+          return;
+        }
+
+        window.SLProfile.onProfileAuthChange(
+          async (user) => {
+
+            if (!user) {
+              hideElement(
+                $("#profile-loading")
+              );
+
+              hideElement(
+                $("#profile-content")
+              );
+
+              showElement(
+                $("#profile-login-required")
+              );
+
+              return;
+            }
+
+            hideElement(
+              $("#profile-login-required")
+            );
+
+            await loadProfile();
+          }
+        );
+
+
+        $("#profile-form")
+          ?.addEventListener(
+            "submit",
+            handleProfileSubmit
+          );
+
+
+        $("#profile-avatar-input")
+          ?.addEventListener(
+            "change",
+            handleAvatarChange
+          );
+
+
+        $("#profile-remove-avatar")
+          ?.addEventListener(
+            "click",
+            handleRemoveAvatar
+          );
+
+
+        $("#profile-signout-button")
+          ?.addEventListener(
+            "click",
+            handleSignOut
+          );
+      }
+
+
+      window.addEventListener(
+        "slprofile:ready",
+        () => {
+          profileReady = true;
+          startProfilePage();
+        }
+      );
+
+
+      window.addEventListener(
+        "slorders:ready",
+        () => {
+          ordersReady = true;
+          startProfilePage();
+        }
+      );
+
+
+      /*
+       * Modules may already have finished before these
+       * listeners are attached on a very fast page load.
+       */
+      if (
+        window.SLProfile
+      ) {
+        profileReady = true;
+      }
+
+      if (
+        window.SLOrders
+      ) {
+        ordersReady = true;
+      }
+
+      startProfilePage();
+
+    })();
+  </script>
+
+</body>
+</html>
