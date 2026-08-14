@@ -1035,6 +1035,12 @@
         nameEl.textContent = customerName;
       }
 
+      const toggleName = $("#accountToggleName");
+
+      if (toggleName) {
+        toggleName.textContent = customerName;
+      }
+
       if (emailEl) {
         emailEl.textContent = user?.email || "SneakersLink Account";
       }
