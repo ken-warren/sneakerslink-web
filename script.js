@@ -4,16 +4,35 @@
 (() => {
   "use strict";
 
+  /* =========================================================
+     CONFIG
+     ========================================================= */
+
   const STORAGE_KEY = "sneakerslink_cart";
   const THEME_KEY = "sl_theme";
   const COUPON_KEY = "sl_coupon";
   const RECENT_ORDERS_KEY = "sl_recent_orders";
   const LOCAL_ORDERS_KEY = "sl_local_orders";
+
   const WHATSAPP_NUMBER = "254768372955";
   const MAX_QTY = 99;
 
-  const $ = (selector, context = document) => context.querySelector(selector);
-  const $$ = (selector, context = document) => [...context.querySelectorAll(selector)];
+  let appInitialised = false;
+  let activeTrackUnsubscribe = null;
+
+  /* =========================================================
+     DOM HELPERS
+     ========================================================= */
+
+  const $ = (selector, context = document) =>
+    context?.querySelector?.(selector) || null;
+
+  const $$ = (selector, context = document) =>
+    context?.querySelectorAll ? [...context.querySelectorAll(selector)] : [];
+
+  /* =========================================================
+     MONEY / PRICE HELPERS
+     ========================================================= */
 
   const money = (value) =>
     new Intl.NumberFormat("en-KE", {
@@ -23,8 +42,13 @@
     }).format(Number(value) || 0);
 
   const parsePrice = (value) => {
-    if (typeof value === "number") return Number.isFinite(value) ? value : 0;
-    if (!value) return 0;
+    if (typeof value === "number") {
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    if (value === null || value === undefined || value === "") {
+      return 0;
+    }
 
     const cleaned = String(value)
       .replace(/KES|KSh|Kes/gi, "")
@@ -34,11 +58,16 @@
     return Number(cleaned) || 0;
   };
 
+  /* =========================================================
+     STORAGE HELPERS
+     ========================================================= */
+
   const safeStorageGet = (key, fallback = null) => {
     try {
       const value = localStorage.getItem(key);
       return value === null ? fallback : value;
-    } catch {
+    } catch (error) {
+      console.warn(`[SneakersLink] Storage read failed: ${key}`, error);
       return fallback;
     }
   };
@@ -47,7 +76,8 @@
     try {
       localStorage.setItem(key, value);
       return true;
-    } catch {
+    } catch (error) {
+      console.warn(`[SneakersLink] Storage write failed: ${key}`, error);
       return false;
     }
   };
@@ -55,8 +85,14 @@
   const safeStorageRemove = (key) => {
     try {
       localStorage.removeItem(key);
-    } catch {}
+    } catch (error) {
+      console.warn(`[SneakersLink] Storage remove failed: ${key}`, error);
+    }
   };
+
+  /* =========================================================
+     HTML / ID HELPERS
+     ========================================================= */
 
   const escapeHtml = (value) =>
     String(value ?? "")
@@ -73,223 +109,188 @@
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
 
+  /* =========================================================
+     CART
+     ========================================================= */
+
   function normaliseCartItem(item) {
-    if (!item || !item.id) return null;
+    if (!item || !item.id) {
+      return null;
+    }
+
+    const parsedPrice = Number(item.price);
+
+    const parsedQuantity = Number(item.quantity);
 
     return {
       id: String(item.id),
       name: String(item.name || "Sneaker").trim(),
       brand: String(item.brand || "").trim(),
-      price: Math.max(0, Number(item.price) || 0),
+      price: Number.isFinite(parsedPrice) && parsedPrice >= 0 ? parsedPrice : 0,
       image: String(item.image || ""),
       quantity: Math.min(
         MAX_QTY,
         Math.max(
           1,
-          Math.floor(
-            Number(item.quantity) || 1
-          )
-        )
+          Math.floor(Number.isFinite(parsedQuantity) ? parsedQuantity : 1),
+        ),
       ),
-      size: item.size ? String(item.size) : "",
+      size: item.size ? String(item.size).trim() : "",
     };
   }
 
   function getCart() {
-    const raw = safeStorageGet(
-      STORAGE_KEY,
-      "[]"
-    );
+    const raw = safeStorageGet(STORAGE_KEY, "[]");
 
     try {
       const parsed = JSON.parse(raw);
 
       if (!Array.isArray(parsed)) {
+        safeStorageRemove(STORAGE_KEY);
         return [];
       }
 
-      return parsed
-        .map(normaliseCartItem)
-        .filter(Boolean);
-    } catch {
+      return parsed.map(normaliseCartItem).filter(Boolean);
+    } catch (error) {
+      console.warn("[SneakersLink] Invalid cart data:", error);
+
       safeStorageRemove(STORAGE_KEY);
+
       return [];
     }
   }
 
   function emitCartUpdate(cart) {
-    window.dispatchEvent(
-      new CustomEvent(
-        "sneakerslink:cart-updated",
-        {
+    try {
+      window.dispatchEvent(
+        new CustomEvent("sneakerslink:cart-updated", {
           detail: {
             cart: [...cart],
           },
-        }
-      )
-    );
+        }),
+      );
+    } catch (error) {
+      console.warn("[SneakersLink] Cart event failed:", error);
+    }
   }
 
   function saveCart(cart) {
-    const clean = cart
-      .map(normaliseCartItem)
-      .filter(Boolean);
+    const clean = Array.isArray(cart)
+      ? cart.map(normaliseCartItem).filter(Boolean)
+      : [];
 
-    safeStorageSet(
-      STORAGE_KEY,
-      JSON.stringify(clean)
-    );
+    safeStorageSet(STORAGE_KEY, JSON.stringify(clean));
 
     updateCartBadge();
+
     emitCartUpdate(clean);
   }
 
   function getCartCount() {
-    return getCart().reduce(
-      (sum, item) =>
-        sum + item.quantity,
-      0
-    );
+    return getCart().reduce((sum, item) => sum + item.quantity, 0);
   }
 
   function getCartSubtotal() {
-    return getCart().reduce(
-      (sum, item) =>
-        sum +
-        item.price *
-          item.quantity,
-      0
-    );
+    return getCart().reduce((sum, item) => sum + item.price * item.quantity, 0);
   }
+
+  /* =========================================================
+     COUPONS
+     ========================================================= */
 
   function getCoupon() {
     try {
-      const coupon = JSON.parse(
-        safeStorageGet(
-          COUPON_KEY,
-          "null"
-        )
-      );
+      const raw = safeStorageGet(COUPON_KEY, null);
 
-      return coupon?.code ===
-        "SL500" &&
-        Number(coupon.discount) > 0
-        ? {
-            code: "SL500",
-            discount: 500,
-          }
-        : null;
-    } catch {
+      if (!raw) {
+        return null;
+      }
+
+      const coupon = JSON.parse(raw);
+
+      if (coupon?.code === "SL500" && Number(coupon.discount) > 0) {
+        return {
+          code: "SL500",
+          discount: 500,
+        };
+      }
+
+      return null;
+    } catch (error) {
+      safeStorageRemove(COUPON_KEY);
       return null;
     }
   }
 
   function getTotals() {
-    const subtotal =
-      getCartSubtotal();
+    const subtotal = getCartSubtotal();
 
-    const coupon =
-      getCoupon();
+    const coupon = getCoupon();
 
-    const discount = Math.min(
-      subtotal,
-      coupon?.discount || 0
-    );
+    const discount = Math.min(subtotal, coupon?.discount || 0);
 
     return {
       subtotal,
       discount,
-      total: Math.max(
-        0,
-        subtotal - discount
-      ),
+      total: Math.max(0, subtotal - discount),
       coupon,
       shipping: 0,
     };
   }
 
-  function updateCartBadge(
-    bump = false
-  ) {
-    const count =
-      getCartCount();
+  /* =========================================================
+     CART BADGE
+     ========================================================= */
 
-    $$(
-      "[data-cart-count], .cart-count"
-    ).forEach((badge) => {
-      badge.textContent =
-        count > 99
-          ? "99+"
-          : String(count);
+  function updateCartBadge(bump = false) {
+    const count = getCartCount();
 
-      badge.classList.toggle(
-        "cart-count--visible",
-        count > 0
-      );
+    $$("[data-cart-count], .cart-count").forEach((badge) => {
+      badge.textContent = count > 99 ? "99+" : String(count);
+
+      badge.classList.toggle("cart-count--visible", count > 0);
 
       if (bump) {
-        badge.classList.remove(
-          "cart-count--bump"
-        );
+        badge.classList.remove("cart-count--bump");
 
         void badge.offsetWidth;
 
-        badge.classList.add(
-          "cart-count--bump"
-        );
+        badge.classList.add("cart-count--bump");
 
-        window.setTimeout(
-          () =>
-            badge.classList.remove(
-              "cart-count--bump"
-            ),
-          350
-        );
+        window.setTimeout(() => {
+          badge.classList.remove("cart-count--bump");
+        }, 350);
       }
     });
   }
 
-  function getProductFromCard(
-    card
-  ) {
-    if (!card) return null;
+  /* =========================================================
+     PRODUCT DATA
+     ========================================================= */
+
+  function getProductFromCard(card) {
+    if (!card) {
+      return null;
+    }
 
     const image = $("img", card);
 
     const brand =
-      card.dataset.brand ||
-      $(".des span", card)
-        ?.textContent?.trim() ||
-      "";
+      card.dataset.brand || $(".des span", card)?.textContent?.trim() || "";
 
     const name =
-      card.dataset.name ||
-      $(".des h5", card)
-        ?.textContent?.trim() ||
-      "Sneaker";
+      card.dataset.name || $(".des h5", card)?.textContent?.trim() || "Sneaker";
 
     const price =
-      parsePrice(
-        card.dataset.price
-      ) ||
-      parsePrice(
-        $(".des h4", card)
-          ?.textContent
-      );
+      parsePrice(card.dataset.price) ||
+      parsePrice($(".des h4", card)?.textContent);
 
-    const imageSrc =
-      image?.getAttribute(
-        "src"
-      ) ||
-      image?.src ||
-      "";
+    const imageSrc = image?.getAttribute("src") || image?.src || "";
 
     const id =
       card.dataset.productId ||
       card.dataset.id ||
-      normaliseId(
-        `${brand}-${name}`
-      );
+      normaliseId(`${brand}-${name}`);
 
     return normaliseCartItem({
       id,
@@ -298,291 +299,218 @@
       price,
       image: imageSrc,
       quantity: 1,
-      size:
-        card.dataset.size ||
-        "",
+      size: card.dataset.size || "",
     });
   }
 
-  function addToCart(
-    product,
-    sourceElement = null
-  ) {
-    const cleanProduct =
-      normaliseCartItem(
-        product
-      );
+  /* =========================================================
+     ADD TO CART
+     ========================================================= */
+
+  function addToCart(product, sourceElement = null) {
+    const cleanProduct = normaliseCartItem(product);
 
     if (!cleanProduct) {
+      showToast("This product could not be added to your cart.", "warn");
+
       return;
     }
 
-    const cart =
-      getCart();
+    const cart = getCart();
 
-    const existing =
-      cart.find(
-        (item) =>
-          item.id ===
-            cleanProduct.id &&
-          item.size ===
-            cleanProduct.size
-      );
+    const existing = cart.find(
+      (item) => item.id === cleanProduct.id && item.size === cleanProduct.size,
+    );
 
     if (existing) {
-      existing.quantity =
-        Math.min(
-          MAX_QTY,
-          existing.quantity +
-            cleanProduct.quantity
-        );
-    } else {
-      cart.push(
-        cleanProduct
+      existing.quantity = Math.min(
+        MAX_QTY,
+        existing.quantity + cleanProduct.quantity,
       );
+    } else {
+      cart.push(cleanProduct);
     }
 
     saveCart(cart);
+
     updateCartBadge(true);
 
     if (sourceElement) {
-      sourceElement.classList.remove(
-        "add-cart-btn--pop"
-      );
+      sourceElement.classList.remove("add-cart-btn--pop");
 
       void sourceElement.offsetWidth;
 
-      sourceElement.classList.add(
-        "add-cart-btn--pop"
-      );
+      sourceElement.classList.add("add-cart-btn--pop");
 
-      window.setTimeout(
-        () =>
-          sourceElement.classList.remove(
-            "add-cart-btn--pop"
-          ),
-        350
-      );
+      window.setTimeout(() => {
+        sourceElement.classList.remove("add-cart-btn--pop");
+      }, 350);
 
-      flyToCart(
-        sourceElement
-      );
+      flyToCart(sourceElement);
     }
 
-    showToast(
-      `${cleanProduct.name} added to your cart.`
-    );
+    showToast(`${cleanProduct.name} added to your cart.`);
   }
 
-  function flyToCart(
-    sourceElement
-  ) {
-    const image =
-      sourceElement
-        ?.closest(".pro")
-        ?.querySelector("img");
+  /* =========================================================
+     FLY TO CART
+     ========================================================= */
 
-    const cartIcon =
-      $(
-        ".cart[href='cart.html'], .cart, [data-cart-count]"
-      )?.closest("a") ||
-      $(".cart");
+  function flyToCart(sourceElement) {
+    const image = sourceElement?.closest(".pro")?.querySelector("img");
+
+    const cartTarget =
+      $(".cart[href='cart.html']") || $(".cart") || $("[data-cart-count]");
+
+    const cartIcon = cartTarget?.closest("a, button") || cartTarget;
 
     if (!image || !cartIcon) {
       return;
     }
 
-    const imageRect =
-      image.getBoundingClientRect();
+    const imageRect = image.getBoundingClientRect();
 
-    const cartRect =
-      cartIcon.getBoundingClientRect();
+    const cartRect = cartIcon.getBoundingClientRect();
 
-    const clone =
-      image.cloneNode(true);
+    if (
+      !imageRect.width ||
+      !imageRect.height ||
+      !cartRect.width ||
+      !cartRect.height
+    ) {
+      return;
+    }
 
-    clone.className =
-      "fly-clone";
+    const clone = image.cloneNode(true);
 
-    Object.assign(
-      clone.style,
-      {
-        left:
-          `${imageRect.left}px`,
-        top:
-          `${imageRect.top}px`,
-        width:
-          `${imageRect.width}px`,
-        height:
-          `${imageRect.height}px`,
-        opacity: "0.9",
-      }
-    );
+    clone.className = "fly-clone";
 
-    document.body.appendChild(
-      clone
-    );
+    Object.assign(clone.style, {
+      position: "fixed",
+      zIndex: "99999",
+      pointerEvents: "none",
+      left: `${imageRect.left}px`,
+      top: `${imageRect.top}px`,
+      width: `${imageRect.width}px`,
+      height: `${imageRect.height}px`,
+      opacity: "0.9",
+      transition: "all .8s cubic-bezier(.22,.61,.36,1)",
+    });
 
-    requestAnimationFrame(
-      () => {
-        Object.assign(
-          clone.style,
-          {
-            left:
-              `${
-                cartRect.left +
-                cartRect.width /
-                  2
-              }px`,
-            top:
-              `${
-                cartRect.top +
-                cartRect.height /
-                  2
-              }px`,
-            width: "24px",
-            height: "24px",
-            opacity: "0.15",
-            transform:
-              "scale(.6)",
-          }
-        );
-      }
-    );
+    document.body.appendChild(clone);
 
-    window.setTimeout(
-      () => clone.remove(),
-      850
-    );
+    requestAnimationFrame(() => {
+      Object.assign(clone.style, {
+        left: `${cartRect.left + cartRect.width / 2}px`,
+        top: `${cartRect.top + cartRect.height / 2}px`,
+        width: "24px",
+        height: "24px",
+        opacity: "0.15",
+        transform: "translate(-50%, -50%) scale(.6)",
+      });
+    });
+
+    window.setTimeout(() => {
+      clone.remove();
+    }, 850);
   }
+
+  /* =========================================================
+     PRODUCT CARDS
+     ========================================================= */
 
   function initProductCards() {
-    $$(".pro").forEach(
-      (card, index) => {
-        card.style.setProperty(
-          "--i",
-          index
-        );
+    $$(".pro").forEach((card, index) => {
+      card.style.setProperty("--i", index);
 
-        const addButton =
-          $(".add-cart-btn", card);
+      const addButton = $(".add-cart-btn", card);
 
-        if (addButton) {
-          addButton.addEventListener(
-            "click",
-            (event) => {
-              event.preventDefault();
-              event.stopPropagation();
+      if (addButton && !addButton.dataset.cartBound) {
+        addButton.dataset.cartBound = "true";
 
-              addToCart(
-                getProductFromCard(
-                  card
-                ),
-                addButton
-              );
-            }
-          );
-        }
+        addButton.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
 
-        const href =
-          card.dataset.href ||
-          card.dataset.url;
-
-        if (href) {
-          card.setAttribute(
-            "tabindex",
-            "0"
-          );
-
-          card.setAttribute(
-            "role",
-            "link"
-          );
-
-          card.addEventListener(
-            "click",
-            (event) => {
-              if (
-                event.target.closest(
-                  "button,a,input,select"
-                )
-              ) {
-                return;
-              }
-
-              window.location.href =
-                href;
-            }
-          );
-
-          card.addEventListener(
-            "keydown",
-            (event) => {
-              if (
-                (
-                  event.key ===
-                    "Enter" ||
-                  event.key ===
-                    " "
-                ) &&
-                !event.target.closest(
-                  "button,a,input,select"
-                )
-              ) {
-                event.preventDefault();
-                window.location.href =
-                  href;
-              }
-            }
-          );
-        }
+          addToCart(getProductFromCard(card), addButton);
+        });
       }
-    );
+
+      const href = card.dataset.href || card.dataset.url;
+
+      if (!href) {
+        return;
+      }
+
+      if (!card.hasAttribute("tabindex")) {
+        card.setAttribute("tabindex", "0");
+      }
+
+      card.setAttribute("role", "link");
+
+      if (!card.dataset.navigationBound) {
+        card.dataset.navigationBound = "true";
+
+        card.addEventListener("click", (event) => {
+          if (event.target.closest("button,a,input,select,textarea")) {
+            return;
+          }
+
+          window.location.href = href;
+        });
+
+        card.addEventListener("keydown", (event) => {
+          if (
+            (event.key === "Enter" || event.key === " ") &&
+            !event.target.closest("button,a,input,select,textarea")
+          ) {
+            event.preventDefault();
+
+            window.location.href = href;
+          }
+        });
+      }
+    });
   }
 
-  function renderCartPage() {
-    const table =
-      $("#cart table") ||
-      $("#cartTable");
+  /* =========================================================
+     CART PAGE
+     ========================================================= */
 
-    const tbody =
-      $("#cart tbody") ||
-      $("#cart table tbody");
+  function renderCartPage() {
+    const table = $("#cart table") || $("#cartTable");
+
+    const tbody = $("#cart tbody") || $("#cart table tbody");
 
     if (!table || !tbody) {
       return;
     }
 
-    const cart =
-      getCart();
+    const cart = getCart();
 
     tbody.innerHTML = "";
 
-    const emptyMessage =
-      $("#emptyCartMsg");
+    const emptyMessage = $("#emptyCartMsg");
 
     if (!cart.length) {
-      table.classList.add(
-        "cart-table--empty"
-      );
+      table.classList.add("cart-table--empty");
 
       if (emptyMessage) {
-        emptyMessage.hidden =
-          false;
+        emptyMessage.hidden = false;
       }
 
-      const row =
-        document.createElement(
-          "tr"
-        );
+      const row = document.createElement("tr");
 
       row.innerHTML = `
         <td colspan="6">
           <div class="empty-cart-msg">
             <p>Your cart is currently empty.</p>
-            <a href="shop.html">Continue shopping →</a>
+            <a href="shop.html">
+              Continue shopping →
+            </a>
           </div>
-        </td>`;
+        </td>
+      `;
 
       tbody.appendChild(row);
 
@@ -591,45 +519,44 @@
       return;
     }
 
-    table.classList.remove(
-      "cart-table--empty"
-    );
+    table.classList.remove("cart-table--empty");
 
     if (emptyMessage) {
-      emptyMessage.hidden =
-        true;
+      emptyMessage.hidden = true;
     }
 
-    cart.forEach(
-      (item) => {
-        const row =
-          document.createElement(
-            "tr"
-          );
+    cart.forEach((item) => {
+      const row = document.createElement("tr");
 
-        row.dataset.cartId =
-          item.id;
+      row.dataset.cartId = item.id;
+      row.dataset.cartSize = item.size;
 
-        row.dataset.cartSize =
-          item.size;
-
-        row.innerHTML = `
+      row.innerHTML = `
         <td>
-          <button type="button"
+          <button
+            type="button"
             class="remove-item"
             data-remove-item="${escapeHtml(item.id)}"
             data-remove-size="${escapeHtml(item.size)}"
             aria-label="Remove ${escapeHtml(item.name)}">
-            <i class="far fa-times-circle"
-               aria-hidden="true"></i>
+            <i
+              class="far fa-times-circle"
+              aria-hidden="true">
+            </i>
           </button>
         </td>
 
         <td>
-          <img
-            src="${escapeHtml(item.image)}"
-            alt="${escapeHtml(item.name)}"
-            loading="lazy">
+          ${
+            item.image
+              ? `
+                <img
+                  src="${escapeHtml(item.image)}"
+                  alt="${escapeHtml(item.name)}"
+                  loading="lazy">
+              `
+              : ""
+          }
         </td>
 
         <td>
@@ -639,17 +566,21 @@
 
           ${
             item.brand
-              ? `<small class="cart-item-brand">
+              ? `
+                <small class="cart-item-brand">
                   ${escapeHtml(item.brand)}
-                </small>`
+                </small>
+              `
               : ""
           }
 
           ${
             item.size
-              ? `<small class="cart-item-size">
+              ? `
+                <small class="cart-item-size">
                   Size: ${escapeHtml(item.size)}
-                </small>`
+                </small>
+              `
               : ""
           }
         </td>
@@ -672,38 +603,28 @@
         </td>
 
         <td>
-          ${money(
-            item.price *
-              item.quantity
-          )}
-        </td>`;
+          ${money(item.price * item.quantity)}
+        </td>
+      `;
 
-        tbody.appendChild(row);
-      }
-    );
+      tbody.appendChild(row);
+    });
 
     updateCartTotals();
   }
 
+  /* =========================================================
+     CART TOTALS
+     ========================================================= */
+
   function updateCartTotals() {
-    const totals =
-      getTotals();
+    const totals = getTotals();
 
-    const setMoney = (
-      selectors,
-      value
-    ) => {
-      const el =
-        selectors
-          .map(
-            (selector) =>
-              $(selector)
-          )
-          .find(Boolean);
+    const setMoney = (selectors, value) => {
+      const element = selectors.map((selector) => $(selector)).find(Boolean);
 
-      if (el) {
-        el.textContent =
-          money(value);
+      if (element) {
+        element.textContent = money(value);
       }
     };
 
@@ -714,262 +635,172 @@
         "#subtotal .subtotal-value",
         "[data-cart-subtotal]",
       ],
-      totals.subtotal
+      totals.subtotal,
     );
 
     setMoney(
-      [
-        "#cartTotal",
-        "#cart-total",
-        "#total-value",
-        "[data-cart-total]",
-      ],
-      totals.total
+      ["#cartTotal", "#cart-total", "#total-value", "[data-cart-total]"],
+      totals.total,
     );
 
-    $$(
-      "[data-subtotal]"
-    ).forEach(
-      (el) =>
-        (el.textContent =
-          money(
-            totals.subtotal
-          ))
-    );
+    $$("[data-subtotal]").forEach((element) => {
+      element.textContent = money(totals.subtotal);
+    });
 
-    $$(
-      "[data-discount]"
-    ).forEach(
-      (el) =>
-        (el.textContent =
-          `−${money(
-            totals.discount
-          )}`)
-    );
+    $$("[data-discount]").forEach((element) => {
+      element.textContent = `−${money(totals.discount)}`;
+    });
 
-    $$(
-      "[data-total]"
-    ).forEach(
-      (el) =>
-        (el.textContent =
-          money(
-            totals.total
-          ))
-    );
+    $$("[data-total]").forEach((element) => {
+      element.textContent = money(totals.total);
+    });
 
-    const discountRow =
-      $("#discountRow");
+    const discountRow = $("#discountRow");
 
     if (discountRow) {
-      discountRow.hidden =
-        totals.discount <=
-        0;
+      discountRow.hidden = totals.discount <= 0;
     }
 
-    const couponMsg =
-      $("#couponMsg");
+    const couponMsg = $("#couponMsg");
 
-    if (
-      couponMsg &&
-      totals.coupon
-    ) {
-      couponMsg.textContent =
-        `${totals.coupon.code} applied — ${money(
-          totals.discount
-        )} discount.`;
+    if (couponMsg && totals.coupon) {
+      couponMsg.textContent = `${totals.coupon.code} applied — ${money(
+        totals.discount,
+      )} discount.`;
     }
 
     updateCartBadge();
   }
 
-  function updateCartQuantity(
-    id,
-    size,
-    quantity
-  ) {
-    const cart =
-      getCart();
+  /* =========================================================
+     UPDATE CART QUANTITY
+     ========================================================= */
 
-    const item =
-      cart.find(
-        (product) =>
-          product.id === id &&
-          String(
-            product.size || ""
-          ) ===
-            String(
-              size || ""
-            )
-      );
+  function updateCartQuantity(id, size, quantity) {
+    const cart = getCart();
+
+    const item = cart.find(
+      (product) =>
+        product.id === id && String(product.size || "") === String(size || ""),
+    );
 
     if (!item) {
       return;
     }
 
-    const parsed =
-      Number.parseInt(
-        quantity,
-        10
-      );
+    const parsed = Number.parseInt(quantity, 10);
 
-    item.quantity =
-      Number.isFinite(
-        parsed
-      )
-        ? Math.min(
-            MAX_QTY,
-            Math.max(
-              1,
-              parsed
-            )
-          )
-        : 1;
+    if (!Number.isFinite(parsed)) {
+      item.quantity = 1;
+    } else {
+      item.quantity = Math.min(MAX_QTY, Math.max(1, parsed));
+    }
 
     saveCart(cart);
+
     renderCartPage();
   }
 
-  function removeCartItem(
-    id,
-    size,
-    sourceElement = null
-  ) {
-    const cart =
-      getCart();
+  /* =========================================================
+     REMOVE CART ITEM
+     ========================================================= */
 
-    const item =
-      cart.find(
-        (product) =>
-          product.id === id &&
-          String(
-            product.size || ""
-          ) ===
-            String(
-              size || ""
-            )
-      );
+  function removeCartItem(id, size, sourceElement = null) {
+    const cart = getCart();
+
+    const item = cart.find(
+      (product) =>
+        product.id === id && String(product.size || "") === String(size || ""),
+    );
 
     if (!item) {
       return;
     }
 
     const remove = () => {
-      saveCart(
-        cart.filter(
-          (product) =>
-            !(
-              product.id ===
-                id &&
-              String(
-                product.size || ""
-              ) ===
-                String(
-                  size || ""
-                )
-            )
-        )
+      const filtered = cart.filter(
+        (product) =>
+          !(
+            product.id === id &&
+            String(product.size || "") === String(size || "")
+          ),
       );
+
+      saveCart(filtered);
 
       renderCartPage();
 
-      showToast(
-        `${item.name} removed from your cart.`,
-        "warn"
-      );
+      showToast(`${item.name} removed from your cart.`, "warn");
     };
 
-    const row =
-      sourceElement?.closest(
-        "tr"
-      );
+    const row = sourceElement?.closest("tr");
 
     if (row) {
-      row.classList.add(
-        "row-removing"
-      );
+      row.classList.add("row-removing");
 
-      window.setTimeout(
-        remove,
-        220
-      );
+      window.setTimeout(remove, 220);
     } else {
       remove();
     }
   }
 
+  /* =========================================================
+     CART EVENTS
+     ========================================================= */
+
   function initCartEvents() {
-    document.addEventListener(
-      "click",
-      (event) => {
-        const button =
-          event.target.closest(
-            "[data-remove-item]"
-          );
-
-        if (!button) {
-          return;
-        }
-
-        event.preventDefault();
-
-        removeCartItem(
-          button.dataset
-            .removeItem,
-          button.dataset
-            .removeSize ||
-            "",
-          button
-        );
-      }
-    );
-
-    document.addEventListener(
-      "change",
-      (event) => {
-        const input =
-          event.target.closest(
-            "[data-cart-qty]"
-          );
-
-        if (!input) {
-          return;
-        }
-
-        updateCartQuantity(
-          input.dataset
-            .cartQty,
-          input.dataset
-            .cartSize ||
-            "",
-          input.value
-        );
-      }
-    );
-  }
-
-  function applyCoupon() {
-    const input =
-      $("#couponInput") ||
-      $("#coupon input");
-
-    const button =
-      $("#applyCouponBtn") ||
-      $("#coupon button");
-
-    if (!input || !button) {
+    if (document.body.dataset.cartEventsBound) {
       return;
     }
 
-    const code =
-      input.value
-        .trim()
-        .toUpperCase();
+    document.body.dataset.cartEventsBound = "true";
+
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-remove-item]");
+
+      if (!button) {
+        return;
+      }
+
+      event.preventDefault();
+
+      removeCartItem(
+        button.dataset.removeItem,
+        button.dataset.removeSize || "",
+        button,
+      );
+    });
+
+    document.addEventListener("change", (event) => {
+      const input = event.target.closest("[data-cart-qty]");
+
+      if (!input) {
+        return;
+      }
+
+      updateCartQuantity(
+        input.dataset.cartQty,
+        input.dataset.cartSize || "",
+        input.value,
+      );
+    });
+  }
+
+  /* =========================================================
+     COUPON
+     ========================================================= */
+
+  function applyCoupon() {
+    const input = $("#couponInput") || $("#coupon input");
+
+    if (!input) {
+      return;
+    }
+
+    const code = input.value.trim().toUpperCase();
 
     if (!code) {
-      showToast(
-        "Enter a coupon code.",
-        "warn"
-      );
+      showToast("Enter a coupon code.", "warn");
 
       input.focus();
 
@@ -977,25 +808,17 @@
     }
 
     if (code !== "SL500") {
-      safeStorageRemove(
-        COUPON_KEY
-      );
+      safeStorageRemove(COUPON_KEY);
 
-      updateCouponTotalsAndMessage(
-        "That coupon code is not valid.",
-        true
-      );
+      updateCouponTotalsAndMessage("That coupon code is not valid.", true);
 
       return;
     }
 
-    if (
-      getCartSubtotal() <
-      2000
-    ) {
+    if (getCartSubtotal() < 2000) {
       showToast(
         "SL500 requires a cart subtotal of at least KES 2,000.",
-        "warn"
+        "warn",
       );
 
       return;
@@ -1006,717 +829,696 @@
       JSON.stringify({
         code: "SL500",
         discount: 500,
-      })
+      }),
     );
 
-    updateCouponTotalsAndMessage(
-      "SL500 applied — KES 500 discount."
-    );
+    updateCouponTotalsAndMessage("SL500 applied — KES 500 discount.");
 
-    showToast(
-      "Coupon applied."
-    );
+    showToast("Coupon applied.");
   }
 
-  function updateCouponTotalsAndMessage(
-    message,
-    warning = false
-  ) {
-    const msg =
-      $("#couponMsg") ||
-      $(
-        ".coupon-msg",
-        $("#coupon") ||
-          document
-      );
+  function updateCouponTotalsAndMessage(message, warning = false) {
+    const msg = $("#couponMsg") || $(".coupon-msg", $("#coupon") || document);
 
     if (msg) {
-      msg.textContent =
-        message;
+      msg.textContent = message;
     }
 
     if (warning) {
-      showToast(
-        message,
-        "warn"
-      );
+      showToast(message, "warn");
     }
 
     updateCartTotals();
   }
 
   function initCoupon() {
-    const button =
-      $("#applyCouponBtn") ||
-      $("#coupon button");
+    const button = $("#applyCouponBtn") || $("#coupon button");
 
-    button?.addEventListener(
-      "click",
-      applyCoupon
-    );
+    if (button && !button.dataset.couponBound) {
+      button.dataset.couponBound = "true";
 
-    const input =
-      $("#couponInput") ||
-      $("#coupon input");
+      button.addEventListener("click", applyCoupon);
+    }
 
-    input?.addEventListener(
-      "keydown",
-      (event) => {
-        if (
-          event.key ===
-          "Enter"
-        ) {
+    const input = $("#couponInput") || $("#coupon input");
+
+    if (input && !input.dataset.couponBound) {
+      input.dataset.couponBound = "true";
+
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
           event.preventDefault();
           applyCoupon();
         }
-      }
-    );
+      });
+    }
   }
 
-  function getPreferredTheme() {
-    const saved =
-      safeStorageGet(
-        THEME_KEY
-      );
+  /* =========================================================
+     THEME
+     ========================================================= */
 
-    if (
-      saved === "dark" ||
-      saved === "light"
-    ) {
+  function getPreferredTheme() {
+    const saved = safeStorageGet(THEME_KEY);
+
+    if (saved === "dark" || saved === "light") {
       return saved;
     }
 
-    return window
-      .matchMedia?.(
-        "(prefers-color-scheme: dark)"
-      ).matches
-      ? "dark"
-      : "light";
-  }
-
-  function applyTheme(
-    theme,
-    persist = true
-  ) {
-    const safeTheme =
-      theme === "dark"
+    try {
+      return window.matchMedia?.("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light";
+    } catch {
+      return "light";
+    }
+  }
 
-    document.documentElement.setAttribute(
-      "data-theme",
-      safeTheme
-    );
+  function applyTheme(theme, persist = true) {
+    const safeTheme = theme === "dark" ? "dark" : "light";
+
+    document.documentElement.setAttribute("data-theme", safeTheme);
 
     if (persist) {
-      safeStorageSet(
-        THEME_KEY,
-        safeTheme
-      );
+      safeStorageSet(THEME_KEY, safeTheme);
     }
 
-    const toggle =
-      $("#themeToggle");
+    const toggle = $("#themeToggle");
 
     if (toggle) {
-      const dark =
-        safeTheme ===
-        "dark";
+      const dark = safeTheme === "dark";
 
       toggle.setAttribute(
         "aria-label",
-        dark
-          ? "Switch to light mode"
-          : "Switch to dark mode"
+        dark ? "Switch to light mode" : "Switch to dark mode",
       );
 
       toggle.setAttribute(
         "title",
-        dark
-          ? "Switch to light mode"
-          : "Switch to dark mode"
+        dark ? "Switch to light mode" : "Switch to dark mode",
       );
+
+      toggle.setAttribute("aria-pressed", String(dark));
     }
   }
 
   function initTheme() {
     applyTheme(
-      document.documentElement.getAttribute(
-        "data-theme"
-      ) ||
+      document.documentElement.getAttribute("data-theme") ||
         getPreferredTheme(),
-      false
+      false,
     );
 
-    $("#themeToggle")?.addEventListener(
-      "click",
-      () => {
+    const toggle = $("#themeToggle");
+
+    if (toggle && !toggle.dataset.themeBound) {
+      toggle.dataset.themeBound = "true";
+
+      toggle.addEventListener("click", () => {
         const next =
-          document.documentElement.getAttribute(
-            "data-theme"
-          ) ===
-          "dark"
+          document.documentElement.getAttribute("data-theme") === "dark"
             ? "light"
             : "dark";
 
         applyTheme(next);
 
         showToast(
-          next === "dark"
-            ? "Dark mode enabled."
-            : "Light mode enabled."
+          next === "dark" ? "Dark mode enabled." : "Light mode enabled.",
         );
-      }
-    );
+      });
+    }
   }
+
+  /* =========================================================
+     ACCOUNT / AUTH
+     ========================================================= */
 
   function initAccountMenu() {
     const guestLinks = $("#accountGuestLinks");
+
     const menu = $("#accountMenu");
+
     const toggleBtn = $("#accountToggle");
+
     const dropdown = $("#accountDropdown");
+
+    const avatar = $("#accountAvatar");
+
+    const dropdownAvatar = $("#accountDropdownAvatar");
+
+    const nameEl = $("#accountDropdownName");
+
     const emailEl = $("#accountDropdownEmail");
+
     const signOutBtn = $("#accountSignOutBtn");
+
     const inlineThemeBtn = $("#accountThemeToggle");
+
     const inlineThemeLabel = $("#accountThemeLabel");
 
-    if (!guestLinks && !menu) return; // page has no account area
-
-    function setLoggedInView(user) {
-      if (guestLinks) guestLinks.hidden = true;
-      if (menu) menu.hidden = false;
-      if (emailEl) {
-        emailEl.textContent =
-          (user && (user.email || user.displayName)) || "Signed in";
-      }
-    }
-
-    function setLoggedOutView() {
-      if (guestLinks) guestLinks.hidden = false;
-      if (menu) menu.hidden = true;
-      closeDropdown();
-    }
-
-    function openDropdown() {
-      dropdown?.classList.add("is-open");
-      toggleBtn?.classList.add("is-open");
-      toggleBtn?.setAttribute("aria-expanded", "true");
+    if (!guestLinks && !menu) {
+      return;
     }
 
     function closeDropdown() {
       dropdown?.classList.remove("is-open");
+
       toggleBtn?.classList.remove("is-open");
+
       toggleBtn?.setAttribute("aria-expanded", "false");
     }
 
-    toggleBtn?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      dropdown?.classList.contains("is-open") ? closeDropdown() : openDropdown();
-    });
+    function openDropdown() {
+      dropdown?.classList.add("is-open");
 
-    document.addEventListener("click", (e) => {
-      if (menu && !menu.hidden && !menu.contains(e.target)) closeDropdown();
-    });
+      toggleBtn?.classList.add("is-open");
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeDropdown();
-    });
+      toggleBtn?.setAttribute("aria-expanded", "true");
+    }
 
-    signOutBtn?.addEventListener("click", async () => {
-      try {
-        if (window.SLAuth?.logout) await window.SLAuth.logout();
-        showToast("Signed out.");
-      } catch (error) {
-        console.error("Sign out failed:", error);
-        showToast("Couldn't sign out — please try again.", "warn");
+    function getCustomerName(user) {
+      if (!user) {
+        return "Profile";
       }
-      closeDropdown();
-    });
 
-    if (inlineThemeBtn) {
-      const syncLabel = () => {
+      const name = user.displayName || user.nickname || user.nickName || "";
+
+      if (String(name).trim()) {
+        return String(name).trim();
+      }
+
+      if (user.email) {
+        return user.email.split("@")[0].trim();
+      }
+
+      return "Profile";
+    }
+
+    function updateAvatar(user, element) {
+      if (!element) {
+        return;
+      }
+
+      const name = getCustomerName(user);
+
+      if (user?.photoURL) {
+        element.innerHTML = `
+          <img
+            src="${escapeHtml(user.photoURL)}"
+            alt="${escapeHtml(name)}">
+        `;
+
+        return;
+      }
+
+      const initial = name.charAt(0).toUpperCase();
+
+      element.innerHTML = `
+        <span class="account-avatar-initial">
+          ${escapeHtml(initial || "U")}
+        </span>
+      `;
+    }
+
+    function setLoggedInView(user) {
+      if (guestLinks) {
+        guestLinks.hidden = true;
+      }
+
+      if (menu) {
+        menu.hidden = false;
+      }
+
+      const customerName = getCustomerName(user);
+
+      if (nameEl) {
+        nameEl.textContent = customerName;
+      }
+
+      if (emailEl) {
+        emailEl.textContent = user?.email || "SneakersLink Account";
+      }
+
+      updateAvatar(user, avatar);
+
+      updateAvatar(user, dropdownAvatar);
+
+      document.body.classList.add("sl-user-logged-in");
+
+      document.body.classList.remove("sl-user-logged-out");
+    }
+
+    function setLoggedOutView() {
+      if (guestLinks) {
+        guestLinks.hidden = false;
+      }
+
+      if (menu) {
+        menu.hidden = true;
+      }
+
+      closeDropdown();
+
+      document.body.classList.remove("sl-user-logged-in");
+
+      document.body.classList.add("sl-user-logged-out");
+    }
+
+    if (toggleBtn && !toggleBtn.dataset.accountBound) {
+      toggleBtn.dataset.accountBound = "true";
+
+      toggleBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+
+        if (dropdown?.classList.contains("is-open")) {
+          closeDropdown();
+        } else {
+          openDropdown();
+        }
+      });
+    }
+
+    if (!document.body.dataset.accountOutsideBound) {
+      document.body.dataset.accountOutsideBound = "true";
+
+      document.addEventListener("click", (event) => {
+        if (menu && !menu.hidden && !menu.contains(event.target)) {
+          closeDropdown();
+        }
+      });
+    }
+
+    if (!document.body.dataset.accountEscapeBound) {
+      document.body.dataset.accountEscapeBound = "true";
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeDropdown();
+        }
+      });
+    }
+
+    if (signOutBtn && !signOutBtn.dataset.signoutBound) {
+      signOutBtn.dataset.signoutBound = "true";
+
+      signOutBtn.addEventListener("click", async () => {
+        try {
+          if (window.SLAuth && typeof window.SLAuth.logout === "function") {
+            await window.SLAuth.logout();
+          }
+
+          try {
+            sessionStorage.removeItem("sneakerslink_new_signup");
+          } catch {}
+
+          closeDropdown();
+
+          showToast("Signed out successfully.");
+        } catch (error) {
+          console.error("[SneakersLink] Sign out failed:", error);
+
+          showToast("Couldn't sign out. Please try again.", "warn");
+        }
+      });
+    }
+
+    if (inlineThemeBtn && !inlineThemeBtn.dataset.themeBound) {
+      inlineThemeBtn.dataset.themeBound = "true";
+
+      const syncThemeLabel = () => {
         const isDark =
           document.documentElement.getAttribute("data-theme") === "dark";
-        if (inlineThemeLabel)
+
+        if (inlineThemeLabel) {
           inlineThemeLabel.textContent = isDark ? "Light Mode" : "Dark Mode";
+        }
       };
-      syncLabel();
+
+      syncThemeLabel();
+
       inlineThemeBtn.addEventListener("click", () => {
-        const next =
-          document.documentElement.getAttribute("data-theme") === "dark"
-            ? "light"
-            : "dark";
+        const current = document.documentElement.getAttribute("data-theme");
+
+        const next = current === "dark" ? "light" : "dark";
+
         applyTheme(next);
-        syncLabel();
+
+        syncThemeLabel();
+
         closeDropdown();
       });
     }
 
-    // React to auth state as soon as it's known. firebase-auth.js is a
-    // deferred module, so window.SLAuth may not exist the instant
-    // DOMContentLoaded fires — listen for its ready event as a fallback.
+    let authStateWired = false;
+
     function wireAuthState() {
-      if (!window.SLAuth) return false;
+      if (authStateWired) {
+        return true;
+      }
+
+      if (
+        !window.SLAuth ||
+        typeof window.SLAuth.onAuthStateChanged !== "function"
+      ) {
+        return false;
+      }
+
+      authStateWired = true;
+
       window.SLAuth.onAuthStateChanged((user) => {
-        if (user) setLoggedInView(user);
-        else setLoggedOutView();
+        if (user) {
+          setLoggedInView(user);
+        } else {
+          setLoggedOutView();
+        }
       });
+
       return true;
     }
 
     if (!wireAuthState()) {
-      window.addEventListener("slauth:ready", wireAuthState, { once: true });
+      window.addEventListener("slauth:ready", wireAuthState, {
+        once: true,
+      });
     }
   }
 
-  function initMobileNavigation() {
-    const check =
-      $("#check");
+  /* =========================================================
+     MOBILE NAVIGATION
+     ========================================================= */
 
-    const navbar =
-      $("#navbar");
+  function initMobileNavigation() {
+    const check = $("#check");
+    const navbar = $("#navbar");
 
     if (!check || !navbar) {
       return;
     }
 
-    const button =
-      $(".navbutton");
+    const button = $(".navbutton");
 
-    button?.setAttribute(
-      "aria-controls",
-      "navbar"
-    );
+    button?.setAttribute("aria-controls", "navbar");
 
-    button?.setAttribute(
-      "aria-expanded",
-      "false"
-    );
+    button?.setAttribute("aria-expanded", String(Boolean(check.checked)));
 
-    $$("#navbar a").forEach(
-      (link) =>
-        link.addEventListener(
-          "click",
-          () => {
-            check.checked =
-              false;
-
-            button?.setAttribute(
-              "aria-expanded",
-              "false"
-            );
-          }
-        )
-    );
-
-    check.addEventListener(
-      "change",
-      () => {
-        button?.setAttribute(
-          "aria-expanded",
-          String(
-            check.checked
-          )
-        );
+    $$("#navbar a").forEach((link) => {
+      if (link.dataset.mobileNavBound) {
+        return;
       }
-    );
 
-    document.addEventListener(
-      "click",
-      (event) => {
-        if (
-          check.checked &&
-          !event.target.closest(
-            "nav"
-          )
-        ) {
-          check.checked =
-            false;
+      link.dataset.mobileNavBound = "true";
 
-          button?.setAttribute(
-            "aria-expanded",
-            "false"
-          );
+      link.addEventListener("click", () => {
+        check.checked = false;
+
+        button?.setAttribute("aria-expanded", "false");
+      });
+    });
+
+    if (!check.dataset.mobileBound) {
+      check.dataset.mobileBound = "true";
+
+      check.addEventListener("change", () => {
+        button?.setAttribute("aria-expanded", String(check.checked));
+      });
+    }
+
+    if (!document.body.dataset.mobileOutsideBound) {
+      document.body.dataset.mobileOutsideBound = "true";
+
+      document.addEventListener("click", (event) => {
+        if (check.checked && !event.target.closest("nav")) {
+          check.checked = false;
+
+          button?.setAttribute("aria-expanded", "false");
         }
-      }
-    );
+      });
+    }
   }
+
+  /* =========================================================
+     ACTIVE NAVIGATION
+     ========================================================= */
 
   function initActiveNavigation() {
-    const current =
-      (
-        window.location
-          .pathname
-          .split("/")
-          .pop() ||
-        "index.html"
-      ).toLowerCase();
+    const current = (
+      window.location.pathname.split("/").pop() || "index.html"
+    ).toLowerCase();
 
-    $$("#navbar a").forEach(
-      (link) => {
-        const page =
-          (
-            link
-              .getAttribute(
-                "href"
-              ) ||
-            ""
-          )
-            .split("#")[0]
-            .split("/")
-            .pop()
-            .toLowerCase();
+    $$("#navbar a").forEach((link) => {
+      const href = link.getAttribute("href") || "";
 
-        link.classList.toggle(
-          "active",
-          page ===
-            current
-        );
-      }
-    );
+      const page = href.split("#")[0].split("/").pop().toLowerCase();
+
+      link.classList.toggle("active", page === current);
+    });
   }
 
+  /* =========================================================
+     NAVBAR SCROLL
+     ========================================================= */
+
   function initNavbarScroll() {
-    const nav =
-      $("nav");
+    const nav = $("nav");
 
     if (!nav) {
       return;
     }
 
-    const update =
-      () =>
-        nav.classList.toggle(
-          "nav--scrolled",
-          window.scrollY >
-            20
-        );
+    const update = () => {
+      nav.classList.toggle("nav--scrolled", window.scrollY > 20);
+    };
 
     update();
 
-    window.addEventListener(
-      "scroll",
-      update,
-      {
-        passive: true,
-      }
-    );
+    window.addEventListener("scroll", update, {
+      passive: true,
+    });
   }
 
+  /* =========================================================
+     SCROLL REVEAL
+     ========================================================= */
+
   function initScrollReveal() {
-    $$(
-      ".pro-container .pro, #feature .ft-box, #banner, #sm-banner .banner-box, #banner3 .banner-box, #newsletter"
-    ).forEach(
-      (el) =>
-        el.classList.add(
-          "reveal"
-        )
-    );
+    const selector = `
+      .pro-container .pro,
+      #feature .ft-box,
+      #banner,
+      #sm-banner .banner-box,
+      #banner3 .banner-box,
+      #newsletter
+    `;
 
-    const elements =
-      $$(".reveal");
+    $$(selector).forEach((element) => {
+      element.classList.add("reveal");
+    });
 
-    if (
-      !(
-        "IntersectionObserver" in
-        window
-      )
-    ) {
-      elements.forEach(
-        (el) =>
-          el.classList.add(
-            "reveal--in"
-          )
-      );
+    const elements = $$(".reveal");
+
+    if (!elements.length) {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      elements.forEach((element) => {
+        element.classList.add("reveal--in");
+      });
 
       return;
     }
 
-    const observer =
-      new IntersectionObserver(
-        (entries, obs) => {
-          entries.forEach(
-            (entry) => {
-              if (
-                !entry.isIntersecting
-              ) {
-                return;
-              }
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            return;
+          }
 
-              entry.target.classList.add(
-                "reveal--in"
-              );
+          entry.target.classList.add("reveal--in");
 
-              obs.unobserve(
-                entry.target
-              );
-            }
-          );
-        },
-        {
-          threshold: 0.08,
-          rootMargin:
-            "0px 0px -30px 0px",
-        }
-      );
-
-    elements.forEach(
-      (el) =>
-        observer.observe(el)
+          obs.unobserve(entry.target);
+        });
+      },
+      {
+        threshold: 0.08,
+        rootMargin: "0px 0px -30px 0px",
+      },
     );
+
+    elements.forEach((element) => {
+      observer.observe(element);
+    });
   }
 
+  /* =========================================================
+     TOAST
+     ========================================================= */
+
   function ensureToastRoot() {
-    let root =
-      $(".toast-root") ||
-      $("#toast-root");
+    let root = $(".toast-root") || $("#toast-root");
 
     if (root) {
       return root;
     }
 
-    root =
-      document.createElement(
-        "div"
-      );
+    root = document.createElement("div");
 
-    root.className =
-      "toast-root";
+    root.className = "toast-root";
 
-    root.setAttribute(
-      "aria-live",
-      "polite"
-    );
+    root.setAttribute("aria-live", "polite");
 
-    root.setAttribute(
-      "aria-atomic",
-      "true"
-    );
+    root.setAttribute("aria-atomic", "true");
 
-    document.body.appendChild(
-      root
-    );
+    document.body.appendChild(root);
 
     return root;
   }
 
-  function showToast(
-    message,
-    type = "success",
-    duration = 3200
-  ) {
+  function showToast(message, type = "success", duration = 3200) {
     if (!message) {
       return;
     }
 
-    const root =
-      ensureToastRoot();
+    const root = ensureToastRoot();
 
-    const toast =
-      document.createElement(
-        "div"
-      );
+    const toast = document.createElement("div");
 
-    toast.className =
-      `toast${
-        type === "warn"
-          ? " toast--warn"
-          : ""
-      }`;
+    toast.className = `toast${type === "warn" ? " toast--warn" : ""}`;
 
     toast.innerHTML = `
-      <i class="fas ${
-        type === "warn"
-          ? "fa-exclamation-circle"
-          : "fa-check-circle"
-      }"
-         aria-hidden="true"></i>
+      <i
+        class="fas ${
+          type === "warn" ? "fa-exclamation-circle" : "fa-check-circle"
+        }"
+        aria-hidden="true">
+      </i>
+
       <span>
         ${escapeHtml(message)}
-      </span>`;
+      </span>
+    `;
 
-    root.appendChild(
-      toast
-    );
+    root.appendChild(toast);
 
-    requestAnimationFrame(
-      () =>
-        toast.classList.add(
-          "toast--show"
-        )
-    );
+    requestAnimationFrame(() => {
+      toast.classList.add("toast--show");
+    });
 
-    window.setTimeout(
-      () => {
-        toast.classList.remove(
-          "toast--show"
-        );
+    window.setTimeout(() => {
+      toast.classList.remove("toast--show");
 
-        window.setTimeout(
-          () =>
-            toast.remove(),
-          350
-        );
-      },
-      duration
-    );
+      window.setTimeout(() => {
+        toast.remove();
+      }, 350);
+    }, duration);
   }
 
+  /* =========================================================
+     BACK TO TOP
+     ========================================================= */
+
   function initBackToTop() {
-    const button =
-      $("#backToTop");
+    const button = $("#backToTop");
 
     if (!button) {
       return;
     }
 
-    const update =
-      () =>
-        button.classList.toggle(
-          "back-to-top--visible",
-          window.scrollY >
-            450
-        );
+    const update = () => {
+      button.classList.toggle("back-to-top--visible", window.scrollY > 450);
+    };
 
     update();
 
-    window.addEventListener(
-      "scroll",
-      update,
-      {
-        passive: true,
-      }
-    );
+    window.addEventListener("scroll", update, {
+      passive: true,
+    });
 
-    button.addEventListener(
-      "click",
-      () =>
+    if (!button.dataset.backTopBound) {
+      button.dataset.backTopBound = "true";
+
+      button.addEventListener("click", () => {
         window.scrollTo({
           top: 0,
           behavior: "smooth",
-        })
-    );
+        });
+      });
+    }
   }
 
-  function initNewsletter() {
-    const form =
-      $("#newsletterForm");
+  /* =========================================================
+     NEWSLETTER
+     ========================================================= */
 
-    if (!form) {
+  function initNewsletter() {
+    const form = $("#newsletterForm");
+
+    if (!form || form.dataset.newsletterBound) {
       return;
     }
 
-    form.addEventListener(
-      "submit",
-      (event) => {
-        event.preventDefault();
+    form.dataset.newsletterBound = "true";
 
-        const input =
-          $(
-            "input[type='email']",
-            form
-          );
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
 
-        if (
-          !input ||
-          !input.checkValidity()
-        ) {
-          input?.classList.add(
-            "field-error"
-          );
+      const input = $("input[type='email']", form);
 
-          showToast(
-            "Please enter a valid email address.",
-            "warn"
-          );
+      if (!input || !input.checkValidity()) {
+        input?.classList.add("field-error");
 
-          window.setTimeout(
-            () =>
-              input?.classList.remove(
-                "field-error"
-              ),
-            500
-          );
+        showToast("Please enter a valid email address.", "warn");
 
-          return;
-        }
+        window.setTimeout(() => {
+          input?.classList.remove("field-error");
+        }, 500);
 
-        safeStorageSet(
-          "sl_newsletter_email",
-          input.value
-            .trim()
-            .toLowerCase()
-        );
-
-        input.value =
-          "";
-
-        showToast(
-          "Thanks! You are subscribed to SneakersLink updates."
-        );
+        return;
       }
-    );
+
+      safeStorageSet("sl_newsletter_email", input.value.trim().toLowerCase());
+
+      input.value = "";
+
+      showToast("Thanks! You are subscribed to SneakersLink updates.");
+    });
   }
 
+  /* =========================================================
+     PRODUCT DETAIL
+     ========================================================= */
+
   function getProductDetailData() {
-    const details =
-      $(".single-pro-details");
+    const details = $(".single-pro-details");
 
     if (!details) {
       return null;
     }
 
     const name =
-      details.dataset
-        .productName ||
-      $(
-        "#productName",
-        details
-      )?.textContent?.trim() ||
-      document.body.dataset
-        .productName ||
-      $("h4", details)
-        ?.textContent?.trim() ||
+      details.dataset.productName ||
+      $("#productName", details)?.textContent?.trim() ||
+      document.body.dataset.productName ||
+      $("h4", details)?.textContent?.trim() ||
       "Sneaker";
 
     const price =
-      parsePrice(
-        details.dataset
-          .productPrice
-      ) ||
-      parsePrice(
-        $(
-          "#productPrice",
-          details
-        )?.textContent
-      ) ||
-      parsePrice(
-        $("h2", details)
-          ?.textContent
-      );
+      parsePrice(details.dataset.productPrice) ||
+      parsePrice($("#productPrice", details)?.textContent) ||
+      parsePrice($("h2", details)?.textContent);
 
-    const image =
-      $("#mainImg")
-        ?.getAttribute(
-          "src"
-        ) || "";
+    const image = $("#mainImg")?.getAttribute("src") || "";
 
-    const brand =
-      details.dataset
-        .brand ||
-      document.body.dataset
-        .brand ||
-      "";
+    const brand = details.dataset.brand || document.body.dataset.brand || "";
+
+    const id =
+      details.dataset.productId ||
+      document.body.dataset.productId ||
+      normaliseId(`${brand}-${name}`);
 
     return {
-      id:
-        details.dataset
-          .productId ||
-        document.body.dataset
-          .productId ||
-        normaliseId(
-          `${brand}-${name}`
-        ),
+      id,
       name,
       brand,
       price,
@@ -1725,243 +1527,156 @@
   }
 
   function initProductPage() {
-    const mainImage =
-      $("#mainImg");
+    const mainImage = $("#mainImg");
 
-    const details =
-      $(".single-pro-details");
+    const details = $(".single-pro-details");
 
     if (!mainImage || !details) {
       return;
     }
 
-    $$(
-      ".small-img-col img, .small-img"
-    ).forEach(
-      (thumbnail) => {
-        thumbnail.setAttribute(
-          "tabindex",
-          "0"
-        );
+    $$(".small-img-col img, .small-img").forEach((thumbnail) => {
+      thumbnail.setAttribute("tabindex", "0");
 
-        const change =
-          () => {
-            const src =
-              thumbnail.getAttribute(
-                "src"
-              );
-
-            if (src) {
-              mainImage.src =
-                src;
-
-              mainImage.alt =
-                thumbnail.alt ||
-                mainImage.alt;
-            }
-          };
-
-        thumbnail.addEventListener(
-          "click",
-          change
-        );
-
-        thumbnail.addEventListener(
-          "keydown",
-          (event) => {
-            if (
-              event.key ===
-                "Enter" ||
-              event.key ===
-                " "
-            ) {
-              event.preventDefault();
-              change();
-            }
-          }
-        );
+      if (thumbnail.dataset.thumbnailBound) {
+        return;
       }
-    );
 
-    const button =
-      $(
-        "#mainAddToCart",
-        details
-      ) ||
-      $(
-        "#addToCart",
-        details
-      );
+      thumbnail.dataset.thumbnailBound = "true";
 
-    if (!button) {
+      const change = () => {
+        const src = thumbnail.getAttribute("src");
+
+        if (src) {
+          mainImage.src = src;
+
+          mainImage.alt = thumbnail.alt || mainImage.alt;
+        }
+      };
+
+      thumbnail.addEventListener("click", change);
+
+      thumbnail.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          change();
+        }
+      });
+    });
+
+    const button = $("#mainAddToCart", details) || $("#addToCart", details);
+
+    if (!button || button.dataset.productBound) {
       return;
     }
 
-    button.addEventListener(
-      "click",
-      () => {
-        const sizeSelect =
-          $(
-            "#sizeSelect",
-            details
-          );
+    button.dataset.productBound = "true";
 
-        const quantityInput =
-          $(
-            "#qtyInput",
-            details
-          );
+    button.addEventListener("click", () => {
+      const sizeSelect = $("#sizeSelect", details);
 
-        const size =
-          sizeSelect?.value?.trim() ||
-          "";
+      const quantityInput = $("#qtyInput", details);
 
-        if (
-          sizeSelect &&
-          (
-            !size ||
-            size
-              .toLowerCase()
-              .includes(
-                "select"
-              )
-          )
-        ) {
-          showToast(
-            "Please select a size before adding this product.",
-            "warn"
-          );
+      const size = sizeSelect?.value?.trim() || "";
 
-          sizeSelect.focus();
+      if (sizeSelect && (!size || size.toLowerCase().includes("select"))) {
+        showToast("Please select a size before adding this product.", "warn");
 
-          return;
-        }
+        sizeSelect.focus();
 
-        const quantity =
-          Math.min(
-            MAX_QTY,
-            Math.max(
-              1,
-              Number.parseInt(
-                quantityInput
-                  ?.value ||
-                  "1",
-                10
-              ) || 1
-            )
-          );
-
-        const product =
-          getProductDetailData();
-
-        addToCart(
-          {
-            ...product,
-            size,
-            quantity,
-          },
-          button
-        );
+        return;
       }
-    );
+
+      let quantity = Number.parseInt(quantityInput?.value || "1", 10);
+
+      if (!Number.isFinite(quantity)) {
+        quantity = 1;
+      }
+
+      quantity = Math.min(MAX_QTY, Math.max(1, quantity));
+
+      const product = getProductDetailData();
+
+      if (!product) {
+        showToast("Product information is unavailable.", "warn");
+
+        return;
+      }
+
+      addToCart(
+        {
+          ...product,
+          size,
+          quantity,
+        },
+        button,
+      );
+    });
   }
+
+  /* =========================================================
+     ORDERS
+     ========================================================= */
 
   function getRecentOrderIds() {
     try {
-      const ids =
-        JSON.parse(
-          safeStorageGet(
-            RECENT_ORDERS_KEY,
-            "[]"
-          )
-        );
+      const ids = JSON.parse(safeStorageGet(RECENT_ORDERS_KEY, "[]"));
 
-      return Array.isArray(
-        ids
-      )
-        ? ids
-            .filter(Boolean)
-            .slice(0, 10)
-        : [];
+      return Array.isArray(ids) ? ids.filter(Boolean).slice(0, 10) : [];
     } catch {
       return [];
     }
   }
 
   function rememberOrder(id) {
+    if (!id) {
+      return;
+    }
+
     const ids = [
       id,
-      ...getRecentOrderIds().filter(
-        (existing) =>
-          existing !== id
-      ),
+      ...getRecentOrderIds().filter((existing) => existing !== id),
     ].slice(0, 10);
 
-    safeStorageSet(
-      RECENT_ORDERS_KEY,
-      JSON.stringify(ids)
-    );
+    safeStorageSet(RECENT_ORDERS_KEY, JSON.stringify(ids));
   }
 
   function getLocalOrders() {
     try {
-      const orders =
-        JSON.parse(
-          safeStorageGet(
-            LOCAL_ORDERS_KEY,
-            "[]"
-          )
-        );
+      const orders = JSON.parse(safeStorageGet(LOCAL_ORDERS_KEY, "[]"));
 
-      return Array.isArray(
-        orders
-      )
-        ? orders
-        : [];
+      return Array.isArray(orders) ? orders : [];
     } catch {
       return [];
     }
   }
 
-  function saveLocalOrder(
-    order
-  ) {
+  function saveLocalOrder(order) {
+    if (!order?.id) {
+      return;
+    }
+
     const orders = [
       order,
-      ...getLocalOrders().filter(
-        (existing) =>
-          existing.id !==
-          order.id
-      ),
+      ...getLocalOrders().filter((existing) => existing.id !== order.id),
     ].slice(0, 20);
 
-    safeStorageSet(
-      LOCAL_ORDERS_KEY,
-      JSON.stringify(
-        orders
-      )
-    );
+    safeStorageSet(LOCAL_ORDERS_KEY, JSON.stringify(orders));
   }
 
   function generateLocalOrderId() {
-    const time =
-      Date.now()
-        .toString(36)
-        .toUpperCase()
-        .slice(-6);
+    const time = Date.now().toString(36).toUpperCase().slice(-6);
 
-    const random =
-      Math.random()
-        .toString(36)
-        .slice(2, 7)
-        .toUpperCase();
+    const random = Math.random().toString(36).slice(2, 7).toUpperCase();
 
     return `SL-${time}${random}`;
   }
 
-  function buildWhatsAppMessage(
-    order
-  ) {
+  /* =========================================================
+     WHATSAPP ORDER MESSAGE
+     ========================================================= */
+
+  function buildWhatsAppMessage(order) {
     const lines = [
       "Hello SneakersLink, I'd like to complete my order.",
       "",
@@ -1969,305 +1684,261 @@
 
       ...order.items.map(
         (item) =>
-          `• ${item.name}${
-            item.size
-              ? ` (Size ${item.size})`
-              : ""
-          } × ${item.qty} — ${money(
-            item.price *
-              item.qty
-          )}`
+          `• ${item.name}${item.size ? ` (Size ${item.size})` : ""} × ${
+            item.qty
+          } — ${money(item.price * item.qty)}`,
       ),
 
       "",
 
-      `Subtotal: ${money(
-        order.subtotal
-      )}`,
+      `Subtotal: ${money(order.subtotal)}`,
 
-      ...(order.discount
-        ? [
-            `Discount: −${money(
-              order.discount
-            )}`,
-          ]
-        : []),
+      ...(order.discount ? [`Discount: −${money(order.discount)}`] : []),
 
-      `Total: ${money(
-        order.total
-      )}`,
+      `Total: ${money(order.total)}`,
 
       "",
 
       "Please confirm availability, delivery details and payment instructions.",
     ];
 
-    return lines.join(
-      "\n"
-    );
+    return lines.join("\n");
   }
 
+  /* =========================================================
+     WHATSAPP CHECKOUT
+     ========================================================= */
+
   async function checkoutViaWhatsApp() {
-    const cart =
-      getCart();
+    const cart = getCart();
 
     if (!cart.length) {
-      showToast(
-        "Your cart is empty.",
-        "warn"
-      );
+      showToast("Your cart is empty.", "warn");
 
       return;
     }
 
-    const totals =
-      getTotals();
+    const totals = getTotals();
 
     /*
-     * Open the tab synchronously from the click gesture so
-     * popup blockers do not prevent the WhatsApp hand-off
-     * while Firebase is creating the order.
+     * Open synchronously from the click event.
+     * This improves compatibility with popup blockers.
      */
-    const whatsappWindow =
-      window.open(
-        "about:blank",
-        "_blank",
-        "noopener,noreferrer"
-      );
+    let whatsappWindow = null;
 
-    const button =
-      $("#checkoutBtn");
+    try {
+      whatsappWindow = window.open("about:blank", "_blank");
 
-    if (button) {
-      button.disabled =
-        true;
-
-      button.dataset
-        .originalText ||=
-        button.textContent;
-
-      button.textContent =
-        "Creating order…";
+      if (whatsappWindow) {
+        try {
+          whatsappWindow.opener = null;
+        } catch {}
+      }
+    } catch (error) {
+      console.warn("[SneakersLink] WhatsApp popup failed:", error);
     }
 
-    const items =
-      cart.map(
-        (item) => ({
-          name:
-            item.name,
-          size:
-            item.size,
-          qty:
-            item.quantity,
-          price:
-            item.price,
-          img:
-            item.image,
-        })
-      );
+    const button = $("#checkoutBtn");
+
+    let originalText = "Checkout via WhatsApp";
+
+    if (button) {
+      button.disabled = true;
+
+      originalText =
+        button.dataset.originalText || button.textContent || originalText;
+
+      button.dataset.originalText = originalText;
+
+      button.textContent = "Creating order…";
+    }
+
+    const items = cart.map((item) => ({
+      name: item.name,
+      size: item.size,
+      qty: item.quantity,
+      price: item.price,
+      img: item.image,
+    }));
 
     let order = {
-      id:
-        generateLocalOrderId(),
+      id: generateLocalOrderId(),
 
       items,
 
-      subtotal:
-        totals.subtotal,
+      subtotal: totals.subtotal,
 
-      discount:
-        totals.discount,
+      discount: totals.discount,
 
-      total:
-        totals.total,
+      total: totals.total,
 
-      status:
-        "placed",
+      status: "placed",
 
-      placedAt:
-        Date.now(),
+      placedAt: Date.now(),
 
-      updatedAt:
-        Date.now(),
+      updatedAt: Date.now(),
     };
 
     try {
-      if (
-        window.SLOrders
-          ?.isConfigured &&
-        typeof window.SLOrders
-          .createOrder ===
-          "function"
-      ) {
-        const created =
-          await window.SLOrders.createOrder(
-            items,
-            totals.total,
-            {
-              subtotal:
-                totals.subtotal,
+      const ordersConfigured = Boolean(window.SLOrders?.isConfigured);
 
-              discount:
-                totals.discount,
+      const canCreateOrder = typeof window.SLOrders?.createOrder === "function";
 
-              coupon:
-                totals.coupon
-                  ?.code ||
-                "",
-            }
-          );
+      if (ordersConfigured && canCreateOrder) {
+        const created = await window.SLOrders.createOrder(items, totals.total, {
+          subtotal: totals.subtotal,
 
-        order = {
-          ...order,
-          ...created,
+          discount: totals.discount,
 
-          subtotal:
-            totals.subtotal,
+          coupon: totals.coupon?.code || "",
+        });
 
-          discount:
-            totals.discount,
+        if (created) {
+          order = {
+            ...order,
+            ...created,
 
-          total:
-            totals.total,
-        };
-      } else {
-        saveLocalOrder(
-          order
-        );
+            subtotal: totals.subtotal,
+
+            discount: totals.discount,
+
+            total: totals.total,
+          };
+        }
       }
-    } catch (error) {
-      console.error(
-        "Order creation failed:",
-        error
-      );
 
-      saveLocalOrder(
-        order
-      );
+      saveLocalOrder(order);
+    } catch (error) {
+      console.error("[SneakersLink] Order creation failed:", error);
+
+      saveLocalOrder(order);
 
       showToast(
         "Cloud order tracking is unavailable, but your WhatsApp order can still continue.",
-        "warn"
+        "warn",
       );
     } finally {
-      saveLocalOrder(
-        order
-      );
+      saveLocalOrder(order);
 
-      rememberOrder(
-        order.id
-      );
+      rememberOrder(order.id);
 
       if (button) {
-        button.disabled =
-          false;
+        button.disabled = false;
 
-        button.textContent =
-          button.dataset
-            .originalText ||
-          "Checkout via WhatsApp";
+        button.textContent = originalText;
       }
     }
 
-    const message =
-      encodeURIComponent(
-        buildWhatsAppMessage(
-          order
-        )
-      );
+    const message = encodeURIComponent(buildWhatsAppMessage(order));
 
-    const url =
-      `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
 
-    if (
-      whatsappWindow &&
-      !whatsappWindow.closed
-    ) {
-      whatsappWindow.location.href =
-        url;
+    if (whatsappWindow && !whatsappWindow.closed) {
+      try {
+        whatsappWindow.location.href = url;
+      } catch {
+        window.location.href = url;
+      }
     } else {
-      window.location.href =
-        url;
+      window.location.href = url;
     }
 
-    showToast(
-      `Order ${order.id} created. Opening WhatsApp…`
-    );
+    showToast(`Order ${order.id} created. Opening WhatsApp…`);
   }
 
   function initCheckout() {
-    $(
-      "#checkoutBtn"
-    )?.addEventListener(
-      "click",
-      checkoutViaWhatsApp
-    );
+    const button = $("#checkoutBtn");
+
+    if (!button || button.dataset.checkoutBound) {
+      return;
+    }
+
+    button.dataset.checkoutBound = "true";
+
+    button.addEventListener("click", checkoutViaWhatsApp);
   }
 
-  function renderTrackResult(
-    order
-  ) {
-    const result =
-      $("#trackResult");
+  /* =========================================================
+     TRACK ORDER
+     ========================================================= */
 
-    const notFound =
-      $("#trackNotFound");
+  function formatDate(value) {
+    let ms = value;
+
+    try {
+      if (value && typeof value.toMillis === "function") {
+        ms = value.toMillis();
+      } else if (value && typeof value.seconds === "number") {
+        ms = value.seconds * 1000;
+      }
+    } catch {}
+
+    const date = new Date(ms);
+
+    if (Number.isNaN(date.getTime())) {
+      return "recently";
+    }
+
+    return date.toLocaleString("en-KE", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  }
+
+  function renderTrackResult(order) {
+    const result = $("#trackResult");
+
+    const notFound = $("#trackNotFound");
 
     if (!result) {
       return;
     }
 
-    notFound &&
-      (notFound.hidden =
-        true);
+    if (notFound) {
+      notFound.hidden = true;
+    }
 
-    result.hidden =
-      false;
+    result.hidden = false;
 
-    const status =
-      order?.status ||
-      "placed";
+    const status = order?.status || "placed";
 
     const stages =
-      window.SLOrders
-        ?.ORDER_STAGES ||
-      [
-        {
-          key: "placed",
-          label: "Order Placed",
-          icon: "fa-receipt",
-        },
-        {
-          key: "confirmed",
-          label: "Confirmed",
-          icon: "fa-check-circle",
-        },
-        {
-          key: "packed",
-          label: "Packed",
-          icon: "fa-box",
-        },
-        {
-          key: "out",
-          label: "Out for Delivery",
-          icon: "fa-truck",
-        },
-        {
-          key: "delivered",
-          label: "Delivered",
-          icon: "fa-home",
-        },
-      ];
+      Array.isArray(window.SLOrders?.ORDER_STAGES) &&
+      window.SLOrders.ORDER_STAGES.length
+        ? window.SLOrders.ORDER_STAGES
+        : [
+            {
+              key: "placed",
+              label: "Order Placed",
+              icon: "fa-receipt",
+            },
+            {
+              key: "confirmed",
+              label: "Confirmed",
+              icon: "fa-check-circle",
+            },
+            {
+              key: "packed",
+              label: "Packed",
+              icon: "fa-box",
+            },
+            {
+              key: "out",
+              label: "Out for Delivery",
+              icon: "fa-truck",
+            },
+            {
+              key: "delivered",
+              label: "Delivered",
+              icon: "fa-home",
+            },
+          ];
 
-    const currentIndex =
-      Math.max(
-        0,
-        stages.findIndex(
-          (stage) =>
-            stage.key ===
-            status
-        )
-      );
+    let currentIndex = stages.findIndex((stage) => stage.key === status);
+
+    if (currentIndex < 0) {
+      currentIndex = 0;
+    }
 
     result.innerHTML = `
       <div class="track-result-card">
@@ -2279,17 +1950,12 @@
             </span>
 
             <h3>
-              ${escapeHtml(
-                order.id ||
-                  "Order"
-              )}
+              ${escapeHtml(order.id || "Order")}
             </h3>
           </div>
 
           <strong>
-            ${money(
-              order.total
-            )}
+            ${money(order.total)}
           </strong>
         </div>
 
@@ -2297,39 +1963,25 @@
 
           ${stages
             .map(
-              (
-                stage,
-                index
-              ) => `
-            <li class="${
-              index <=
-              currentIndex
-                ? "is-complete"
-                : ""
-            } ${
-                index ===
-                currentIndex
-                  ? "is-current"
-                  : ""
-              }">
+              (stage, index) => `
+                <li
+                  class="${index <= currentIndex ? "is-complete" : ""} ${
+                    index === currentIndex ? "is-current" : ""
+                  }">
 
-              <span class="timeline-icon">
-                <i
-                  class="fas ${
-                    stage.icon
-                  }"
-                  aria-hidden="true">
-                </i>
-              </span>
+                  <span class="timeline-icon">
+                    <i
+                      class="fas ${escapeHtml(stage.icon || "fa-circle")}"
+                      aria-hidden="true">
+                    </i>
+                  </span>
 
-              <span>
-                ${escapeHtml(
-                  stage.label
-                )}
-              </span>
+                  <span>
+                    ${escapeHtml(stage.label || stage.key || "")}
+                  </span>
 
-            </li>
-          `
+                </li>
+              `,
             )
             .join("")}
 
@@ -2338,374 +1990,392 @@
         <p class="track-updated">
           ${
             order.updatedAt
-              ? `Last updated ${formatDate(
-                  order.updatedAt
-                )}`
+              ? `Last updated ${escapeHtml(formatDate(order.updatedAt))}`
               : "Status is being processed."
           }
         </p>
 
-      </div>`;
-  }
-
-  function formatDate(
-    value
-  ) {
-    let ms = value;
-
-    if (
-      value?.toMillis
-    ) {
-      ms =
-        value.toMillis();
-    }
-
-    if (
-      value?.seconds
-    ) {
-      ms =
-        value.seconds *
-        1000;
-    }
-
-    const date =
-      new Date(ms);
-
-    return Number.isNaN(
-      date.getTime()
-    )
-      ? "recently"
-      : date.toLocaleString(
-          "en-KE",
-          {
-            dateStyle:
-              "medium",
-            timeStyle:
-              "short",
-          }
-        );
+      </div>
+    `;
   }
 
   function renderRecentOrders() {
-    const container =
-      $("#recentOrders");
+    const container = $("#recentOrders");
 
-    const list =
-      $("ul", container || document);
+    const list = container ? $("ul", container) : null;
 
     if (!container || !list) {
       return;
     }
 
-    const ids =
-      getRecentOrderIds();
+    const ids = getRecentOrderIds();
 
     if (!ids.length) {
-      container.hidden =
-        true;
-
+      container.hidden = true;
+      list.innerHTML = "";
       return;
     }
 
-    list.innerHTML =
-      ids
-        .map(
-          (id) => `
-      <li>
-        <button
-          type="button"
-          class="recent-order-btn"
-          data-order-id="${escapeHtml(
-            id
-          )}">
-          ${escapeHtml(id)}
-        </button>
-      </li>`
-        )
-        .join("");
+    list.innerHTML = ids
+      .map(
+        (id) => `
+            <li>
+              <button
+                type="button"
+                class="recent-order-btn"
+                data-order-id="${escapeHtml(id)}">
+                ${escapeHtml(id)}
+              </button>
+            </li>
+          `,
+      )
+      .join("");
 
-    container.hidden =
-      false;
+    container.hidden = false;
 
-    $$(".recent-order-btn", container)
-      .forEach(
-        (button) => {
-          button.addEventListener(
-            "click",
-            () => {
-              const input =
-                $("#trackOrderId");
+    $$(".recent-order-btn", container).forEach((button) => {
+      button.addEventListener("click", () => {
+        const input = $("#trackOrderId");
 
-              if (input) {
-                input.value =
-                  button.dataset
-                    .orderId;
+        if (input) {
+          input.value = button.dataset.orderId || "";
 
-                $(
-                  "#trackForm"
-                )?.requestSubmit();
-              }
-            }
-          );
+          const form = $("#trackForm");
+
+          if (form?.requestSubmit) {
+            form.requestSubmit();
+          } else {
+            form?.dispatchEvent(
+              new Event("submit", {
+                bubbles: true,
+                cancelable: true,
+              }),
+            );
+          }
         }
-      );
+      });
+    });
   }
 
-  let activeTrackUnsubscribe =
-    null;
-
-  async function trackOrder(
-    orderId
-  ) {
-    const cleanId =
-      String(
-        orderId || ""
-      )
-        .trim()
-        .toUpperCase();
+  async function trackOrder(orderId) {
+    const cleanId = String(orderId || "")
+      .trim()
+      .toUpperCase();
 
     if (!cleanId) {
-      showToast(
-        "Enter your order reference.",
-        "warn"
-      );
+      showToast("Enter your order reference.", "warn");
 
       return;
     }
 
-    activeTrackUnsubscribe?.();
+    if (typeof activeTrackUnsubscribe === "function") {
+      try {
+        activeTrackUnsubscribe();
+      } catch {}
+    }
 
-    activeTrackUnsubscribe =
-      null;
+    activeTrackUnsubscribe = null;
 
-    const result =
-      $("#trackResult");
+    const result = $("#trackResult");
+
+    const notFound = $("#trackNotFound");
+
+    if (notFound) {
+      notFound.hidden = true;
+    }
 
     if (result) {
-      result.hidden =
-        false;
+      result.hidden = false;
 
-      result.innerHTML =
-        `<div class="track-loading">
-          Looking up ${escapeHtml(
-            cleanId
-          )}…
-        </div>`;
+      result.innerHTML = `
+        <div class="track-loading">
+          Looking up ${escapeHtml(cleanId)}…
+        </div>
+      `;
     }
 
     try {
-      if (
-        window.SLOrders
-          ?.isConfigured &&
-        typeof window.SLOrders
-          .subscribeOrder ===
-          "function"
-      ) {
-        activeTrackUnsubscribe =
-          window.SLOrders.subscribeOrder(
-            cleanId,
+      const configured = Boolean(window.SLOrders?.isConfigured);
 
-            (order) => {
-              if (!order) {
-                if (result) {
-                  result.hidden =
-                    true;
-                }
+      const canSubscribe =
+        typeof window.SLOrders?.subscribeOrder === "function";
 
-                $(
-                  "#trackNotFound"
-                ) &&
-                  ($(
-                    "#trackNotFound"
-                  ).hidden =
-                    false);
+      if (configured && canSubscribe) {
+        activeTrackUnsubscribe = window.SLOrders.subscribeOrder(
+          cleanId,
 
-                return;
+          (order) => {
+            if (!order) {
+              if (result) {
+                result.hidden = true;
               }
 
-              renderTrackResult(
-                {
-                  ...order,
-                  id: cleanId,
-                }
-              );
-            },
+              if (notFound) {
+                notFound.hidden = false;
+              }
 
-            (error) => {
-              console.error(
-                "Order tracking error:",
-                error
-              );
-
-              showToast(
-                "We couldn't retrieve that order right now.",
-                "warn"
-              );
+              return;
             }
-          );
+
+            renderTrackResult({
+              ...order,
+              id: order.id || cleanId,
+            });
+          },
+
+          (error) => {
+            console.error("[SneakersLink] Order tracking error:", error);
+
+            if (result) {
+              result.hidden = true;
+            }
+
+            if (notFound) {
+              notFound.hidden = false;
+            }
+
+            showToast("We couldn't retrieve that order right now.", "warn");
+          },
+        );
+
+        return;
+      }
+
+      const localOrder = getLocalOrders().find(
+        (item) => String(item.id).toUpperCase() === cleanId,
+      );
+
+      if (localOrder) {
+        renderTrackResult(localOrder);
       } else {
-        const order =
-          getLocalOrders().find(
-            (item) =>
-              item.id ===
-              cleanId
-          );
+        if (result) {
+          result.hidden = true;
+        }
 
-        if (order) {
-          renderTrackResult(
-            order
-          );
-        } else {
-          if (result) {
-            result.hidden =
-              true;
-          }
-
-          $(
-            "#trackNotFound"
-          ) &&
-            ($(
-              "#trackNotFound"
-            ).hidden =
-              false);
+        if (notFound) {
+          notFound.hidden = false;
         }
       }
     } catch (error) {
-      console.error(error);
+      console.error("[SneakersLink] Tracking failed:", error);
 
-      const order =
-        getLocalOrders().find(
-          (item) =>
-            item.id ===
-            cleanId
-        );
+      const localOrder = getLocalOrders().find(
+        (item) => String(item.id).toUpperCase() === cleanId,
+      );
 
-      if (order) {
-        renderTrackResult(
-          order
-        );
+      if (localOrder) {
+        renderTrackResult(localOrder);
       } else {
         if (result) {
-          result.hidden =
-            true;
+          result.hidden = true;
         }
 
-        $(
-          "#trackNotFound"
-        ) &&
-          ($(
-            "#trackNotFound"
-          ).hidden =
-            false);
+        if (notFound) {
+          notFound.hidden = false;
+        }
+
+        showToast("We couldn't retrieve that order.", "warn");
       }
     }
   }
 
   function initTrackOrder() {
-    const form =
-      $("#trackForm") ||
-      $(".track-form");
+    const form = $("#trackForm") || $(".track-form");
 
-    const input =
-      $("#trackOrderId") ||
-      $("input", form || document);
+    const input = $("#trackOrderId") || $("input", form || document);
 
     if (!form || !input) {
       return;
     }
 
-    form.addEventListener(
-      "submit",
-      (event) => {
+    if (!form.dataset.trackBound) {
+      form.dataset.trackBound = "true";
+
+      form.addEventListener("submit", (event) => {
         event.preventDefault();
 
-        trackOrder(
-          input.value
-        );
-      }
-    );
+        trackOrder(input.value);
+      });
+    }
 
     renderRecentOrders();
 
-    if (
-      input.value.trim()
-    ) {
-      trackOrder(
-        input.value
-      );
+    if (input.value.trim()) {
+      trackOrder(input.value);
     }
   }
 
-  function initStorageSync() {
-    window.addEventListener(
-      "storage",
-      (event) => {
-        if (
-          event.key ===
-          STORAGE_KEY
-        ) {
-          updateCartBadge();
-          renderCartPage();
-        }
+  /* =========================================================
+     PERSONALIZED HOME WELCOME
+     ========================================================= */
 
-        if (
-          event.key ===
-          COUPON_KEY
-        ) {
-          updateCartTotals();
-        }
+  function initHomeWelcome() {
+    const welcome = document.getElementById("homeWelcome");
 
-        if (
-          event.key ===
-            THEME_KEY &&
-          event.newValue
-        ) {
-          applyTheme(
-            event.newValue,
-            false
-          );
-        }
+    const welcomeText = document.getElementById("homeWelcomeText");
+
+    /*
+     * This section only exists on index.html.
+     */
+    if (!welcome || !welcomeText) {
+      return;
+    }
+
+    function getCustomerName(user) {
+      if (!user) {
+        return "";
       }
-    );
+
+      const name = user.displayName || user.nickname || user.nickName || "";
+
+      if (String(name).trim()) {
+        return String(name).trim();
+      }
+
+      if (user.email) {
+        return user.email.split("@")[0].trim();
+      }
+
+      return "";
+    }
+
+    function showWelcome(user) {
+      if (!user) {
+        welcome.hidden = true;
+
+        welcome.classList.remove("is-visible");
+
+        return;
+      }
+
+      const nickname = getCustomerName(user);
+
+      if (!nickname) {
+        welcome.hidden = true;
+
+        welcome.classList.remove("is-visible");
+
+        return;
+      }
+
+      let isNewSignup = false;
+
+      try {
+        isNewSignup =
+          sessionStorage.getItem("sneakerslink_new_signup") === "true";
+      } catch {
+        isNewSignup = false;
+      }
+
+      if (isNewSignup) {
+        welcomeText.innerHTML = `
+          Welcome!
+          <span>
+            ${escapeHtml(nickname)}
+          </span>
+        `;
+      } else {
+        welcomeText.innerHTML = `
+          Welcome back,
+          <span>
+            ${escapeHtml(nickname)}
+          </span>
+        `;
+      }
+
+      welcome.hidden = false;
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          welcome.classList.add("is-visible");
+        });
+      });
+
+      if (isNewSignup) {
+        window.setTimeout(() => {
+          try {
+            sessionStorage.removeItem("sneakerslink_new_signup");
+          } catch {}
+        }, 2500);
+      }
+    }
+
+    let authStateWired = false;
+
+    function connectAuth() {
+      if (authStateWired) {
+        return true;
+      }
+
+      if (
+        !window.SLAuth ||
+        typeof window.SLAuth.onAuthStateChanged !== "function"
+      ) {
+        return false;
+      }
+
+      authStateWired = true;
+
+      window.SLAuth.onAuthStateChanged((user) => {
+        showWelcome(user);
+      });
+
+      return true;
+    }
+
+    if (!connectAuth()) {
+      window.addEventListener("slauth:ready", connectAuth, {
+        once: true,
+      });
+    }
   }
 
+  /* =========================================================
+     STORAGE SYNC
+     ========================================================= */
+
+  function initStorageSync() {
+    if (window.__sneakersLinkStorageSync) {
+      return;
+    }
+
+    window.__sneakersLinkStorageSync = true;
+
+    window.addEventListener("storage", (event) => {
+      if (event.key === STORAGE_KEY) {
+        updateCartBadge();
+        renderCartPage();
+      }
+
+      if (event.key === COUPON_KEY) {
+        updateCartTotals();
+      }
+
+      if (event.key === THEME_KEY && event.newValue) {
+        applyTheme(event.newValue, false);
+      }
+    });
+  }
+
+  /* =========================================================
+     PUBLIC CART API
+     ========================================================= */
+
   window.SneakersLinkCart = {
-    get:
-      getCart,
+    get: getCart,
 
-    count:
-      getCartCount,
+    count: getCartCount,
 
-    subtotal:
-      getCartSubtotal,
+    subtotal: getCartSubtotal,
 
-    totals:
-      getTotals,
+    totals: getTotals,
 
-    add:
-      addToCart,
+    add: addToCart,
 
-    remove:
-      (
-        id,
-        size = ""
-      ) =>
-        removeCartItem(
-          id,
-          size
-        ),
+    remove: (id, size = "") => removeCartItem(id, size),
 
-    updateQuantity:
-      (
-        id,
-        size,
-        quantity
-      ) =>
-        updateCartQuantity(
-          id,
-          size,
-          quantity
-        ),
+    updateQuantity: (id, size, quantity) =>
+      updateCartQuantity(id, size, quantity),
 
     clear: () => {
       saveCart([]);
@@ -2714,7 +2384,20 @@
     },
   };
 
+  /* =========================================================
+     MAIN INITIALISATION
+     ========================================================= */
+
   function init() {
+    /*
+     * Prevent accidental double initialisation.
+     */
+    if (appInitialised) {
+      return;
+    }
+
+    appInitialised = true;
+
     initTheme();
 
     initAccountMenu();
@@ -2748,19 +2431,24 @@
     initTrackOrder();
 
     initStorageSync();
+
+    /*
+     * IMPORTANT:
+     * This was missing in the original code.
+     * Without it, the personalized homepage
+     * greeting never initializes.
+     */
+    initHomeWelcome();
   }
 
-  if (
-    document.readyState ===
-    "loading"
-  ) {
-    document.addEventListener(
-      "DOMContentLoaded",
-      init,
-      {
-        once: true,
-      }
-    );
+  /* =========================================================
+     DOM READY
+     ========================================================= */
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, {
+      once: true,
+    });
   } else {
     init();
   }

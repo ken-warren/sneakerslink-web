@@ -2197,46 +2197,55 @@
                         ====================================== */
 
                         if (
-                            mode ===
-                            "signup"
-                        ) {
+    mode === "signup"
+) {
 
-                            /*
-                             * IMPORTANT:
-                             *
-                             * firebase-auth.js expects:
-                             *
-                             * register(
-                             *     email,
-                             *     password,
-                             *     profile
-                             * )
-                             *
-                             * The old page incorrectly passed:
-                             *
-                             * register(
-                             *     name,
-                             *     email,
-                             *     password
-                             * )
-                             */
-
-                            await window.SLAuth.register(
-                                data.email,
-                                data.password,
-                                {
-                                    displayName:
-                                        data.name
-                                }
-                            );
+    const newUser =
+        await window.SLAuth.register(
+            data.email,
+            data.password,
+            {
+                displayName:
+                    data.name
+            }
+        );
 
 
-                            showStatus(
-                                "Account created successfully. Welcome to SneakersLink!",
-                                "success"
-                            );
+    /*
+     * Mark this browser session as a NEW signup.
+     *
+     * The homepage will use this to display:
+     *
+     * Welcome! Kennedy
+     *
+     * instead of:
+     *
+     * Welcome back, Kennedy
+     */
 
-                        }
+    try {
+
+        sessionStorage.setItem(
+            "sneakerslink_new_signup",
+            "true"
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "[SneakersLink] Could not save signup state:",
+            error
+        );
+
+    }
+
+
+    showStatus(
+        "Account created successfully. Welcome to SneakersLink!",
+        "success"
+    );
+
+}
 
 
                         /* =====================================
@@ -2245,19 +2254,31 @@
 
                         else {
 
-                            await window.SLAuth.login(
-                                data.email,
-                                data.password
-                            );
+    await window.SLAuth.login(
+        data.email,
+        data.password
+    );
 
 
-                            showStatus(
-                                "Welcome back! Redirecting you to the store…",
-                                "success"
-                            );
+    /*
+     * Explicitly remove any stale signup flag.
+     */
 
-                        }
+    try {
 
+        sessionStorage.removeItem(
+            "sneakerslink_new_signup"
+        );
+
+    } catch (error) {}
+
+
+    showStatus(
+        "Welcome back! Redirecting you to the store…",
+        "success"
+    );
+
+}
 
                         /* -------------------------------------
                            REDIRECT

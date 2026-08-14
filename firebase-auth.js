@@ -783,7 +783,5 @@ window.SneakersLinkAuth = {
    ========================================================= */
 
 window.dispatchEvent(
-  new CustomEvent(
-    "slauth:ready"
-  )
+    new CustomEvent("slauth:ready")
 );
