@@ -918,6 +918,10 @@
      ACCOUNT / AUTH
      ========================================================= */
 
+  /* =========================================================
+   ACCOUNT / AUTH
+   ========================================================= */
+
   function initAccountMenu() {
     const guestLinks = $("#accountGuestLinks");
     const menu = $("#accountMenu");
@@ -935,6 +939,10 @@
       return;
     }
 
+    /* =======================================================
+     DROPDOWN
+     ======================================================= */
+
     function closeDropdown() {
       dropdown?.classList.remove("is-open");
       toggleBtn?.classList.remove("is-open");
@@ -946,6 +954,10 @@
       toggleBtn?.classList.add("is-open");
       toggleBtn?.setAttribute("aria-expanded", "true");
     }
+
+    /* =======================================================
+     CUSTOMER NAME
+     ======================================================= */
 
     function getCustomerName(user) {
       if (!user) {
@@ -965,6 +977,10 @@
       return "Profile";
     }
 
+    /* =======================================================
+     AVATAR
+     ======================================================= */
+
     function updateAvatar(user, element) {
       if (!element) {
         return;
@@ -974,29 +990,43 @@
 
       if (user?.photoURL) {
         element.innerHTML = `
-          <img
-            src="${escapeHtml(user.photoURL)}"
-            alt="${escapeHtml(name)}">
-        `;
+        <img
+          src="${escapeHtml(user.photoURL)}"
+          alt="${escapeHtml(name)}"
+        >
+      `;
         return;
       }
 
       const initial = name.charAt(0).toUpperCase();
 
       element.innerHTML = `
-        <span class="account-avatar-initial">
-          ${escapeHtml(initial || "U")}
-        </span>
-      `;
+      <span class="account-avatar-initial">
+        ${escapeHtml(initial || "U")}
+      </span>
+    `;
     }
 
+    /* =======================================================
+     LOGGED-IN VIEW
+     ======================================================= */
+
     function setLoggedInView(user) {
+      /*
+       * IMPORTANT:
+       * Hide Sign in / Sign up completely.
+       */
       if (guestLinks) {
         guestLinks.hidden = true;
+        guestLinks.style.display = "none";
       }
 
+      /*
+       * Show customer account menu.
+       */
       if (menu) {
         menu.hidden = false;
+        menu.style.display = "";
       }
 
       const customerName = getCustomerName(user);
@@ -1010,26 +1040,45 @@
       }
 
       updateAvatar(user, avatar);
+
       updateAvatar(user, dropdownAvatar);
 
       document.body.classList.add("sl-user-logged-in");
+
       document.body.classList.remove("sl-user-logged-out");
     }
 
+    /* =======================================================
+     LOGGED-OUT VIEW
+     ======================================================= */
+
     function setLoggedOutView() {
+      /*
+       * Restore Sign in / Sign up.
+       */
       if (guestLinks) {
         guestLinks.hidden = false;
+        guestLinks.style.display = "";
       }
 
+      /*
+       * Hide customer account menu.
+       */
       if (menu) {
         menu.hidden = true;
+        menu.style.display = "none";
       }
 
       closeDropdown();
 
       document.body.classList.remove("sl-user-logged-in");
+
       document.body.classList.add("sl-user-logged-out");
     }
+
+    /* =======================================================
+     ACCOUNT BUTTON
+     ======================================================= */
 
     if (toggleBtn && !toggleBtn.dataset.accountBound) {
       toggleBtn.dataset.accountBound = "true";
@@ -1045,6 +1094,10 @@
       });
     }
 
+    /* =======================================================
+     CLICK OUTSIDE
+     ======================================================= */
+
     if (!document.body.dataset.accountOutsideBound) {
       document.body.dataset.accountOutsideBound = "true";
 
@@ -1054,6 +1107,10 @@
         }
       });
     }
+
+    /* =======================================================
+     ESCAPE
+     ======================================================= */
 
     if (!document.body.dataset.accountEscapeBound) {
       document.body.dataset.accountEscapeBound = "true";
@@ -1065,6 +1122,10 @@
       });
     }
 
+    /* =======================================================
+     SIGN OUT
+     ======================================================= */
+
     if (signOutBtn && !signOutBtn.dataset.signoutBound) {
       signOutBtn.dataset.signoutBound = "true";
 
@@ -1072,6 +1133,11 @@
         try {
           if (window.SLAuth && typeof window.SLAuth.logout === "function") {
             await window.SLAuth.logout();
+          } else if (
+            window.SLProfile &&
+            typeof window.SLProfile.getCurrentUser === "function"
+          ) {
+            console.warn("[SneakersLink] SLAuth logout API unavailable.");
           }
 
           try {
@@ -1079,13 +1145,19 @@
           } catch {}
 
           closeDropdown();
+
           showToast("Signed out successfully.");
         } catch (error) {
           console.error("[SneakersLink] Sign out failed:", error);
+
           showToast("Couldn't sign out. Please try again.", "warn");
         }
       });
     }
+
+    /* =======================================================
+     ACCOUNT THEME TOGGLE
+     ======================================================= */
 
     if (inlineThemeBtn && !inlineThemeBtn.dataset.themeBound) {
       inlineThemeBtn.dataset.themeBound = "true";
@@ -1103,6 +1175,7 @@
 
       inlineThemeBtn.addEventListener("click", () => {
         const current = document.documentElement.getAttribute("data-theme");
+
         const next = current === "dark" ? "light" : "dark";
 
         applyTheme(next);
@@ -1111,37 +1184,73 @@
       });
     }
 
+    /* =======================================================
+     FIREBASE AUTH STATE
+     ======================================================= */
+
     let authStateWired = false;
+
+    function handleAuthUser(user) {
+      if (user) {
+        setLoggedInView(user);
+      } else {
+        setLoggedOutView();
+      }
+    }
 
     function wireAuthState() {
       if (authStateWired) {
         return true;
       }
 
+      /*
+       * Preferred existing SneakersLink auth engine.
+       */
       if (
-        !window.SLAuth ||
-        typeof window.SLAuth.onAuthStateChanged !== "function"
+        window.SLAuth &&
+        typeof window.SLAuth.onAuthStateChanged === "function"
       ) {
-        return false;
+        authStateWired = true;
+
+        window.SLAuth.onAuthStateChanged(handleAuthUser);
+
+        return true;
       }
 
-      authStateWired = true;
+      /*
+       * Fallback to the Firebase Profile Engine.
+       *
+       * firebase-profile.js exposes:
+       *
+       * window.SLProfile.onProfileAuthChange()
+       */
+      if (
+        window.SLProfile &&
+        typeof window.SLProfile.onProfileAuthChange === "function"
+      ) {
+        authStateWired = true;
 
-      window.SLAuth.onAuthStateChanged((user) => {
-        if (user) {
-          setLoggedInView(user);
-        } else {
-          setLoggedOutView();
-        }
-      });
+        window.SLProfile.onProfileAuthChange(handleAuthUser);
 
-      return true;
+        return true;
+      }
+
+      return false;
     }
 
+    /*
+     * Try immediately.
+     */
     if (!wireAuthState()) {
-      window.addEventListener("slauth:ready", wireAuthState, {
-        once: true,
-      });
+      /*
+       * Existing authentication engine.
+       */
+      window.addEventListener("slauth:ready", wireAuthState);
+
+      /*
+       * Firebase profile engine.
+       */
+      window.addEventListener("slprofile:ready", wireAuthState);
     }
   }
 
