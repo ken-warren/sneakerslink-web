@@ -2,641 +2,698 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
 
-    <meta
-        http-equiv="X-UA-Compatible"
-        content="IE=edge"
-    >
+    <meta charset="UTF-8">
 
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>My Profile — SneakersLink</title>
+    <title>My Profile | SneakersLink</title>
 
     <meta
         name="description"
-        content="Manage your SneakersLink customer profile, personal details and profile photo."
+        content="Manage your SneakersLink customer profile."
     >
-
-    <!-- =====================================================
-         THEME — PREVENT FLASH
-         ===================================================== -->
-
-    <script>
-        (function () {
-            try {
-                const savedTheme =
-                    localStorage.getItem("sl_theme");
-
-                if (
-                    savedTheme === "dark" ||
-                    savedTheme === "light"
-                ) {
-                    document.documentElement.setAttribute(
-                        "data-theme",
-                        savedTheme
-                    );
-                }
-            } catch (error) {
-                console.warn(
-                    "Unable to restore saved theme.",
-                    error
-                );
-            }
-        })();
-    </script>
-
-    <!-- =====================================================
-         FONTS / ICONS
-         ===================================================== -->
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
-
-    <link
-        rel="stylesheet"
-        href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
-    >
-
-    <!-- =====================================================
-         MAIN STYLESHEET
-         ===================================================== -->
 
     <link
         rel="stylesheet"
         href="style.css"
     >
 
-    <!-- =====================================================
-         PROFILE PAGE STYLES
-         ===================================================== -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
 
     <style>
 
-        /* =================================================
+        /* =========================================================
            PROFILE PAGE
-           ================================================= */
+           ========================================================= */
 
         .profile-page {
-            min-height: calc(100vh - 180px);
-            padding: 70px 5% 90px;
+            min-height: 100vh;
+            padding: 24px;
+            background: var(--bg-color, #f8f8f8);
         }
 
-        .profile-container {
-            width: min(100%, 900px);
-            margin: 0 auto;
-        }
 
-        .profile-heading {
-            text-align: center;
-            margin-bottom: 45px;
-        }
+        /* =========================================================
+           TOP BAR
+           ========================================================= */
 
-        .profile-heading h1 {
-            font-size: 36px;
-            line-height: 1.2;
-            margin-bottom: 10px;
-        }
+        .profile-topbar {
+            width: 100%;
+            max-width: 1100px;
 
-        .profile-heading p {
-            color: #777;
-            font-size: 15px;
-        }
+            margin: 0 auto 30px;
 
-        [data-theme="dark"] .profile-heading p {
-            color: #aaa;
-        }
-
-        /* =================================================
-           PROFILE CARD
-           ================================================= */
-
-        .profile-card {
-            background: var(--card-bg, #ffffff);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(0, 0, 0, 0.06);
-        }
-
-        [data-theme="dark"] .profile-card {
-            border-color: rgba(255, 255, 255, 0.08);
-        }
-
-        /* =================================================
-           PROFILE HERO
-           ================================================= */
-
-        .profile-hero {
             display: flex;
             align-items: center;
-            gap: 25px;
-            padding-bottom: 30px;
-            margin-bottom: 30px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            justify-content: space-between;
         }
 
-        [data-theme="dark"] .profile-hero {
-            border-color: rgba(255, 255, 255, 0.08);
+
+        .profile-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+
+            padding: 11px 17px;
+
+            border-radius: 9px;
+
+            background: transparent;
+
+            border: 1px solid rgba(0, 0, 0, .12);
+
+            color: var(--text-color, #222);
+
+            text-decoration: none;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            transition:
+                background .2s ease,
+                transform .2s ease;
         }
 
-        .profile-avatar {
-            width: 105px;
-            height: 105px;
-            min-width: 105px;
+
+        .profile-back-btn:hover {
+            background: rgba(0, 0, 0, .05);
+            transform: translateX(-2px);
+        }
+
+
+        /* =========================================================
+           TOP RIGHT PROFILE BUTTON
+           ========================================================= */
+
+        .profile-top-account {
+            position: relative;
+        }
+
+
+        .profile-top-avatar {
+            width: 46px;
+            height: 46px;
+
             border-radius: 50%;
+
             overflow: hidden;
+
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f1f1f1;
-            border: 4px solid #fff;
-            box-shadow:
-                0 8px 25px rgba(0, 0, 0, 0.12);
+
+            background: #eeeeee;
+
+            border: 2px solid rgba(0, 0, 0, .08);
+
+            color: #333;
+
+            cursor: pointer;
+
+            transition:
+                transform .2s ease,
+                box-shadow .2s ease;
         }
 
-        [data-theme="dark"] .profile-avatar {
-            background: #222;
-            border-color: #1a1a1a;
+
+        .profile-top-avatar:hover {
+            transform: scale(1.04);
+
+            box-shadow:
+                0 6px 20px rgba(0, 0, 0, .12);
         }
+
+
+        .profile-top-avatar img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+
+            display: block;
+        }
+
+
+        .profile-top-avatar-initial {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+
+        /* =========================================================
+           PROFILE CONTAINER
+           ========================================================= */
+
+        .profile-container {
+            width: 100%;
+            max-width: 900px;
+
+            margin: 0 auto;
+        }
+
+
+        .profile-card {
+            background: var(--card-bg, #ffffff);
+
+            border-radius: 18px;
+
+            padding: 35px;
+
+            box-shadow:
+                0 12px 40px rgba(0, 0, 0, .08);
+
+            border: 1px solid rgba(0, 0, 0, .06);
+        }
+
+
+        /* =========================================================
+           PROFILE HEADER
+           ========================================================= */
+
+        .profile-header {
+            text-align: center;
+
+            padding-bottom: 30px;
+
+            border-bottom: 1px solid rgba(0, 0, 0, .08);
+        }
+
+
+        .profile-avatar-wrapper {
+            position: relative;
+
+            width: 120px;
+            height: 120px;
+
+            margin: 0 auto 18px;
+        }
+
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+
+            border-radius: 50%;
+
+            overflow: hidden;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #eeeeee;
+
+            border: 4px solid #ffffff;
+
+            box-shadow:
+                0 8px 25px rgba(0, 0, 0, .14);
+
+            color: #555;
+        }
+
 
         .profile-avatar img {
             width: 100%;
             height: 100%;
+
+            display: block;
+
             object-fit: cover;
         }
 
-        .profile-avatar-placeholder {
-            color: #999;
-            font-size: 34px;
+
+        .profile-avatar i {
+            font-size: 42px;
         }
 
-        .profile-hero-info {
-            min-width: 0;
-        }
 
-        .profile-hero-info h2 {
-            margin: 0 0 5px;
-            font-size: 26px;
-            line-height: 1.25;
+        .profile-avatar-initial {
+            font-size: 40px;
             font-weight: 700;
-            word-break: break-word;
         }
 
-        .profile-hero-info p {
-            margin: 0;
-            color: #777;
-            font-size: 14px;
-            word-break: break-word;
-        }
 
-        [data-theme="dark"] .profile-hero-info p {
-            color: #aaa;
-        }
+        .profile-upload-btn {
+            position: absolute;
 
-        /* =================================================
-           AVATAR ACTIONS
-           ================================================= */
+            right: 0;
+            bottom: 0;
 
-        .profile-avatar-actions {
+            width: 38px;
+            height: 38px;
+
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
+            align-items: center;
+            justify-content: center;
 
-        .profile-avatar-btn {
-            border: 0;
-            border-radius: 8px;
-            padding: 8px 13px;
-            font-family: inherit;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.25s ease;
-        }
+            border-radius: 50%;
 
-        .profile-avatar-btn.primary {
             background: #088178;
-            color: #fff;
+
+            color: #ffffff;
+
+            border: 3px solid #ffffff;
+
+            cursor: pointer;
+
+            transition:
+                transform .2s ease,
+                background .2s ease;
         }
 
-        .profile-avatar-btn.primary:hover {
+
+        .profile-upload-btn:hover {
+            transform: scale(1.08);
+
             background: #066b64;
         }
 
-        .profile-avatar-btn.secondary {
-            background: #f2f2f2;
-            color: #333;
-        }
 
-        .profile-avatar-btn.secondary:hover {
-            background: #e5e5e5;
-        }
-
-        [data-theme="dark"] .profile-avatar-btn.secondary {
-            background: #2a2a2a;
-            color: #eee;
-        }
-
-        .profile-avatar-btn:disabled {
-            opacity: 0.55;
-            cursor: not-allowed;
-        }
-
-        #profileImageInput {
-            display: none;
-        }
-
-        /* =================================================
-           FORM
-           ================================================= */
-
-        .profile-section-title {
-            margin-bottom: 22px;
-        }
-
-        .profile-section-title h3 {
-            margin: 0 0 5px;
-            font-size: 20px;
-        }
-
-        .profile-section-title p {
+        .profile-header h1 {
             margin: 0;
-            color: #777;
-            font-size: 13px;
+
+            font-size: 28px;
+
+            color: var(--text-color, #222);
         }
 
-        [data-theme="dark"] .profile-section-title p {
-            color: #aaa;
+
+        .profile-header p {
+            margin: 7px 0 0;
+
+            color: #777;
+
+            font-size: 14px;
         }
+
+
+        /* =========================================================
+           FORM
+           ========================================================= */
 
         .profile-form {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 20px;
+            padding-top: 30px;
         }
+
+
+        .profile-section-title {
+            margin: 0 0 18px;
+
+            font-size: 18px;
+
+            color: var(--text-color, #222);
+        }
+
+
+        .profile-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 18px;
+        }
+
 
         .profile-field {
             display: flex;
+
             flex-direction: column;
+
             gap: 7px;
         }
+
 
         .profile-field.full {
             grid-column: 1 / -1;
         }
 
+
         .profile-field label {
             font-size: 13px;
+
             font-weight: 600;
+
+            color: var(--text-color, #333);
         }
+
 
         .profile-field input {
             width: 100%;
-            height: 48px;
-            padding: 0 15px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            outline: none;
-            background: #fff;
+
+            box-sizing: border-box;
+
+            padding: 13px 14px;
+
+            border-radius: 9px;
+
+            border: 1px solid #d8d8d8;
+
+            background: #ffffff;
+
             color: #222;
-            font-family: inherit;
+
             font-size: 14px;
-            transition: 0.25s ease;
+
+            outline: none;
+
+            transition:
+                border-color .2s ease,
+                box-shadow .2s ease;
         }
+
 
         .profile-field input:focus {
             border-color: #088178;
+
             box-shadow:
-                0 0 0 3px rgba(8, 129, 120, 0.1);
+                0 0 0 3px rgba(8, 129, 120, .10);
         }
 
-        [data-theme="dark"] .profile-field input {
-            background: #1f1f1f;
-            color: #fff;
-            border-color: #3a3a3a;
-        }
 
         .profile-field input[readonly] {
-            background: #f7f7f7;
+            background: #f4f4f4;
+
             color: #777;
+
             cursor: not-allowed;
         }
 
-        [data-theme="dark"] .profile-field input[readonly] {
-            background: #292929;
-            color: #999;
-        }
 
-        .profile-field small {
-            color: #888;
-            font-size: 11px;
-        }
-
-        /* =================================================
-           SAVE AREA
-           ================================================= */
+        /* =========================================================
+           ACTIONS
+           ========================================================= */
 
         .profile-actions {
             display: flex;
-            justify-content: flex-end;
-            gap: 12px;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
             margin-top: 30px;
+
             padding-top: 25px;
-            border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+            border-top: 1px solid rgba(0, 0, 0, .08);
         }
 
-        [data-theme="dark"] .profile-actions {
-            border-color: rgba(255, 255, 255, 0.08);
+
+        .profile-secondary-actions {
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
         }
 
-        .profile-save-btn {
-            min-width: 150px;
-            height: 48px;
-            border: 0;
-            border-radius: 10px;
-            padding: 0 22px;
-            background: #088178;
-            color: #fff;
-            font-family: inherit;
+
+        .profile-btn {
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 8px;
+
+            min-height: 44px;
+
+            padding: 11px 18px;
+
+            border-radius: 9px;
+
+            border: 1px solid transparent;
+
             font-size: 14px;
+
             font-weight: 600;
+
             cursor: pointer;
-            transition: 0.25s ease;
+
+            transition:
+                transform .2s ease,
+                background .2s ease,
+                box-shadow .2s ease;
         }
 
-        .profile-save-btn:hover {
-            background: #066b64;
+
+        .profile-btn:hover {
             transform: translateY(-1px);
         }
 
-        .profile-save-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
+
+        .profile-btn-primary {
+            background: #088178;
+
+            color: #ffffff;
+
+            box-shadow:
+                0 6px 18px rgba(8, 129, 120, .18);
         }
 
-        /* =================================================
+
+        .profile-btn-primary:hover {
+            background: #066b64;
+        }
+
+
+        .profile-btn-secondary {
+            background: transparent;
+
+            border-color: #d5d5d5;
+
+            color: #444;
+        }
+
+
+        .profile-btn-danger {
+            color: #d62828;
+
+            background: transparent;
+
+            border-color: rgba(214, 40, 40, .18);
+        }
+
+
+        .profile-btn-danger:hover {
+            background: rgba(214, 40, 40, .06);
+        }
+
+
+        /* =========================================================
            LOADING
-           ================================================= */
+           ========================================================= */
 
         .profile-loading {
-            text-align: center;
-            padding: 45px 20px;
+            min-height: 400px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            flex-direction: column;
+
+            gap: 15px;
+
             color: #777;
         }
+
 
         .profile-loading i {
-            margin-right: 8px;
+            font-size: 28px;
+
+            animation:
+                profileSpin 1s linear infinite;
         }
 
-        /* =================================================
-           LOGIN REQUIRED
-           ================================================= */
 
-        .profile-login-required {
-            display: none;
+        @keyframes profileSpin {
+
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+
+        }
+
+
+        /* =========================================================
+           ERROR
+           ========================================================= */
+
+        .profile-error {
+            padding: 30px;
+
             text-align: center;
-            padding: 60px 25px;
+
+            color: #d62828;
         }
 
-        .profile-login-required.is-visible {
-            display: block;
+
+        /* =========================================================
+           HIDDEN
+           ========================================================= */
+
+        [hidden] {
+            display: none !important;
         }
 
-        .profile-login-required i {
-            font-size: 45px;
-            color: #088178;
-            margin-bottom: 18px;
+
+        /* =========================================================
+           DARK MODE
+           ========================================================= */
+
+        [data-theme="dark"] .profile-page {
+            background: #101010;
         }
 
-        .profile-login-required h2 {
-            margin-bottom: 10px;
+
+        [data-theme="dark"] .profile-card {
+            background: #181818;
+
+            border-color: rgba(255,255,255,.08);
+
+            box-shadow:
+                0 12px 40px rgba(0,0,0,.35);
         }
 
-        .profile-login-required p {
-            color: #777;
-            margin-bottom: 25px;
+
+        [data-theme="dark"] .profile-header {
+            border-color: rgba(255,255,255,.08);
         }
 
-        .profile-login-required a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 45px;
-            padding: 0 22px;
-            border-radius: 9px;
-            background: #088178;
-            color: #fff;
-            text-decoration: none;
-            font-weight: 600;
+
+        [data-theme="dark"] .profile-header h1,
+        [data-theme="dark"] .profile-section-title,
+        [data-theme="dark"] .profile-field label {
+            color: #ffffff;
         }
 
-        /* =================================================
-           ACCOUNT DROPDOWN
-           ================================================= */
 
-        .account-dropdown-profile {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-            padding: 16px;
+        [data-theme="dark"] .profile-field input {
+            background: #222222;
+
+            border-color: #3a3a3a;
+
+            color: #ffffff;
         }
 
-        .account-dropdown-avatar {
-            width: 54px;
-            height: 54px;
-            min-width: 54px;
-            border-radius: 50%;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f1f1f1;
-        }
 
-        [data-theme="dark"] .account-dropdown-avatar {
+        [data-theme="dark"] .profile-field input[readonly] {
             background: #292929;
+
+            color: #999;
         }
 
-        .account-dropdown-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
+
+        [data-theme="dark"] .profile-actions {
+            border-color: rgba(255,255,255,.08);
         }
 
-        /*
-         * IMPORTANT:
-         * No initial/fallback letter is displayed.
-         */
-        .account-dropdown-avatar:empty {
-            display: none;
+
+        [data-theme="dark"] .profile-btn-secondary {
+            color: #eeeeee;
+
+            border-color: #444;
         }
 
-        .account-dropdown-profile-info {
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+
+        [data-theme="dark"] .profile-top-avatar {
+            background: #292929;
+
+            border-color: #333;
+
+            color: #ffffff;
         }
 
-        .account-dropdown-name {
-            display: block;
-            font-size: 17px;
-            line-height: 1.3;
-            font-weight: 700;
-            color: inherit;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+
+        [data-theme="dark"] .profile-avatar {
+            background: #292929;
+
+            border-color: #181818;
+
+            color: #ffffff;
         }
 
-        .account-dropdown-email {
-            display: block;
-            margin-top: 3px;
-            font-size: 11px;
-            line-height: 1.4;
-            color: #888;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
 
-        .account-dropdown-divider {
-            height: 1px;
-            background: rgba(0, 0, 0, 0.08);
-            margin: 3px 0;
-        }
-
-        [data-theme="dark"] .account-dropdown-divider {
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .account-dropdown-item {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-height: 44px;
-            padding: 10px 16px;
-            border: 0;
-            background: transparent;
-            color: inherit;
-            text-decoration: none;
-            font-family: inherit;
-            font-size: 13px;
-            text-align: left;
-            cursor: pointer;
-            transition: 0.2s ease;
-        }
-
-        .account-dropdown-item:hover {
-            background: rgba(8, 129, 120, 0.08);
-        }
-
-        .account-dropdown-item i {
-            width: 18px;
-            text-align: center;
-            color: #088178;
-        }
-
-        .account-dropdown-signout {
-            color: #c0392b;
-        }
-
-        .account-dropdown-signout i {
-            color: #c0392b;
-        }
-
-        /* =================================================
+        /* =========================================================
            MOBILE
-           ================================================= */
+           ========================================================= */
 
         @media (max-width: 700px) {
 
             .profile-page {
-                padding: 45px 20px 70px;
+                padding: 15px;
             }
 
-            .profile-heading {
-                margin-bottom: 30px;
+
+            .profile-topbar {
+                margin-bottom: 20px;
             }
 
-            .profile-heading h1 {
-                font-size: 28px;
-            }
 
             .profile-card {
-                padding: 25px 20px;
-                border-radius: 16px;
+                padding: 23px 18px;
+
+                border-radius: 14px;
             }
 
-            .profile-hero {
-                align-items: flex-start;
-                gap: 16px;
-            }
 
-            .profile-avatar {
-                width: 80px;
-                height: 80px;
-                min-width: 80px;
-            }
-
-            .profile-hero-info h2 {
-                font-size: 20px;
-            }
-
-            .profile-form {
+            .profile-grid {
                 grid-template-columns: 1fr;
             }
+
 
             .profile-field.full {
                 grid-column: auto;
             }
 
+
             .profile-actions {
-                justify-content: stretch;
+                flex-direction: column-reverse;
+
+                align-items: stretch;
             }
 
-            .profile-save-btn {
+
+            .profile-secondary-actions {
+                width: 100%;
+
+                display: grid;
+
+                grid-template-columns: 1fr 1fr;
+            }
+
+
+            .profile-secondary-actions .profile-btn {
                 width: 100%;
             }
 
-            .account-dropdown-profile {
-                padding: 14px;
+
+            .profile-actions > .profile-btn {
+                width: 100%;
             }
 
-            .account-dropdown-avatar {
-                width: 48px;
-                height: 48px;
-                min-width: 48px;
+
+            .profile-header h1 {
+                font-size: 24px;
             }
 
-            .account-dropdown-name {
-                font-size: 15px;
-            }
-
-            .account-dropdown-email {
-                font-size: 10px;
-            }
         }
 
     </style>
@@ -646,599 +703,371 @@
 
 <body>
 
-    <!-- =====================================================
-         NAVIGATION
-         ===================================================== -->
-
-    <nav>
-
-        <div class="logo">
-            <a href="index.html">
-                <span>Sneakers</span>Link
-            </a>
-        </div>
-
-        <div>
-
-            <ul id="navbar">
-
-                <li>
-                    <a href="index.html">
-                        Home
-                    </a>
-                </li>
-
-                <li>
-                    <a href="shop.html">
-                        Shop
-                    </a>
-                </li>
-
-                <li>
-                    <a href="blog.html">
-                        Blog
-                    </a>
-                </li>
-
-                <li>
-                    <a href="about.html">
-                        About
-                    </a>
-                </li>
-
-                <li>
-                    <a href="contact.html">
-                        Contact
-                    </a>
-                </li>
-
-                <li class="nav-cart-item">
-                    <a
-                        href="cart.html"
-                        class="cart"
-                        aria-label="Shopping cart"
-                    >
-                        <i
-                            class="fas fa-shopping-bag"
-                            aria-hidden="true"
-                        ></i>
-
-                        <span
-                            class="cart-count"
-                            data-cart-count
-                        >
-                            0
-                        </span>
-                    </a>
-                </li>
-
-                <!-- =================================================
-                     LOGGED OUT
-                     ================================================= -->
-
-                <li
-                    class="account-area"
-                    id="accountArea"
-                >
-
-                    <span
-                        class="account-guest-links"
-                        id="accountGuestLinks"
-                    >
-
-                        <a
-                            href="login.html?mode=login"
-                            class="account-text-link"
-                        >
-                            Sign in
-                        </a>
-
-                        <a
-                            href="login.html?mode=signup"
-                            class="account-text-link account-text-link--primary"
-                        >
-                            Sign up
-                        </a>
-
-                    </span>
-
-
-                    <!-- =================================================
-                         LOGGED IN
-                         ================================================= -->
-
-                    <div
-                        class="account-menu"
-                        id="accountMenu"
-                        hidden
-                    >
-
-                        <button
-                            type="button"
-                            class="account-toggle"
-                            id="accountToggle"
-                            aria-expanded="false"
-                            aria-controls="accountDropdown"
-                            aria-label="Open account menu"
-                        >
-
-                            <span
-                                class="account-avatar"
-                                id="accountAvatar"
-                                aria-hidden="true"
-                            >
-                            </span>
-
-                        </button>
-
-
-                        <!-- =================================================
-                             ACCOUNT DROPDOWN
-                             ================================================= -->
-
-                        <div
-                            class="account-dropdown"
-                            id="accountDropdown"
-                            aria-hidden="true"
-                        >
-
-                            <!-- Profile Header -->
-
-                            <div class="account-dropdown-profile">
-
-                                <div
-                                    class="account-dropdown-avatar"
-                                    id="accountDropdownAvatar"
-                                    aria-hidden="true"
-                                >
-                                    <!--
-                                        JavaScript inserts the profile
-                                        image here when available.
-
-                                        No fallback W/initial.
-                                    -->
-                                </div>
-
-                                <div
-                                    class="account-dropdown-profile-info"
-                                >
-
-                                    <strong
-                                        class="account-dropdown-name"
-                                        id="accountDropdownName"
-                                    >
-                                        Profile
-                                    </strong>
-
-                                    <span
-                                        class="account-dropdown-email"
-                                        id="accountDropdownEmail"
-                                    >
-                                        SneakersLink Account
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <div
-                                class="account-dropdown-divider"
-                            ></div>
-
-
-                            <!-- My Profile -->
-
-                            <a
-                                href="profile.html"
-                                class="account-dropdown-item"
-                            >
-
-                                <i
-                                    class="far fa-user"
-                                    aria-hidden="true"
-                                ></i>
-
-                                <span>
-                                    My Profile
-                                </span>
-
-                            </a>
-
-
-                            <!-- My Orders -->
-
-                            <a
-                                href="track-order.html"
-                                class="account-dropdown-item"
-                            >
-
-                                <i
-                                    class="fas fa-box"
-                                    aria-hidden="true"
-                                ></i>
-
-                                <span>
-                                    My Orders
-                                </span>
-
-                            </a>
-
-
-                            <!-- Theme -->
-
-                            <button
-                                type="button"
-                                class="account-dropdown-item account-dropdown-theme"
-                                id="accountThemeToggle"
-                            >
-
-                                <i
-                                    class="fas fa-moon"
-                                    aria-hidden="true"
-                                ></i>
-
-                                <span
-                                    id="accountThemeLabel"
-                                >
-                                    Dark Mode
-                                </span>
-
-                            </button>
-
-
-                            <div
-                                class="account-dropdown-divider"
-                            ></div>
-
-
-                            <!-- Sign Out -->
-
-                            <button
-                                type="button"
-                                class="account-dropdown-item account-dropdown-signout"
-                                id="accountSignOutBtn"
-                            >
-
-                                <i
-                                    class="fas fa-sign-out-alt"
-                                    aria-hidden="true"
-                                ></i>
-
-                                <span>
-                                    Sign Out
-                                </span>
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </li>
-
-            </ul>
-
-        </div>
-
-
-        <!-- Mobile menu -->
-
-        <button
-            type="button"
-            class="navbutton"
-            aria-label="Open navigation menu"
-            aria-controls="navbar"
-            aria-expanded="false"
-        >
-            <i
-                class="fas fa-bars"
-                aria-hidden="true"
-            ></i>
-        </button>
-
-        <input
-            type="checkbox"
-            id="check"
-            hidden
-        >
-
-    </nav>
-
-
-    <!-- =====================================================
-         PAGE HEADER
-         ===================================================== -->
-
-    <section
-        class="page-header"
-        style="
-            background-image:
-            url('img/banner/b19.jpg');
-        "
-    >
-
-        <h1>
-            My Profile
-        </h1>
-
-        <p>
-            Manage your SneakersLink account
-        </p>
-
-    </section>
-
-
-    <!-- =====================================================
-         PROFILE CONTENT
-         ===================================================== -->
-
     <main class="profile-page">
 
-        <div class="profile-container">
 
-            <div class="profile-heading">
+        <!-- =====================================================
+             TOP BAR
+             ===================================================== -->
 
-                <h1>
-                    My Profile
-                </h1>
+        <header class="profile-topbar">
 
-                <p>
-                    Keep your personal and delivery information up to date.
-                </p>
+            <a
+                href="index.html"
+                class="profile-back-btn"
+            >
+                <i
+                    class="fas fa-arrow-left"
+                    aria-hidden="true"
+                ></i>
+
+                Back to Store
+            </a>
+
+
+            <!-- PROFILE ICON -->
+
+            <div class="profile-top-account">
+
+                <button
+                    type="button"
+                    class="profile-top-avatar"
+                    id="profileTopAvatar"
+                    aria-label="Your profile"
+                    title="Your profile"
+                >
+                    <i
+                        class="fas fa-user"
+                        aria-hidden="true"
+                    ></i>
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- =====================================================
+             PROFILE
+             ===================================================== -->
+
+        <section class="profile-container">
+
+
+            <!-- LOADING -->
+
+            <div
+                class="profile-card"
+                id="profileLoading"
+            >
+
+                <div class="profile-loading">
+
+                    <i
+                        class="fas fa-spinner"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span>
+                        Loading your profile...
+                    </span>
+
+                </div>
 
             </div>
 
 
-            <!-- =================================================
-                 PROFILE CARD
-                 ================================================= -->
+            <!-- ERROR -->
 
-            <section
+            <div
+                class="profile-card profile-error"
+                id="profileError"
+                hidden
+            >
+
+                <i
+                    class="fas fa-exclamation-circle"
+                    aria-hidden="true"
+                ></i>
+
+                <h2>
+                    Unable to load your profile
+                </h2>
+
+                <p id="profileErrorMessage">
+                    Please sign in and try again.
+                </p>
+
+                <a
+                    href="login.html?mode=login"
+                    class="profile-btn profile-btn-primary"
+                >
+                    Sign In
+                </a>
+
+            </div>
+
+
+            <!-- PROFILE CARD -->
+
+            <div
                 class="profile-card"
                 id="profileCard"
                 hidden
             >
 
-                <!-- Profile Hero -->
 
-                <div class="profile-hero">
+                <!-- =================================================
+                     PROFILE HEADER
+                     ================================================= -->
 
-                    <div
-                        class="profile-avatar"
-                        id="profileAvatar"
-                    >
-                        <i
-                            class="far fa-user profile-avatar-placeholder"
-                            aria-hidden="true"
-                        ></i>
+                <div class="profile-header">
+
+                    <div class="profile-avatar-wrapper">
+
+                        <div
+                            class="profile-avatar"
+                            id="profileAvatar"
+                        >
+
+                            <i
+                                class="fas fa-user"
+                                aria-hidden="true"
+                            ></i>
+
+                        </div>
+
+
+                        <!-- UPLOAD -->
+
+                        <label
+                            for="profileImageInput"
+                            class="profile-upload-btn"
+                            title="Change profile picture"
+                        >
+
+                            <i
+                                class="fas fa-camera"
+                                aria-hidden="true"
+                            ></i>
+
+                        </label>
+
+                        <input
+                            type="file"
+                            id="profileImageInput"
+                            accept="image/*"
+                            hidden
+                        >
+
                     </div>
 
 
-                    <div class="profile-hero-info">
-
-                        <h2
-                            id="profileDisplayName"
-                        >
-                            Profile
-                        </h2>
-
-                        <p
-                            id="profileEmail"
-                        >
-                            SneakersLink Account
-                        </p>
+                    <h1 id="profileName">
+                        My Profile
+                    </h1>
 
 
-                        <div
-                            class="profile-avatar-actions"
-                        >
+                    <p id="profileEmail">
+                        —
+                    </p>
 
-                            <label
-                                for="profileImageInput"
-                                class="profile-avatar-btn primary"
-                            >
-                                <i
-                                    class="fas fa-camera"
-                                    aria-hidden="true"
-                                ></i>
+                </div>
 
-                                Change Photo
+
+                <!-- =================================================
+                     PROFILE FORM
+                     ================================================= -->
+
+                <form
+                    class="profile-form"
+                    id="profileForm"
+                >
+
+                    <h2 class="profile-section-title">
+                        Personal Information
+                    </h2>
+
+
+                    <div class="profile-grid">
+
+
+                        <!-- NAME -->
+
+                        <div class="profile-field">
+
+                            <label for="profileDisplayName">
+                                Full Name
                             </label>
 
-                            <button
-                                type="button"
-                                class="profile-avatar-btn secondary"
-                                id="removeProfileImageBtn"
+                            <input
+                                type="text"
+                                id="profileDisplayName"
+                                name="displayName"
+                                autocomplete="name"
+                                placeholder="Your full name"
                             >
-                                <i
-                                    class="fas fa-trash-alt"
-                                    aria-hidden="true"
-                                ></i>
 
-                                Remove
-                            </button>
+                        </div>
+
+
+                        <!-- EMAIL -->
+
+                        <div class="profile-field">
+
+                            <label for="profileEmailInput">
+                                Email Address
+                            </label>
 
                             <input
-                                type="file"
-                                id="profileImageInput"
-                                accept="image/*"
+                                type="email"
+                                id="profileEmailInput"
+                                name="email"
+                                readonly
+                            >
+
+                        </div>
+
+
+                        <!-- PHONE -->
+
+                        <div class="profile-field">
+
+                            <label for="profilePhone">
+                                Phone Number
+                            </label>
+
+                            <input
+                                type="tel"
+                                id="profilePhone"
+                                name="phone"
+                                autocomplete="tel"
+                                placeholder="+254..."
+                            >
+
+                        </div>
+
+
+                        <!-- COUNTRY -->
+
+                        <div class="profile-field">
+
+                            <label for="profileCountry">
+                                Country
+                            </label>
+
+                            <input
+                                type="text"
+                                id="profileCountry"
+                                name="country"
+                                autocomplete="country-name"
+                                placeholder="Country"
+                            >
+
+                        </div>
+
+
+                        <!-- ADDRESS -->
+
+                        <div class="profile-field full">
+
+                            <label for="profileAddress">
+                                Address
+                            </label>
+
+                            <input
+                                type="text"
+                                id="profileAddress"
+                                name="address"
+                                autocomplete="street-address"
+                                placeholder="Street address"
+                            >
+
+                        </div>
+
+
+                        <!-- CITY -->
+
+                        <div class="profile-field">
+
+                            <label for="profileCity">
+                                City
+                            </label>
+
+                            <input
+                                type="text"
+                                id="profileCity"
+                                name="city"
+                                autocomplete="address-level2"
+                                placeholder="City"
+                            >
+
+                        </div>
+
+
+                        <!-- POSTAL CODE -->
+
+                        <div class="profile-field">
+
+                            <label for="profilePostalCode">
+                                Postal Code
+                            </label>
+
+                            <input
+                                type="text"
+                                id="profilePostalCode"
+                                name="postalCode"
+                                autocomplete="postal-code"
+                                placeholder="Postal code"
                             >
 
                         </div>
 
                     </div>
 
-                </div>
 
-
-                <!-- =================================================
-                     PERSONAL INFORMATION
-                     ================================================= -->
-
-                <div class="profile-section-title">
-
-                    <h3>
-                        Personal Information
-                    </h3>
-
-                    <p>
-                        Update the information associated with your account.
-                    </p>
-
-                </div>
-
-
-                <form
-                    class="profile-form"
-                    id="profileForm"
-                    novalidate
-                >
-
-                    <!-- Name -->
-
-                    <div class="profile-field">
-
-                        <label for="profileName">
-                            Full Name
-                        </label>
-
-                        <input
-                            type="text"
-                            id="profileName"
-                            name="displayName"
-                            autocomplete="name"
-                            placeholder="Enter your full name"
-                        >
-
-                    </div>
-
-
-                    <!-- Email -->
-
-                    <div class="profile-field">
-
-                        <label for="profileEmailInput">
-                            Email Address
-                        </label>
-
-                        <input
-                            type="email"
-                            id="profileEmailInput"
-                            name="email"
-                            autocomplete="email"
-                            readonly
-                        >
-
-                        <small>
-                            Your email is managed by your account.
-                        </small>
-
-                    </div>
-
-
-                    <!-- Phone -->
-
-                    <div class="profile-field">
-
-                        <label for="profilePhone">
-                            Phone Number
-                        </label>
-
-                        <input
-                            type="tel"
-                            id="profilePhone"
-                            name="phone"
-                            autocomplete="tel"
-                            placeholder="e.g. +254 7XX XXX XXX"
-                        >
-
-                    </div>
-
-
-                    <!-- Country -->
-
-                    <div class="profile-field">
-
-                        <label for="profileCountry">
-                            Country
-                        </label>
-
-                        <input
-                            type="text"
-                            id="profileCountry"
-                            name="country"
-                            autocomplete="country-name"
-                            placeholder="Enter your country"
-                        >
-
-                    </div>
-
-
-                    <!-- Address -->
-
-                    <div class="profile-field full">
-
-                        <label for="profileAddress">
-                            Delivery Address
-                        </label>
-
-                        <input
-                            type="text"
-                            id="profileAddress"
-                            name="address"
-                            autocomplete="street-address"
-                            placeholder="Enter your delivery address"
-                        >
-
-                    </div>
-
-
-                    <!-- City -->
-
-                    <div class="profile-field">
-
-                        <label for="profileCity">
-                            City
-                        </label>
-
-                        <input
-                            type="text"
-                            id="profileCity"
-                            name="city"
-                            autocomplete="address-level2"
-                            placeholder="Enter your city"
-                        >
-
-                    </div>
-
-
-                    <!-- Postal Code -->
-
-                    <div class="profile-field">
-
-                        <label for="profilePostalCode">
-                            Postal Code
-                        </label>
-
-                        <input
-                            type="text"
-                            id="profilePostalCode"
-                            name="postalCode"
-                            autocomplete="postal-code"
-                            placeholder="Enter postal code"
-                        >
-
-                    </div>
-
-
-                    <!-- Save -->
+                    <!-- =================================================
+                         ACTIONS
+                         ================================================= -->
 
                     <div class="profile-actions">
 
+
+                        <div class="profile-secondary-actions">
+
+                            <button
+                                type="button"
+                                class="profile-btn profile-btn-secondary"
+                                id="removeProfileImage"
+                            >
+                                <i
+                                    class="fas fa-trash"
+                                    aria-hidden="true"
+                                ></i>
+
+                                Remove Photo
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="profile-btn profile-btn-danger"
+                                id="profileSignOut"
+                            >
+                                <i
+                                    class="fas fa-sign-out-alt"
+                                    aria-hidden="true"
+                                ></i>
+
+                                Sign Out
+                            </button>
+
+                        </div>
+
+
                         <button
                             type="submit"
-                            class="profile-save-btn"
+                            class="profile-btn profile-btn-primary"
                             id="saveProfileBtn"
                         >
 
@@ -1255,852 +1084,726 @@
 
                 </form>
 
-            </section>
+            </div>
+
+        </section>
+
+    </main>
 
 
-            <!-- =================================================
-                 LOADING
-                 ================================================= -->
+    <!-- =========================================================
+         PROFILE SCRIPT
+         ========================================================= -->
 
-            <div
-                class="profile-loading"
-                id="profileLoading"
-            >
+    <script type="module">
 
+        import "./firebase-profile.js";
+
+
+        /* =========================================================
+           HELPERS
+           ========================================================= */
+
+        const $ = (selector) =>
+            document.querySelector(selector);
+
+
+        const escapeHtml = (value) =>
+            String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+
+
+        function getCustomerName(user, profile = null) {
+
+            const name =
+                profile?.displayName ||
+                user?.displayName ||
+                "";
+
+            if (String(name).trim()) {
+                return String(name).trim();
+            }
+
+            if (user?.email) {
+                return user.email
+                    .split("@")[0]
+                    .trim();
+            }
+
+            return "Profile";
+        }
+
+
+        function showToast(message, type = "success") {
+
+            let root =
+                document.querySelector(".profile-toast-root");
+
+            if (!root) {
+
+                root = document.createElement("div");
+
+                root.className =
+                    "profile-toast-root";
+
+                Object.assign(root.style, {
+
+                    position: "fixed",
+
+                    bottom: "25px",
+
+                    right: "25px",
+
+                    zIndex: "999999",
+
+                });
+
+                document.body.appendChild(root);
+
+            }
+
+
+            const toast =
+                document.createElement("div");
+
+            Object.assign(toast.style, {
+
+                padding: "13px 17px",
+
+                marginTop: "10px",
+
+                borderRadius: "9px",
+
+                background:
+                    type === "error"
+                        ? "#d62828"
+                        : "#088178",
+
+                color: "#ffffff",
+
+                fontSize: "14px",
+
+                boxShadow:
+                    "0 8px 25px rgba(0,0,0,.18)",
+
+            });
+
+
+            toast.textContent = message;
+
+            root.appendChild(toast);
+
+
+            setTimeout(() => {
+
+                toast.remove();
+
+            }, 3200);
+
+        }
+
+
+        /* =========================================================
+           AVATAR
+           ========================================================= */
+
+        function renderAvatar(
+            element,
+            user,
+            profile
+        ) {
+
+            if (!element) {
+                return;
+            }
+
+
+            const photoURL =
+                profile?.photoURL ||
+                user?.photoURL ||
+                "";
+
+
+            const name =
+                getCustomerName(
+                    user,
+                    profile
+                );
+
+
+            if (photoURL) {
+
+                element.innerHTML = `
+                    <img
+                        src="${escapeHtml(photoURL)}"
+                        alt="${escapeHtml(name)}"
+                    >
+                `;
+
+                return;
+
+            }
+
+
+            const initial =
+                name
+                    .charAt(0)
+                    .toUpperCase();
+
+
+            element.innerHTML = `
+
+                <span
+                    class="profile-avatar-initial"
+                >
+                    ${escapeHtml(initial || "U")}
+                </span>
+
+            `;
+
+        }
+
+
+        /* =========================================================
+           LOAD PROFILE
+           ========================================================= */
+
+        async function loadProfile(user) {
+
+            const loading =
+                $("#profileLoading");
+
+            const card =
+                $("#profileCard");
+
+            const errorBox =
+                $("#profileError");
+
+
+            try {
+
+                if (!user) {
+
+                    loading.hidden = true;
+
+                    card.hidden = true;
+
+                    errorBox.hidden = false;
+
+                    $("#profileErrorMessage").textContent =
+                        "You need to sign in before accessing your profile.";
+
+                    return;
+
+                }
+
+
+                const profile =
+                    await window.SLProfile.getProfile();
+
+
+                const customerName =
+                    getCustomerName(
+                        user,
+                        profile
+                    );
+
+
+                /* =================================================
+                   HEADER
+                   ================================================= */
+
+                $("#profileName").textContent =
+                    customerName;
+
+
+                $("#profileEmail").textContent =
+                    profile.email ||
+                    user.email ||
+                    "";
+
+
+                /* =================================================
+                   FORM
+                   ================================================= */
+
+                $("#profileDisplayName").value =
+                    profile.displayName || "";
+
+
+                $("#profileEmailInput").value =
+                    profile.email ||
+                    user.email ||
+                    "";
+
+
+                $("#profilePhone").value =
+                    profile.phone || "";
+
+
+                $("#profileAddress").value =
+                    profile.address || "";
+
+
+                $("#profileCity").value =
+                    profile.city || "";
+
+
+                $("#profilePostalCode").value =
+                    profile.postalCode || "";
+
+
+                $("#profileCountry").value =
+                    profile.country || "";
+
+
+                /* =================================================
+                   AVATARS
+                   ================================================= */
+
+                renderAvatar(
+                    $("#profileAvatar"),
+                    user,
+                    profile
+                );
+
+
+                renderAvatar(
+                    $("#profileTopAvatar"),
+                    user,
+                    profile
+                );
+
+
+                loading.hidden = true;
+
+                errorBox.hidden = true;
+
+                card.hidden = false;
+
+
+            } catch (error) {
+
+                console.error(
+                    "[SneakersLink] Profile loading failed:",
+                    error
+                );
+
+
+                loading.hidden = true;
+
+                card.hidden = true;
+
+                errorBox.hidden = false;
+
+
+                $("#profileErrorMessage").textContent =
+                    error?.message ||
+                    "We couldn't load your profile.";
+
+            }
+
+        }
+
+
+        /* =========================================================
+           WAIT FOR PROFILE ENGINE
+           ========================================================= */
+
+        function startProfile() {
+
+            if (
+                !window.SLProfile ||
+                typeof window.SLProfile.onProfileAuthChange !==
+                    "function"
+            ) {
+
+                window.addEventListener(
+                    "slprofile:ready",
+                    startProfile,
+                    {
+                        once: true
+                    }
+                );
+
+                return;
+
+            }
+
+
+            window.SLProfile.onProfileAuthChange(
+                (user) => {
+
+                    loadProfile(user);
+
+                }
+            );
+
+        }
+
+
+        /* =========================================================
+           SAVE PROFILE
+           ========================================================= */
+
+        async function saveProfile(event) {
+
+            event.preventDefault();
+
+
+            const button =
+                $("#saveProfileBtn");
+
+
+            const originalHTML =
+                button.innerHTML;
+
+
+            button.disabled = true;
+
+            button.innerHTML = `
                 <i
                     class="fas fa-spinner fa-spin"
                     aria-hidden="true"
                 ></i>
 
-                Loading your profile...
+                Saving...
+            `;
 
-            </div>
 
+            try {
 
-            <!-- =================================================
-                 LOGIN REQUIRED
-                 ================================================= -->
+                const profile =
+                    await window.SLProfile.updateProfile({
 
-            <div
-                class="profile-login-required"
-                id="profileLoginRequired"
-            >
+                        displayName:
+                            $("#profileDisplayName")
+                                .value,
 
-                <i
-                    class="fas fa-user-lock"
-                    aria-hidden="true"
-                ></i>
+                        phone:
+                            $("#profilePhone")
+                                .value,
 
-                <h2>
-                    Sign in to view your profile
-                </h2>
+                        address:
+                            $("#profileAddress")
+                                .value,
 
-                <p>
-                    Please sign in to access and manage your SneakersLink account.
-                </p>
+                        city:
+                            $("#profileCity")
+                                .value,
 
-                <a
-                    href="login.html?mode=login"
-                >
-                    Sign In
-                </a>
+                        postalCode:
+                            $("#profilePostalCode")
+                                .value,
 
-            </div>
+                        country:
+                            $("#profileCountry")
+                                .value,
 
-        </div>
+                    });
 
-    </main>
 
+                const user =
+                    window.SLProfile
+                        .getCurrentUser();
 
-    <!-- =====================================================
-         FOOTER
-         ===================================================== -->
 
-    <footer class="section-p1">
-
-        <div class="col">
-
-            <div class="logo">
-                <a href="index.html">
-                    <span>Sneakers</span>Link
-                </a>
-            </div>
-
-            <h4>
-                Contact
-            </h4>
-
-            <p>
-                <strong>Phone:</strong>
-                +254 768 372 955
-            </p>
-
-            <p>
-                <strong>Hours:</strong>
-                Mon - Sat: 8:00 AM - 6:00 PM
-            </p>
-
-            <div class="follow">
-
-                <h4>
-                    Follow Us
-                </h4>
-
-                <div class="icon">
-
-                    <a href="#">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-
-                    <a href="#">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-
-                    <a href="#">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-
-                    <a href="#">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="col">
-
-            <h4>
-                About
-            </h4>
-
-            <a href="about.html">
-                About Us
-            </a>
-
-            <a href="contact.html">
-                Contact Us
-            </a>
-
-            <a href="#">
-                Privacy Policy
-            </a>
-
-            <a href="#">
-                Terms & Conditions
-            </a>
-
-        </div>
-
-
-        <div class="col">
-
-            <h4>
-                My Account
-            </h4>
-
-            <a href="profile.html">
-                My Profile
-            </a>
-
-            <a href="track-order.html">
-                Track Order
-            </a>
-
-            <a href="cart.html">
-                View Cart
-            </a>
-
-        </div>
-
-
-        <div class="copyright">
-
-            <p>
-                © 2026 SneakersLink. All rights reserved.
-            </p>
-
-        </div>
-
-    </footer>
-
-
-    <!-- =====================================================
-         TOAST
-         ===================================================== -->
-
-    <div
-        class="toast-root"
-        id="toast-root"
-        aria-live="polite"
-        aria-atomic="true"
-    ></div>
-
-
-    <!-- =====================================================
-         FIREBASE AUTH
-         ===================================================== -->
-
-    <script
-        type="module"
-        src="firebase-auth.js"
-    ></script>
-
-
-    <!-- =====================================================
-         FIREBASE PROFILE
-         ===================================================== -->
-
-    <script
-        type="module"
-        src="firebase-profile.js"
-    ></script>
-
-
-    <!-- =====================================================
-         MAIN SITE SCRIPT
-         ===================================================== -->
-
-    <script src="script.js"></script>
-
-
-    <!-- =====================================================
-         PROFILE PAGE ENGINE
-         ===================================================== -->
-
-    <script>
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            function () {
-
-                const loading =
-                    document.getElementById(
-                        "profileLoading"
-                    );
-
-                const profileCard =
-                    document.getElementById(
-                        "profileCard"
-                    );
-
-                const loginRequired =
-                    document.getElementById(
-                        "profileLoginRequired"
-                    );
-
-                const avatar =
-                    document.getElementById(
-                        "profileAvatar"
-                    );
-
-                const displayName =
-                    document.getElementById(
-                        "profileDisplayName"
-                    );
-
-                const email =
-                    document.getElementById(
-                        "profileEmail"
-                    );
-
-                const nameInput =
-                    document.getElementById(
-                        "profileName"
-                    );
-
-                const emailInput =
-                    document.getElementById(
-                        "profileEmailInput"
-                    );
-
-                const phoneInput =
-                    document.getElementById(
-                        "profilePhone"
-                    );
-
-                const addressInput =
-                    document.getElementById(
-                        "profileAddress"
-                    );
-
-                const cityInput =
-                    document.getElementById(
-                        "profileCity"
-                    );
-
-                const postalCodeInput =
-                    document.getElementById(
-                        "profilePostalCode"
-                    );
-
-                const countryInput =
-                    document.getElementById(
-                        "profileCountry"
-                    );
-
-                const form =
-                    document.getElementById(
-                        "profileForm"
-                    );
-
-                const saveButton =
-                    document.getElementById(
-                        "saveProfileBtn"
-                    );
-
-                const imageInput =
-                    document.getElementById(
-                        "profileImageInput"
-                    );
-
-                const removeImageButton =
-                    document.getElementById(
-                        "removeProfileImageBtn"
+                const customerName =
+                    getCustomerName(
+                        user,
+                        profile
                     );
 
 
-                /* =================================================
-                   TOAST
-                   ================================================= */
-
-                function toast(
-                    message,
-                    type = "success"
-                ) {
-
-                    if (
-                        typeof window.showToast ===
-                        "function"
-                    ) {
-                        window.showToast(
-                            message,
-                            type
-                        );
-
-                        return;
-                    }
-
-                    const root =
-                        document.getElementById(
-                            "toast-root"
-                        );
-
-                    if (!root) {
-                        return;
-                    }
-
-                    const item =
-                        document.createElement(
-                            "div"
-                        );
-
-                    item.className =
-                        `toast${
-                            type === "warn"
-                                ? " toast--warn"
-                                : ""
-                        }`;
-
-                    item.textContent =
-                        message;
-
-                    root.appendChild(item);
-
-                    requestAnimationFrame(
-                        () => {
-                            item.classList.add(
-                                "toast--show"
-                            );
-                        }
-                    );
-
-                    setTimeout(
-                        () => {
-                            item.classList.remove(
-                                "toast--show"
-                            );
-
-                            setTimeout(
-                                () => item.remove(),
-                                350
-                            );
-                        },
-                        3000
-                    );
-                }
+                $("#profileName")
+                    .textContent =
+                    customerName;
 
 
-                /* =================================================
-                   RENDER PROFILE IMAGE
-                   ================================================= */
-
-                function renderAvatar(
-                    photoURL
-                ) {
-
-                    if (!avatar) {
-                        return;
-                    }
-
-                    avatar.innerHTML = "";
-
-                    if (photoURL) {
-
-                        const image =
-                            document.createElement(
-                                "img"
-                            );
-
-                        image.src =
-                            photoURL;
-
-                        image.alt =
-                            "Profile photo";
-
-                        image.loading =
-                            "lazy";
-
-                        avatar.appendChild(
-                            image
-                        );
-
-                        return;
-                    }
-
-                    /*
-                     * IMPORTANT:
-                     * Do not render a W, initial,
-                     * or generated letter.
-                     */
-
-                    const icon =
-                        document.createElement(
-                            "i"
-                        );
-
-                    icon.className =
-                        "far fa-user profile-avatar-placeholder";
-
-                    icon.setAttribute(
-                        "aria-hidden",
-                        "true"
-                    );
-
-                    avatar.appendChild(
-                        icon
-                    );
-                }
-
-
-                /* =================================================
-                   DISPLAY PROFILE
-                   ================================================= */
-
-                function displayProfile(
+                renderAvatar(
+                    $("#profileAvatar"),
+                    user,
                     profile
-                ) {
+                );
 
-                    if (!profile) {
-                        return;
-                    }
 
-                    const customerName =
-                        profile.displayName ||
-                        "Profile";
+                renderAvatar(
+                    $("#profileTopAvatar"),
+                    user,
+                    profile
+                );
 
-                    const customerEmail =
-                        profile.email ||
-                        "";
 
-                    displayName.textContent =
-                        customerName;
+                showToast(
+                    "Your profile has been updated successfully."
+                );
 
-                    email.textContent =
-                        customerEmail;
 
-                    nameInput.value =
-                        profile.displayName ||
-                        "";
+            } catch (error) {
 
-                    emailInput.value =
-                        profile.email ||
-                        "";
+                console.error(
+                    "[SneakersLink] Profile update failed:",
+                    error
+                );
 
-                    phoneInput.value =
-                        profile.phone ||
-                        "";
 
-                    addressInput.value =
-                        profile.address ||
-                        "";
+                showToast(
+                    error?.message ||
+                    "We couldn't update your profile.",
+                    "error"
+                );
 
-                    cityInput.value =
-                        profile.city ||
-                        "";
+            } finally {
 
-                    postalCodeInput.value =
-                        profile.postalCode ||
-                        "";
+                button.disabled = false;
 
-                    countryInput.value =
-                        profile.country ||
-                        "";
-
-                    renderAvatar(
-                        profile.photoURL
-                    );
-                }
-
-
-                /* =================================================
-                   LOAD PROFILE
-                   ================================================= */
-
-                async function loadProfile() {
-
-                    if (
-                        !window.SLProfile ||
-                        typeof window.SLProfile.getProfile !==
-                            "function"
-                    ) {
-                        return;
-                    }
-
-                    try {
-
-                        const profile =
-                            await window.SLProfile.getProfile();
-
-                        displayProfile(
-                            profile
-                        );
-
-                        loading.hidden =
-                            true;
-
-                        loginRequired.classList.remove(
-                            "is-visible"
-                        );
-
-                        profileCard.hidden =
-                            false;
-
-                    } catch (error) {
-
-                        console.error(
-                            "[SneakersLink] Profile loading failed:",
-                            error
-                        );
-
-                        loading.hidden =
-                            true;
-
-                        profileCard.hidden =
-                            true;
-
-                        loginRequired.classList.add(
-                            "is-visible"
-                        );
-                    }
-                }
-
-
-                /* =================================================
-                   AUTH STATE
-                   ================================================= */
-
-                function connectProfileAuth() {
-
-                    if (
-                        !window.SLProfile ||
-                        typeof window.SLProfile.onProfileAuthChange !==
-                            "function"
-                    ) {
-                        return false;
-                    }
-
-                    window.SLProfile.onProfileAuthChange(
-                        async function (user) {
-
-                            if (!user) {
-
-                                loading.hidden =
-                                    true;
-
-                                profileCard.hidden =
-                                    true;
-
-                                loginRequired.classList.add(
-                                    "is-visible"
-                                );
-
-                                return;
-                            }
-
-                            await loadProfile();
-                        }
-                    );
-
-                    return true;
-                }
-
-
-                if (
-                    !connectProfileAuth()
-                ) {
-
-                    window.addEventListener(
-                        "slprofile:ready",
-                        function () {
-                            connectProfileAuth();
-                        },
-                        {
-                            once: true
-                        }
-                    );
-                }
-
-
-                /* =================================================
-                   SAVE PROFILE
-                   ================================================= */
-
-                if (form) {
-
-                    form.addEventListener(
-                        "submit",
-                        async function (event) {
-
-                            event.preventDefault();
-
-                            if (
-                                !window.SLProfile ||
-                                typeof window.SLProfile.updateProfile !==
-                                    "function"
-                            ) {
-                                toast(
-                                    "Profile service is unavailable.",
-                                    "warn"
-                                );
-
-                                return;
-                            }
-
-                            saveButton.disabled =
-                                true;
-
-                            saveButton.innerHTML = `
-                                <i
-                                    class="fas fa-spinner fa-spin"
-                                    aria-hidden="true">
-                                </i>
-                                Saving...
-                            `;
-
-                            try {
-
-                                const updated =
-                                    await window.SLProfile.updateProfile(
-                                        {
-                                            displayName:
-                                                nameInput.value,
-
-                                            phone:
-                                                phoneInput.value,
-
-                                            address:
-                                                addressInput.value,
-
-                                            city:
-                                                cityInput.value,
-
-                                            postalCode:
-                                                postalCodeInput.value,
-
-                                            country:
-                                                countryInput.value
-                                        }
-                                    );
-
-                                displayProfile(
-                                    updated
-                                );
-
-                                toast(
-                                    "Your profile has been updated."
-                                );
-
-                            } catch (error) {
-
-                                console.error(
-                                    "[SneakersLink] Profile update failed:",
-                                    error
-                                );
-
-                                toast(
-                                    error?.message ||
-                                        "Unable to update your profile.",
-                                    "warn"
-                                );
-
-                            } finally {
-
-                                saveButton.disabled =
-                                    false;
-
-                                saveButton.innerHTML = `
-                                    <i
-                                        class="fas fa-save"
-                                        aria-hidden="true">
-                                    </i>
-                                    Save Changes
-                                `;
-                            }
-                        }
-                    );
-                }
-
-
-                /* =================================================
-                   UPLOAD PROFILE PHOTO
-                   ================================================= */
-
-                if (imageInput) {
-
-                    imageInput.addEventListener(
-                        "change",
-                        async function () {
-
-                            const file =
-                                imageInput.files?.[0];
-
-                            if (!file) {
-                                return;
-                            }
-
-                            if (
-                                !window.SLProfile ||
-                                typeof window.SLProfile.uploadAvatar !==
-                                    "function"
-                            ) {
-                                toast(
-                                    "Profile image service is unavailable.",
-                                    "warn"
-                                );
-
-                                return;
-                            }
-
-                            try {
-
-                                toast(
-                                    "Uploading profile photo..."
-                                );
-
-                                const url =
-                                    await window.SLProfile.uploadAvatar(
-                                        file
-                                    );
-
-                                renderAvatar(
-                                    url
-                                );
-
-                                toast(
-                                    "Profile photo updated."
-                                );
-
-                            } catch (error) {
-
-                                console.error(
-                                    "[SneakersLink] Avatar upload failed:",
-                                    error
-                                );
-
-                                toast(
-                                    error?.message ||
-                                        "Unable to upload profile photo.",
-                                    "warn"
-                                );
-
-                            } finally {
-
-                                imageInput.value =
-                                    "";
-                            }
-                        }
-                    );
-                }
-
-
-                /* =================================================
-                   REMOVE PROFILE PHOTO
-                   ================================================= */
-
-                if (
-                    removeImageButton
-                ) {
-
-                    removeImageButton.addEventListener(
-                        "click",
-                        async function () {
-
-                            if (
-                                !window.SLProfile ||
-                                typeof window.SLProfile.deleteAvatar !==
-                                    "function"
-                            ) {
-                                toast(
-                                    "Profile image service is unavailable.",
-                                    "warn"
-                                );
-
-                                return;
-                            }
-
-                            removeImageButton.disabled =
-                                true;
-
-                            try {
-
-                                await window.SLProfile.deleteAvatar();
-
-                                renderAvatar(
-                                    ""
-                                );
-
-                                toast(
-                                    "Profile photo removed."
-                                );
-
-                            } catch (error) {
-
-                                console.error(
-                                    "[SneakersLink] Avatar removal failed:",
-                                    error
-                                );
-
-                                toast(
-                                    error?.message ||
-                                        "Unable to remove profile photo.",
-                                    "warn"
-                                );
-
-                            } finally {
-
-                                removeImageButton.disabled =
-                                    false;
-                            }
-                        }
-                    );
-                }
+                button.innerHTML =
+                    originalHTML;
 
             }
-        );
+
+        }
+
+
+        /* =========================================================
+           UPLOAD PHOTO
+           ========================================================= */
+
+        async function uploadPhoto(file) {
+
+            if (!file) {
+                return;
+            }
+
+
+            try {
+
+                const url =
+                    await window.SLProfile
+                        .uploadAvatar(file);
+
+
+                const user =
+                    window.SLProfile
+                        .getCurrentUser();
+
+
+                const profile =
+                    await window.SLProfile
+                        .getProfile();
+
+
+                profile.photoURL = url;
+
+
+                renderAvatar(
+                    $("#profileAvatar"),
+                    user,
+                    profile
+                );
+
+
+                renderAvatar(
+                    $("#profileTopAvatar"),
+                    user,
+                    profile
+                );
+
+
+                showToast(
+                    "Profile picture updated."
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "[SneakersLink] Avatar upload failed:",
+                    error
+                );
+
+
+                showToast(
+                    error?.message ||
+                    "We couldn't upload your profile picture.",
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        /* =========================================================
+           REMOVE PHOTO
+           ========================================================= */
+
+        async function removePhoto() {
+
+            try {
+
+                await window.SLProfile
+                    .deleteAvatar();
+
+
+                const user =
+                    window.SLProfile
+                        .getCurrentUser();
+
+
+                const profile =
+                    await window.SLProfile
+                        .getProfile();
+
+
+                profile.photoURL = "";
+
+
+                renderAvatar(
+                    $("#profileAvatar"),
+                    user,
+                    profile
+                );
+
+
+                renderAvatar(
+                    $("#profileTopAvatar"),
+                    user,
+                    profile
+                );
+
+
+                showToast(
+                    "Profile picture removed."
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "[SneakersLink] Avatar removal failed:",
+                    error
+                );
+
+
+                showToast(
+                    error?.message ||
+                    "We couldn't remove your profile picture.",
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        /* =========================================================
+           SIGN OUT
+           ========================================================= */
+
+        async function signOut() {
+
+            try {
+
+                if (
+                    window.SLAuth &&
+                    typeof window.SLAuth.logout ===
+                        "function"
+                ) {
+
+                    await window.SLAuth.logout();
+
+                }
+
+
+                window.location.href =
+                    "index.html";
+
+
+            } catch (error) {
+
+                console.error(
+                    "[SneakersLink] Sign out failed:",
+                    error
+                );
+
+
+                showToast(
+                    "Couldn't sign out. Please try again.",
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        /* =========================================================
+           EVENTS
+           ========================================================= */
+
+        $("#profileForm")
+            .addEventListener(
+                "submit",
+                saveProfile
+            );
+
+
+        $("#profileImageInput")
+            .addEventListener(
+                "change",
+                (event) => {
+
+                    const file =
+                        event.target.files?.[0];
+
+                    uploadPhoto(file);
+
+                    event.target.value = "";
+
+                }
+            );
+
+
+        $("#removeProfileImage")
+            .addEventListener(
+                "click",
+                removePhoto
+            );
+
+
+        $("#profileSignOut")
+            .addEventListener(
+                "click",
+                signOut
+            );
+
+
+        /* =========================================================
+           PROFILE ICON
+           ========================================================= */
+
+        $("#profileTopAvatar")
+            .addEventListener(
+                "click",
+                () => {
+
+                    window.location.href =
+                        "profile.html";
+
+                }
+            );
+
+
+        /* =========================================================
+           START
+           ========================================================= */
+
+        startProfile();
 
     </script>
 
