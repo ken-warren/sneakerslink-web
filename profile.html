@@ -10,16 +10,18 @@
 
   <title>My Profile — SneakersLink</title>
 
-  <!-- Prevent theme flash -->
+  <!-- =====================================================
+       PREVENT THEME FLASH
+       ===================================================== -->
   <script>
     (function () {
       try {
         const saved =
-          localStorage.getItem("sl-theme");
+          localStorage.getItem("sl-theme") ||
+          localStorage.getItem("sl_theme");
 
         if (saved === "dark") {
-          document.documentElement.dataset.theme =
-            "dark";
+          document.documentElement.dataset.theme = "dark";
         }
       } catch (error) {
         // Ignore localStorage errors.
@@ -43,317 +45,282 @@
        NAVIGATION
        ===================================================== -->
 
-  <!-- =========================================================
-     SNEAKERSLINK NAVIGATION
-     ========================================================= -->
-
-<nav class="home-nav" aria-label="Main navigation">
+  <nav class="home-nav" aria-label="Main navigation">
 
     <!-- Mobile menu toggle -->
     <input
-        type="checkbox"
-        id="check"
-        aria-label="Toggle navigation menu"
+      type="checkbox"
+      id="check"
+      aria-label="Toggle navigation menu"
     >
 
     <label
-        for="check"
-        class="navbutton"
-        aria-label="Open navigation menu"
+      for="check"
+      class="navbutton"
+      aria-label="Open navigation menu"
     >
-        <i class="fas fa-bars" aria-hidden="true"></i>
+      <i class="fas fa-bars" aria-hidden="true"></i>
     </label>
 
-
     <!-- Logo -->
-
     <a
-        href="index.html"
-        class="logo nav-logo"
-        aria-label="SneakersLink Home"
+      href="index.html"
+      class="logo nav-logo"
+      aria-label="SneakersLink Home"
     >
-        Sneakers<span>Link</span>
+      Sneakers<span>Link</span>
     </a>
 
-
     <!-- Main navigation -->
-
     <ul id="navbar">
 
-        <li>
-            <a href="index.html">
-                Home
-            </a>
-        </li>
+      <li>
+        <a href="index.html">
+          Home
+        </a>
+      </li>
 
-        <li>
-            <a href="shop.html">
-                Shop
-            </a>
-        </li>
+      <li>
+        <a href="shop.html">
+          Shop
+        </a>
+      </li>
 
-        <li>
-            <a href="blog.html">
-                Blog
-            </a>
-        </li>
+      <li>
+        <a href="blog.html">
+          Blog
+        </a>
+      </li>
 
-        <li>
-            <a href="about.html">
-                About
-            </a>
-        </li>
+      <li>
+        <a href="about.html">
+          About
+        </a>
+      </li>
 
-        <li>
-            <a href="contact.html">
-                Contact
-            </a>
-        </li>
+      <li>
+        <a href="contact.html">
+          Contact
+        </a>
+      </li>
 
     </ul>
-
 
     <!-- =====================================================
          RIGHT-SIDE ACTIONS
          ===================================================== -->
 
     <div
-        class="nav-actions"
-        aria-label="Shopping cart and account"
+      class="nav-actions"
+      aria-label="Shopping cart and account"
     >
 
-        <!-- CART -->
+      <!-- CART -->
 
-        <a
-            href="cart.html"
-            class="cart"
-            id="navbarCart"
-            aria-label="Shopping cart"
+      <a
+        href="cart.html"
+        class="cart"
+        id="navbarCart"
+        aria-label="Shopping cart"
+      >
+        <i
+          class="fas fa-shopping-bag"
+          aria-hidden="true"
+        ></i>
+
+        <span
+          class="cart-count"
+          data-cart-count
+          aria-hidden="true"
+        >
+          0
+        </span>
+      </a>
+
+      <!-- =================================================
+           ACCOUNT
+           ================================================= -->
+
+      <div
+        class="account-area"
+        id="accountArea"
+      >
+
+        <!-- LOGGED OUT -->
+
+        <span
+          class="account-guest-links"
+          id="accountGuestLinks"
         >
 
-            <i
-                class="fas fa-shopping-bag"
-                aria-hidden="true"
-            ></i>
+          <a
+            href="login.html?mode=login"
+            class="account-text-link"
+          >
+            Sign in
+          </a>
 
-            <span
-                class="cart-count"
-                data-cart-count
-                aria-hidden="true"
-            >
-                0
-            </span>
+          <a
+            href="login.html?mode=signup"
+            class="account-text-link account-text-link--primary"
+          >
+            Sign up
+          </a>
 
-        </a>
+        </span>
 
-
-        <!-- =================================================
-             LOGGED OUT
-             ================================================= -->
+        <!-- LOGGED IN -->
 
         <div
-            class="account-area"
-            id="accountArea"
+          class="account-menu"
+          id="accountMenu"
+          hidden
         >
 
+          <button
+            type="button"
+            class="account-toggle"
+            id="accountToggle"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-label="Open profile menu"
+            title="Profile"
+          >
+
             <span
-                class="account-guest-links"
-                id="accountGuestLinks"
+              class="account-avatar"
+              id="accountAvatar"
             >
-
-                <a
-                    href="login.html?mode=login"
-                    class="account-text-link"
-                >
-                    Sign in
-                </a>
-
-                <a
-                    href="login.html?mode=signup"
-                    class="account-text-link account-text-link--primary"
-                >
-                    Sign up
-                </a>
-
+              <i
+                class="fas fa-user"
+                aria-hidden="true"
+              ></i>
             </span>
 
+          </button>
 
-            <!-- =================================================
-                 LOGGED IN
-                 ================================================= -->
+          <!-- PROFILE DROPDOWN -->
 
-            <div
-                class="account-menu"
-                id="accountMenu"
-                hidden
-            >
+          <div
+            class="account-dropdown"
+            id="accountDropdown"
+          >
 
-                <button
-                    type="button"
-                    class="account-toggle"
-                    id="accountToggle"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                    aria-label="Open profile menu"
-                    title="Profile"
-                >
+            <!-- Profile summary -->
 
-                    <span
-                        class="account-avatar"
-                        id="accountAvatar"
-                    >
-                        <i
-                            class="fas fa-user"
-                            aria-hidden="true"
-                        ></i>
-                    </span>
+            <div class="account-profile-summary">
 
-                </button>
+              <div
+                class="account-avatar account-avatar-large"
+                id="accountDropdownAvatar"
+              >
+                <i
+                  class="fas fa-user"
+                  aria-hidden="true"
+                ></i>
+              </div>
 
+              <div class="account-profile-text">
 
-                <!-- PROFILE DROPDOWN -->
+                <strong id="accountDropdownName">
+                  Profile
+                </strong>
 
-                <div
-                    class="account-dropdown"
-                    id="accountDropdown"
-                >
+                <span id="accountDropdownEmail">
+                  Signed in
+                </span>
 
-                    <!-- Profile summary -->
-
-                    <div class="account-profile-summary">
-
-                        <div
-                            class="account-avatar account-avatar-large"
-                            id="accountDropdownAvatar"
-                        >
-                            <i
-                                class="fas fa-user"
-                                aria-hidden="true"
-                            ></i>
-                        </div>
-
-                        <div class="account-profile-text">
-
-                            <strong
-                                id="accountDropdownName"
-                            >
-                                Profile
-                            </strong>
-
-                            <span
-                                id="accountDropdownEmail"
-                            >
-                                Signed in
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="account-dropdown-divider"></div>
-
-
-                    <!-- Profile -->
-
-                    <a
-                        href="profile.html"
-                        class="account-dropdown-link"
-                    >
-
-                        <i
-                            class="fas fa-user"
-                            aria-hidden="true"
-                        ></i>
-
-                        My Profile
-
-                    </a>
-
-
-                    <!-- Orders -->
-
-                    <a
-                        href="track-order.html"
-                        class="account-dropdown-link"
-                    >
-
-                        <i
-                            class="fas fa-truck"
-                            aria-hidden="true"
-                        ></i>
-
-                        Track Order
-
-                    </a>
-
-
-                    <!-- Cart -->
-
-                    <a
-                        href="cart.html"
-                        class="account-dropdown-link"
-                    >
-
-                        <i
-                            class="fas fa-shopping-bag"
-                            aria-hidden="true"
-                        ></i>
-
-                        My Cart
-
-                    </a>
-
-
-                    <!-- Theme -->
-
-                    <button
-                        type="button"
-                        class="account-dropdown-link"
-                        id="accountThemeToggle"
-                    >
-
-                        <i
-                            class="fas fa-moon"
-                            aria-hidden="true"
-                        ></i>
-
-                        <span id="accountThemeLabel">
-                            Dark Mode
-                        </span>
-
-                    </button>
-
-
-                    <div class="account-dropdown-divider"></div>
-
-
-                    <!-- Sign out -->
-
-                    <button
-                        type="button"
-                        class="account-dropdown-link account-dropdown-link--danger"
-                        id="accountSignOutBtn"
-                    >
-
-                        <i
-                            class="fas fa-sign-out-alt"
-                            aria-hidden="true"
-                        ></i>
-
-                        Sign Out
-
-                    </button>
-
-                </div>
+              </div>
 
             </div>
 
+            <div class="account-dropdown-divider"></div>
+
+            <!-- Profile -->
+
+            <a
+              href="profile.html"
+              class="account-dropdown-link"
+            >
+              <i
+                class="fas fa-user"
+                aria-hidden="true"
+              ></i>
+
+              My Profile
+            </a>
+
+            <!-- Orders -->
+
+            <a
+              href="track-order.html"
+              class="account-dropdown-link"
+            >
+              <i
+                class="fas fa-truck"
+                aria-hidden="true"
+              ></i>
+
+              Track Order
+            </a>
+
+            <!-- Cart -->
+
+            <a
+              href="cart.html"
+              class="account-dropdown-link"
+            >
+              <i
+                class="fas fa-shopping-bag"
+                aria-hidden="true"
+              ></i>
+
+              My Cart
+            </a>
+
+            <!-- Theme -->
+
+            <button
+              type="button"
+              class="account-dropdown-link"
+              id="accountThemeToggle"
+            >
+              <i
+                class="fas fa-moon"
+                aria-hidden="true"
+              ></i>
+
+              <span id="accountThemeLabel">
+                Dark Mode
+              </span>
+            </button>
+
+            <div class="account-dropdown-divider"></div>
+
+            <!-- Sign out -->
+
+            <button
+              type="button"
+              class="account-dropdown-link account-dropdown-link--danger"
+              id="accountSignOutBtn"
+            >
+              <i
+                class="fas fa-sign-out-alt"
+                aria-hidden="true"
+              ></i>
+
+              Sign Out
+            </button>
+
+          </div>
+
         </div>
+
+      </div>
 
     </div>
 
-</nav>
+  </nav>
 
 
   <!-- =====================================================
@@ -364,6 +331,7 @@
     id="header"
     class="about-header"
   >
+
     <h2>
       My Account
     </h2>
@@ -371,6 +339,7 @@
     <p>
       Manage your SneakersLink profile and account details.
     </p>
+
   </section>
 
 
@@ -385,13 +354,14 @@
 
     <div class="profile-shell">
 
-      <!-- PROFILE CARD -->
-
       <div class="profile-card">
+
+        <!-- PROFILE CARD HEADER -->
 
         <div class="profile-card-header">
 
           <div>
+
             <span class="profile-eyebrow">
               CUSTOMER ACCOUNT
             </span>
@@ -404,12 +374,15 @@
               Keep your details up to date for faster
               checkout and order management.
             </p>
+
           </div>
 
         </div>
 
 
-        <!-- AUTH / LOADING MESSAGE -->
+        <!-- =================================================
+             LOADING
+             ================================================= -->
 
         <div
           id="profile-loading"
@@ -420,7 +393,9 @@
         </div>
 
 
-        <!-- PROFILE CONTENT -->
+        <!-- =================================================
+             PROFILE CONTENT
+             ================================================= -->
 
         <div
           id="profile-content"
@@ -436,6 +411,7 @@
               class="profile-avatar"
               id="profile-avatar"
             >
+
               <span
                 id="profile-avatar-initials"
               >
@@ -448,6 +424,7 @@
                 alt="Profile photo"
                 hidden
               >
+
             </div>
 
             <div class="profile-avatar-actions">
@@ -466,14 +443,18 @@
                   for="profile-avatar-input"
                   class="normal profile-upload-button"
                 >
-                  <i class="fas fa-camera"></i>
+                  <i
+                    class="fas fa-camera"
+                    aria-hidden="true"
+                  ></i>
+
                   Change Photo
                 </label>
 
                 <input
                   type="file"
                   id="profile-avatar-input"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
                   hidden
                 >
 
@@ -492,7 +473,9 @@
           </div>
 
 
-          <!-- PROFILE FORM -->
+          <!-- =================================================
+               PROFILE FORM
+               ================================================= -->
 
           <form
             id="profile-form"
@@ -500,6 +483,7 @@
           >
 
             <div class="profile-form-heading">
+
               <h3>
                 Personal Information
               </h3>
@@ -508,10 +492,13 @@
                 Your email address is linked to your
                 SneakersLink account.
               </p>
+
             </div>
 
 
             <div class="profile-form-grid">
+
+              <!-- FULL NAME -->
 
               <div class="profile-field">
 
@@ -525,10 +512,13 @@
                   name="displayName"
                   autocomplete="name"
                   placeholder="Your full name"
+                  maxlength="100"
                 >
 
               </div>
 
+
+              <!-- EMAIL -->
 
               <div class="profile-field">
 
@@ -547,6 +537,8 @@
               </div>
 
 
+              <!-- PHONE -->
+
               <div class="profile-field">
 
                 <label for="profile-phone">
@@ -559,10 +551,13 @@
                   name="phone"
                   autocomplete="tel"
                   placeholder="+254..."
+                  maxlength="30"
                 >
 
               </div>
 
+
+              <!-- COUNTRY -->
 
               <div class="profile-field">
 
@@ -576,10 +571,13 @@
                   name="country"
                   autocomplete="country-name"
                   placeholder="Country"
+                  maxlength="100"
                 >
 
               </div>
 
+
+              <!-- ADDRESS -->
 
               <div class="profile-field profile-field-full">
 
@@ -593,10 +591,13 @@
                   name="address"
                   autocomplete="street-address"
                   placeholder="Street address"
+                  maxlength="200"
                 >
 
               </div>
 
+
+              <!-- CITY -->
 
               <div class="profile-field">
 
@@ -610,10 +611,13 @@
                   name="city"
                   autocomplete="address-level2"
                   placeholder="City"
+                  maxlength="100"
                 >
 
               </div>
 
+
+              <!-- POSTAL CODE -->
 
               <div class="profile-field">
 
@@ -627,12 +631,15 @@
                   name="postalCode"
                   autocomplete="postal-code"
                   placeholder="Postal code"
+                  maxlength="30"
                 >
 
               </div>
 
             </div>
 
+
+            <!-- FORM MESSAGE -->
 
             <div
               id="profile-form-message"
@@ -642,6 +649,8 @@
             ></div>
 
 
+            <!-- ACTIONS -->
+
             <div class="profile-form-actions">
 
               <button
@@ -649,7 +658,11 @@
                 class="normal profile-save-button"
                 id="profile-save-button"
               >
-                <i class="fas fa-save"></i>
+                <i
+                  class="fas fa-save"
+                  aria-hidden="true"
+                ></i>
+
                 Save Changes
               </button>
 
@@ -658,7 +671,11 @@
                 class="white profile-signout-button"
                 id="profile-signout-button"
               >
-                <i class="fas fa-right-from-bracket"></i>
+                <i
+                  class="fas fa-right-from-bracket"
+                  aria-hidden="true"
+                ></i>
+
                 Sign Out
               </button>
 
@@ -669,7 +686,9 @@
         </div>
 
 
-        <!-- NOT SIGNED IN -->
+        <!-- =================================================
+             NOT SIGNED IN
+             ================================================= -->
 
         <div
           id="profile-login-required"
@@ -691,10 +710,14 @@
           </p>
 
           <a
-            href="login.html"
+            href="login.html?mode=login"
             class="normal"
           >
-            <i class="fas fa-right-to-bracket"></i>
+            <i
+              class="fas fa-right-to-bracket"
+              aria-hidden="true"
+            ></i>
+
             Sign In
           </a>
 
@@ -832,7 +855,16 @@
 
 
   <!-- =====================================================
-       FIREBASE MODULES
+       FIREBASE PROFILE
+       ===================================================== -->
+
+  <script
+    type="module"
+    src="firebase-profile.js"
+  ></script>
+
+  <!-- =====================================================
+       FIREBASE ORDERS
        ===================================================== -->
 
   <script
@@ -840,39 +872,30 @@
     src="firebase-orders.js"
   ></script>
 
-  <script
-    type="module"
-    src="firebase-profile.js"
-  ></script>
+  <!-- =====================================================
+       EXISTING SITE SCRIPT
+       ===================================================== -->
 
-
-  <!-- Existing site scripts -->
   <script src="script.js"></script>
 
-  <!-- Profile page controller -->
+
+  <!-- =====================================================
+       PROFILE PAGE CONTROLLER
+       ===================================================== -->
+
   <script>
     (function () {
       "use strict";
 
-      let profileReady = false;
-      let ordersReady = false;
+      let profileInitialized = false;
 
-      function startProfilePage() {
-        if (
-          !profileReady ||
-          !ordersReady
-        ) {
-          return;
-        }
 
-        initProfilePage();
-      }
-
+      /* ===================================================
+         HELPERS
+         =================================================== */
 
       function $(selector) {
-        return document.querySelector(
-          selector
-        );
+        return document.querySelector(selector);
       }
 
 
@@ -890,21 +913,17 @@
       }
 
 
-      function setMessage(
-        message,
-        type = ""
-      ) {
-        const box =
-          $("#profile-form-message");
+      function setMessage(message, type = "") {
+        const box = $("#profile-form-message");
 
         if (!box) {
           return;
         }
 
         box.textContent = message;
+
         box.className =
-          `profile-form-message ${type}`
-            .trim();
+          `profile-form-message ${type}`.trim();
       }
 
 
@@ -912,8 +931,7 @@
         message,
         type = "success"
       ) {
-        const root =
-          $("#toast-root");
+        const root = $("#toast-root");
 
         if (!root) {
           return;
@@ -930,26 +948,22 @@
             type === "warn"
               ? "fa-triangle-exclamation"
               : "fa-circle-check"
-          }"></i>
+          }" aria-hidden="true"></i>
+
           <span></span>
         `;
 
-        toast
-          .querySelector("span")
-          .textContent = message;
+        toast.querySelector("span").textContent =
+          message;
 
         root.appendChild(toast);
 
         requestAnimationFrame(() => {
-          toast.classList.add(
-            "toast--show"
-          );
+          toast.classList.add("toast--show");
         });
 
         setTimeout(() => {
-          toast.classList.remove(
-            "toast--show"
-          );
+          toast.classList.remove("toast--show");
 
           setTimeout(() => {
             toast.remove();
@@ -984,6 +998,10 @@
       }
 
 
+      /* ===================================================
+         AVATAR
+         =================================================== */
+
       function renderAvatar(profile) {
         const image =
           $("#profile-avatar-image");
@@ -996,8 +1014,7 @@
         }
 
         if (profile.photoURL) {
-          image.src =
-            profile.photoURL;
+          image.src = profile.photoURL;
 
           image.alt =
             `${profile.displayName || "Customer"} profile photo`;
@@ -1019,34 +1036,79 @@
       }
 
 
+      /* ===================================================
+         FILL PROFILE
+         =================================================== */
+
       function fillProfile(profile) {
-        $("#profile-name").value =
-          profile.displayName || "";
+        const name =
+          $("#profile-name");
 
-        $("#profile-email").value =
-          profile.email || "";
+        const email =
+          $("#profile-email");
 
-        $("#profile-phone").value =
-          profile.phone || "";
+        const phone =
+          $("#profile-phone");
 
-        $("#profile-address").value =
-          profile.address || "";
+        const address =
+          $("#profile-address");
 
-        $("#profile-city").value =
-          profile.city || "";
+        const city =
+          $("#profile-city");
 
-        $("#profile-postal").value =
-          profile.postalCode || "";
+        const postal =
+          $("#profile-postal");
 
-        $("#profile-country").value =
-          profile.country || "";
+        const country =
+          $("#profile-country");
+
+        if (name) {
+          name.value =
+            profile.displayName || "";
+        }
+
+        if (email) {
+          email.value =
+            profile.email || "";
+        }
+
+        if (phone) {
+          phone.value =
+            profile.phone || "";
+        }
+
+        if (address) {
+          address.value =
+            profile.address || "";
+        }
+
+        if (city) {
+          city.value =
+            profile.city || "";
+        }
+
+        if (postal) {
+          postal.value =
+            profile.postalCode || "";
+        }
+
+        if (country) {
+          country.value =
+            profile.country || "";
+        }
 
         renderAvatar(profile);
       }
 
 
+      /* ===================================================
+         LOAD PROFILE
+         =================================================== */
+
       async function loadProfile() {
         try {
+          setMessage("");
+
           const profile =
             await window.SLProfile.getProfile();
 
@@ -1059,6 +1121,7 @@
           showElement(
             $("#profile-content")
           );
+
         } catch (error) {
           console.error(
             "Unable to load profile:",
@@ -1069,18 +1132,30 @@
             $("#profile-loading")
           );
 
+          hideElement(
+            $("#profile-content")
+          );
+
           setMessage(
-            error.message ||
+            error?.message ||
               "Unable to load your profile.",
             "error"
+          );
+
+          showToast(
+            error?.message ||
+              "Unable to load your profile.",
+            "warn"
           );
         }
       }
 
 
-      async function handleProfileSubmit(
-        event
-      ) {
+      /* ===================================================
+         PROFILE SAVE
+         =================================================== */
+
+      async function handleProfileSubmit(event) {
         event.preventDefault();
 
         const button =
@@ -1096,7 +1171,7 @@
           button.innerHTML;
 
         button.innerHTML = `
-          <i class="fas fa-spinner fa-spin"></i>
+          <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
           Saving...
         `;
 
@@ -1105,23 +1180,25 @@
         try {
           const profile =
             await window.SLProfile.updateProfile({
+
               displayName:
-                $("#profile-name").value,
+                $("#profile-name")?.value || "",
 
               phone:
-                $("#profile-phone").value,
+                $("#profile-phone")?.value || "",
 
               address:
-                $("#profile-address").value,
+                $("#profile-address")?.value || "",
 
               city:
-                $("#profile-city").value,
+                $("#profile-city")?.value || "",
 
               postalCode:
-                $("#profile-postal").value,
+                $("#profile-postal")?.value || "",
 
               country:
-                $("#profile-country").value,
+                $("#profile-country")?.value || "",
+
             });
 
           fillProfile(profile);
@@ -1134,6 +1211,7 @@
           showToast(
             "Profile updated successfully."
           );
+
         } catch (error) {
           console.error(
             "Profile update failed:",
@@ -1141,15 +1219,17 @@
           );
 
           setMessage(
-            error.message ||
+            error?.message ||
               "Unable to save your profile.",
             "error"
           );
 
           showToast(
-            "Unable to save your profile.",
+            error?.message ||
+              "Unable to save your profile.",
             "warn"
           );
+
         } finally {
           button.disabled = false;
           button.innerHTML =
@@ -1158,9 +1238,11 @@
       }
 
 
-      async function handleAvatarChange(
-        event
-      ) {
+      /* ===================================================
+         AVATAR UPLOAD
+         =================================================== */
+
+      async function handleAvatarChange(event) {
         const file =
           event.target.files?.[0];
 
@@ -1184,14 +1266,19 @@
           const initials =
             $("#profile-avatar-initials");
 
-          image.src = url;
-          image.hidden = false;
+          if (image) {
+            image.src = url;
+            image.hidden = false;
+          }
 
-          initials.hidden = true;
+          if (initials) {
+            initials.hidden = true;
+          }
 
           showToast(
             "Profile photo updated."
           );
+
         } catch (error) {
           console.error(
             "Avatar upload failed:",
@@ -1199,43 +1286,41 @@
           );
 
           showToast(
-            error.message ||
+            error?.message ||
               "Unable to upload profile photo.",
             "warn"
           );
+
         } finally {
           event.target.value = "";
         }
       }
 
 
+      /* ===================================================
+         REMOVE AVATAR
+         =================================================== */
+
       async function handleRemoveAvatar() {
+        const button =
+          $("#profile-remove-avatar");
+
+        if (button) {
+          button.disabled = true;
+        }
+
         try {
           await window.SLProfile.deleteAvatar();
-
-          const image =
-            $("#profile-avatar-image");
-
-          const initials =
-            $("#profile-avatar-initials");
 
           const profile =
             await window.SLProfile.getProfile();
 
-          image.src = "";
-          image.hidden = true;
-
-          initials.textContent =
-            getInitials(
-              profile.displayName,
-              profile.email
-            );
-
-          initials.hidden = false;
+          renderAvatar(profile);
 
           showToast(
             "Profile photo removed."
           );
+
         } catch (error) {
           console.error(
             "Avatar removal failed:",
@@ -1243,46 +1328,91 @@
           );
 
           showToast(
-            error.message ||
+            error?.message ||
               "Unable to remove profile photo.",
             "warn"
           );
+
+        } finally {
+          if (button) {
+            button.disabled = false;
+          }
         }
       }
 
 
+      /* ===================================================
+         SIGN OUT
+         =================================================== */
+
       async function handleSignOut() {
+        const buttons = [
+          $("#profile-signout-button"),
+          $("#accountSignOutBtn")
+        ].filter(Boolean);
+
+        buttons.forEach((button) => {
+          button.disabled = true;
+        });
+
         try {
-          await window.SLOrders.customerSignOut();
+          if (
+            window.SLProfile &&
+            typeof window.SLProfile.signOut === "function"
+          ) {
+            await window.SLProfile.signOut();
+          } else {
+            throw new Error(
+              "Firebase Authentication is not available."
+            );
+          }
 
           window.location.href =
             "index.html";
+
         } catch (error) {
           console.error(
             "Sign out failed:",
             error
           );
 
+          buttons.forEach((button) => {
+            button.disabled = false;
+          });
+
           showToast(
-            "Unable to sign out.",
+            error?.message ||
+              "Unable to sign out.",
             "warn"
           );
         }
       }
 
 
+      /* ===================================================
+         PROFILE AUTH STATE
+         =================================================== */
+
       function initProfilePage() {
+        if (profileInitialized) {
+          return;
+        }
+
         if (
           !window.SLProfile ||
-          !window.SLOrders
+          typeof window.SLProfile.onProfileAuthChange !==
+            "function"
         ) {
           return;
         }
+
+        profileInitialized = true;
 
         window.SLProfile.onProfileAuthChange(
           async (user) => {
 
             if (!user) {
+
               hideElement(
                 $("#profile-loading")
               );
@@ -1300,6 +1430,10 @@
 
             hideElement(
               $("#profile-login-required")
+            );
+
+            showElement(
+              $("#profile-loading")
             );
 
             await loadProfile();
@@ -1333,44 +1467,32 @@
             "click",
             handleSignOut
           );
+
+
+        $("#accountSignOutBtn")
+          ?.addEventListener(
+            "click",
+            handleSignOut
+          );
       }
 
 
+      /* ===================================================
+         PROFILE READY
+         =================================================== */
+
       window.addEventListener(
         "slprofile:ready",
-        () => {
-          profileReady = true;
-          startProfilePage();
-        }
-      );
-
-
-      window.addEventListener(
-        "slorders:ready",
-        () => {
-          ordersReady = true;
-          startProfilePage();
-        }
+        initProfilePage
       );
 
 
       /*
-       * Modules may already have finished before these
-       * listeners are attached on a very fast page load.
+       * Handles very fast module execution.
        */
-      if (
-        window.SLProfile
-      ) {
-        profileReady = true;
+      if (window.SLProfile) {
+        initProfilePage();
       }
-
-      if (
-        window.SLOrders
-      ) {
-        ordersReady = true;
-      }
-
-      startProfilePage();
 
     })();
   </script>
