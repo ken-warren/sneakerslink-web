@@ -3475,3 +3475,452 @@ footer .col img.logo:hover {
     width: 100%;
   }
 }
+
+/* =========================================================
+   MOBILE NAVIGATION + HERO POLISH
+   ---------------------------------------------------------
+   Keeps the desktop navigation untouched while making the
+   shared navbar feel deliberate and seamless on phones.
+   Applies to index, shop, blog, about and contact.
+   ========================================================= */
+
+@media (max-width: 870px) {
+  .home-nav {
+    position: relative;
+    width: 100%;
+    min-height: 64px;
+    height: 64px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    z-index: 1000;
+  }
+
+  .home-nav > .nav-logo {
+    position: relative;
+    z-index: 1003;
+    display: inline-flex;
+    align-items: center;
+    height: 64px;
+    margin: 0;
+    padding: 0;
+    font-size: 24px;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+
+  /* Mobile menu button stays at the far right. */
+  .home-nav > .navbutton {
+    position: absolute;
+    top: 0;
+    right: 8px;
+    z-index: 1004;
+    width: 38px;
+    height: 64px;
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    float: none;
+    line-height: 1;
+    font-size: 23px;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .home-nav > .navbutton:hover {
+    color: var(--brand);
+  }
+
+  /* Cart + account sit immediately to the left of hamburger. */
+  .home-nav > .nav-actions {
+    position: absolute;
+    top: 0;
+    right: 48px;
+    z-index: 1003;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .home-nav .account-area {
+    height: 64px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+  }
+
+  .home-nav .account-guest-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .home-nav .account-text-link {
+    min-height: 36px;
+    height: 36px;
+    padding: 0 9px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .home-nav .account-text-link--primary {
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+  .home-nav .account-menu {
+    display: flex;
+    align-items: center;
+    height: 64px;
+  }
+
+  .home-nav .account-toggle {
+    width: 38px;
+    height: 38px;
+    margin: 0;
+  }
+
+  .home-nav > .nav-actions .cart {
+    position: relative;
+    float: none;
+    width: 38px;
+    height: 38px;
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-size: 20px;
+    color: var(--text);
+    text-decoration: none;
+    border-radius: 50%;
+  }
+
+  .home-nav > .nav-actions .cart:hover {
+    color: var(--brand);
+    background: var(--brand-light);
+  }
+
+  .home-nav > .nav-actions .cart i {
+    color: currentColor;
+    line-height: 1;
+  }
+
+  .home-nav > .nav-actions .cart-count {
+    top: 1px;
+    right: 0;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 3px;
+    font-size: 9px;
+    line-height: 15px;
+  }
+
+  /* Mobile menu drawer. */
+  .home-nav > #navbar {
+    position: fixed;
+    top: 64px;
+    left: -100%;
+    width: 100%;
+    height: calc(100vh - 64px);
+    margin: 0;
+    padding: 24px 18px 40px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 4px;
+    overflow-y: auto;
+    text-align: left;
+    background: var(--nav-bg);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+    z-index: 1002;
+    transition: left 0.3s var(--ease);
+  }
+
+  .home-nav > #navbar li {
+    width: 100%;
+    height: auto;
+    min-height: 50px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+    line-height: 1;
+  }
+
+  .home-nav > #navbar li a {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    border-radius: 9px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .home-nav > #navbar li a::after {
+    left: 15px;
+    bottom: 7px;
+    width: 0;
+    height: 2px;
+    transform: none;
+  }
+
+  .home-nav > #navbar li a:hover,
+  .home-nav > #navbar li a.active {
+    color: var(--brand);
+    background: var(--brand-light);
+  }
+
+  .home-nav > #navbar li a:hover::after,
+  .home-nav > #navbar li a.active::after {
+    width: 32px;
+  }
+
+  #check:checked ~ #navbar {
+    left: 0;
+  }
+
+  /* Prevent the menu from sitting under the fixed/mobile navbar. */
+  body:has(.home-nav) {
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 550px) {
+  .home-nav {
+    min-height: 60px;
+    height: 60px;
+    padding: 0 10px;
+  }
+
+  .home-nav > .nav-logo {
+    height: 60px;
+    font-size: 21px;
+  }
+
+  .home-nav > .navbutton {
+    right: 5px;
+    width: 36px;
+    height: 60px;
+    font-size: 21px;
+  }
+
+  .home-nav > .nav-actions {
+    right: 43px;
+    height: 60px;
+    gap: 2px;
+  }
+
+  .home-nav .account-area,
+  .home-nav .account-menu {
+    height: 60px;
+  }
+
+  .home-nav .account-guest-links {
+    gap: 2px;
+  }
+
+  .home-nav .account-text-link {
+    min-height: 34px;
+    height: 34px;
+    padding: 0 7px;
+    border-radius: 7px;
+    font-size: 12px;
+  }
+
+  .home-nav .account-text-link--primary {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+  .home-nav .account-toggle,
+  .home-nav > .nav-actions .cart {
+    width: 34px;
+    height: 34px;
+  }
+
+  .home-nav > .nav-actions .cart {
+    font-size: 18px;
+  }
+
+  .home-nav > .nav-actions .cart-count {
+    top: 0;
+    right: -1px;
+  }
+
+  .home-nav > #navbar {
+    top: 60px;
+    height: calc(100vh - 60px);
+    padding: 20px 14px 35px;
+  }
+
+  /* Homepage hero: reduce the oversized desktop typography on phones. */
+  .headline-container {
+    min-height: calc(100svh - 60px);
+    height: auto;
+    padding: 26px 14px 40px;
+    box-sizing: border-box;
+  }
+
+  #headline {
+    width: min(100%, 440px);
+    margin: 0 auto;
+    padding: 28px 18px 30px;
+    box-sizing: border-box;
+    border-radius: 14px;
+    background-color: rgba(0, 0, 0, 0.43);
+  }
+
+  #headline h4 {
+    margin: 0 0 14px;
+    padding: 0;
+    font-size: 15px;
+    line-height: 1.3;
+  }
+
+  #headline h2 {
+    margin: 0 auto 12px;
+    max-width: 360px;
+    font-size: clamp(27px, 7vw, 36px);
+    line-height: 1.2;
+  }
+
+  #headline h1 {
+    margin: 0 auto 16px;
+    font-size: clamp(31px, 8vw, 43px);
+    line-height: 1.15;
+  }
+
+  #headline p {
+    margin: 0 auto 22px;
+    max-width: 390px;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  #headline button {
+    min-width: 155px;
+    padding: 12px 28px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 400px) {
+  .home-nav {
+    padding: 0 8px;
+  }
+
+  .home-nav > .nav-logo {
+    font-size: 19px;
+  }
+
+  .home-nav > .navbutton {
+    right: 3px;
+    width: 34px;
+    font-size: 20px;
+  }
+
+  .home-nav > .nav-actions {
+    right: 39px;
+  }
+
+  .home-nav .account-text-link {
+    padding: 0 5px;
+    font-size: 11px;
+  }
+
+  .home-nav .account-text-link--primary {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .home-nav .account-toggle,
+  .home-nav > .nav-actions .cart {
+    width: 31px;
+    height: 31px;
+  }
+
+  .home-nav > .nav-actions .cart {
+    font-size: 17px;
+  }
+
+  #headline {
+    padding: 24px 14px 26px;
+  }
+
+  #headline h4 {
+    font-size: 14px;
+  }
+
+  #headline p {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 340px) {
+  .home-nav > .nav-logo {
+    font-size: 18px;
+  }
+
+  .home-nav .account-text-link {
+    padding: 0 4px;
+    font-size: 10px;
+  }
+
+  .home-nav .account-text-link--primary {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .home-nav .account-toggle,
+  .home-nav > .nav-actions .cart {
+    width: 29px;
+    height: 29px;
+  }
+
+  .home-nav > .nav-actions .cart {
+    font-size: 16px;
+  }
+}
+
+/* Shop product cart buttons remain visible and comfortably tappable on touch screens. */
+@media (hover: none), (max-width: 870px) {
+  #sneakers1 .pro .add-cart-btn,
+  #sneakers2 .pro .add-cart-btn {
+    width: 40px;
+    height: 40px;
+    opacity: 1;
+    transform: none;
+  }
+
+  .add-cart-btn i {
+    font-size: 14px;
+  }
+}
