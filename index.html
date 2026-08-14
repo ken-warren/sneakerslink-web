@@ -52,9 +52,13 @@
      SNEAKERSLINK NAVIGATION
      ========================================================= -->
 
+<!-- =========================================================
+     SNEAKERSLINK NAVIGATION
+     ========================================================= -->
+
 <nav class="home-nav" aria-label="Main navigation">
 
-    <!-- Mobile menu toggle -->
+    <!-- MOBILE MENU TOGGLE -->
     <input
         type="checkbox"
         id="check"
@@ -70,8 +74,7 @@
     </label>
 
 
-    <!-- Logo -->
-
+    <!-- LOGO -->
     <a
         href="index.html"
         class="logo nav-logo"
@@ -81,8 +84,7 @@
     </a>
 
 
-    <!-- Main navigation -->
-
+    <!-- MAIN NAVIGATION -->
     <ul id="navbar">
 
         <li>
@@ -127,15 +129,17 @@
         aria-label="Shopping cart and account"
     >
 
-        <!-- CART -->
+        <!-- =================================================
+             CART
+             ================================================= -->
 
         <a
             href="cart.html"
             class="cart"
             id="navbarCart"
             aria-label="Shopping cart"
+            title="Shopping Cart"
         >
-
             <i
                 class="fas fa-shopping-bag"
                 aria-hidden="true"
@@ -148,18 +152,21 @@
             >
                 0
             </span>
-
         </a>
 
 
         <!-- =================================================
-             LOGGED OUT
+             ACCOUNT
              ================================================= -->
 
         <div
             class="account-area"
             id="accountArea"
         >
+
+            <!-- =================================================
+                 LOGGED OUT
+                 ================================================= -->
 
             <span
                 class="account-guest-links"
@@ -193,6 +200,8 @@
                 hidden
             >
 
+                <!-- PROFILE BUTTON -->
+
                 <button
                     type="button"
                     class="account-toggle"
@@ -216,14 +225,16 @@
                 </button>
 
 
-                <!-- PROFILE DROPDOWN -->
+                <!-- =================================================
+                     PROFILE DROPDOWN
+                     ================================================= -->
 
                 <div
                     class="account-dropdown"
                     id="accountDropdown"
                 >
 
-                    <!-- Profile summary -->
+                    <!-- PROFILE SUMMARY -->
 
                     <div class="account-profile-summary">
 
@@ -239,15 +250,11 @@
 
                         <div class="account-profile-text">
 
-                            <strong
-                                id="accountDropdownName"
-                            >
+                            <strong id="accountDropdownName">
                                 Profile
                             </strong>
 
-                            <span
-                                id="accountDropdownEmail"
-                            >
+                            <span id="accountDropdownEmail">
                                 Signed in
                             </span>
 
@@ -259,65 +266,64 @@
                     <div class="account-dropdown-divider"></div>
 
 
-                    <!-- Profile -->
+                    <!-- MY PROFILE -->
 
                     <a
                         href="profile.html"
                         class="account-dropdown-link"
                     >
-
                         <i
                             class="fas fa-user"
                             aria-hidden="true"
                         ></i>
 
-                        My Profile
-
+                        <span>
+                            My Profile
+                        </span>
                     </a>
 
 
-                    <!-- Orders -->
+                    <!-- TRACK ORDER -->
 
                     <a
                         href="track-order.html"
                         class="account-dropdown-link"
                     >
-
                         <i
                             class="fas fa-truck"
                             aria-hidden="true"
                         ></i>
 
-                        Track Order
-
+                        <span>
+                            Track Order
+                        </span>
                     </a>
 
 
-                    <!-- Cart -->
+                    <!-- MY CART -->
 
                     <a
                         href="cart.html"
                         class="account-dropdown-link"
                     >
-
                         <i
                             class="fas fa-shopping-bag"
                             aria-hidden="true"
                         ></i>
 
-                        My Cart
-
+                        <span>
+                            My Cart
+                        </span>
                     </a>
 
 
-                    <!-- Theme -->
+                    <!-- THEME -->
 
                     <button
                         type="button"
                         class="account-dropdown-link"
                         id="accountThemeToggle"
                     >
-
                         <i
                             class="fas fa-moon"
                             aria-hidden="true"
@@ -326,28 +332,27 @@
                         <span id="accountThemeLabel">
                             Dark Mode
                         </span>
-
                     </button>
 
 
                     <div class="account-dropdown-divider"></div>
 
 
-                    <!-- Sign out -->
+                    <!-- SIGN OUT -->
 
                     <button
                         type="button"
                         class="account-dropdown-link account-dropdown-link--danger"
                         id="accountSignOutBtn"
                     >
-
                         <i
                             class="fas fa-sign-out-alt"
                             aria-hidden="true"
                         ></i>
 
-                        Sign Out
-
+                        <span>
+                            Sign Out
+                        </span>
                     </button>
 
                 </div>
