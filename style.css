@@ -3924,3 +3924,79 @@ footer .col img.logo:hover {
     font-size: 14px;
   }
 }
+
+/* =========================================================
+   CART PAGE — ACTIVE CART NAVIGATION
+   ---------------------------------------------------------
+   Keeps the cart clearly highlighted while on cart.html and
+   adds a subtle, professional attention animation.
+   ========================================================= */
+
+.home-nav > .nav-actions .cart.active {
+  color: #ffffff;
+  background: var(--brand);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(44, 194, 184, 0.14),
+              0 5px 14px rgba(0, 0, 0, 0.18);
+  transform-origin: center;
+  animation: sneakerslink-cart-active 2.2s ease-in-out infinite;
+}
+
+.home-nav > .nav-actions .cart.active i {
+  color: #ffffff;
+  animation: sneakerslink-cart-icon 2.2s ease-in-out infinite;
+}
+
+.home-nav > .nav-actions .cart.active:hover {
+  color: #ffffff;
+  background: var(--brand);
+  box-shadow: 0 0 0 4px rgba(44, 194, 184, 0.18),
+              0 7px 18px rgba(0, 0, 0, 0.22);
+}
+
+.home-nav > .nav-actions .cart.active .cart-count {
+  z-index: 2;
+}
+
+@keyframes sneakerslink-cart-active {
+  0%, 100% {
+    transform: scale(1);
+  }
+  8% {
+    transform: scale(1.08);
+  }
+  16% {
+    transform: scale(1);
+  }
+  24% {
+    transform: scale(1.05);
+  }
+  32%, 100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes sneakerslink-cart-icon {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  8% {
+    transform: translateY(-2px) rotate(-5deg);
+  }
+  16% {
+    transform: translateY(0) rotate(5deg);
+  }
+  24% {
+    transform: translateY(-1px) rotate(-3deg);
+  }
+  32%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-nav > .nav-actions .cart.active,
+  .home-nav > .nav-actions .cart.active i {
+    animation: none;
+  }
+}
