@@ -119,7 +119,6 @@
     }
 
     const parsedPrice = Number(item.price);
-
     const parsedQuantity = Number(item.quantity);
 
     return {
@@ -153,9 +152,7 @@
       return parsed.map(normaliseCartItem).filter(Boolean);
     } catch (error) {
       console.warn("[SneakersLink] Invalid cart data:", error);
-
       safeStorageRemove(STORAGE_KEY);
-
       return [];
     }
   }
@@ -180,9 +177,7 @@
       : [];
 
     safeStorageSet(STORAGE_KEY, JSON.stringify(clean));
-
     updateCartBadge();
-
     emitCartUpdate(clean);
   }
 
@@ -224,9 +219,7 @@
 
   function getTotals() {
     const subtotal = getCartSubtotal();
-
     const coupon = getCoupon();
-
     const discount = Math.min(subtotal, coupon?.discount || 0);
 
     return {
@@ -247,14 +240,11 @@
 
     $$("[data-cart-count], .cart-count").forEach((badge) => {
       badge.textContent = count > 99 ? "99+" : String(count);
-
       badge.classList.toggle("cart-count--visible", count > 0);
 
       if (bump) {
         badge.classList.remove("cart-count--bump");
-
         void badge.offsetWidth;
-
         badge.classList.add("cart-count--bump");
 
         window.setTimeout(() => {
@@ -312,7 +302,6 @@
 
     if (!cleanProduct) {
       showToast("This product could not be added to your cart.", "warn");
-
       return;
     }
 
@@ -332,14 +321,11 @@
     }
 
     saveCart(cart);
-
     updateCartBadge(true);
 
     if (sourceElement) {
       sourceElement.classList.remove("add-cart-btn--pop");
-
       void sourceElement.offsetWidth;
-
       sourceElement.classList.add("add-cart-btn--pop");
 
       window.setTimeout(() => {
@@ -369,7 +355,6 @@
     }
 
     const imageRect = image.getBoundingClientRect();
-
     const cartRect = cartIcon.getBoundingClientRect();
 
     if (
@@ -382,7 +367,6 @@
     }
 
     const clone = image.cloneNode(true);
-
     clone.className = "fly-clone";
 
     Object.assign(clone.style, {
@@ -431,7 +415,6 @@
         addButton.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
-
           addToCart(getProductFromCard(card), addButton);
         });
       }
@@ -455,7 +438,6 @@
           if (event.target.closest("button,a,input,select,textarea")) {
             return;
           }
-
           window.location.href = href;
         });
 
@@ -465,7 +447,6 @@
             !event.target.closest("button,a,input,select,textarea")
           ) {
             event.preventDefault();
-
             window.location.href = href;
           }
         });
@@ -479,7 +460,6 @@
 
   function renderCartPage() {
     const table = $("#cart table") || $("#cartTable");
-
     const tbody = $("#cart tbody") || $("#cart table tbody");
 
     if (!table || !tbody) {
@@ -487,7 +467,6 @@
     }
 
     const cart = getCart();
-
     tbody.innerHTML = "";
 
     const emptyMessage = $("#emptyCartMsg");
@@ -500,7 +479,6 @@
       }
 
       const row = document.createElement("tr");
-
       row.innerHTML = `
         <td colspan="6">
           <div class="empty-cart-msg">
@@ -513,9 +491,7 @@
       `;
 
       tbody.appendChild(row);
-
       updateCartTotals();
-
       return;
     }
 
@@ -697,7 +673,6 @@
     }
 
     saveCart(cart);
-
     renderCartPage();
   }
 
@@ -727,9 +702,7 @@
       );
 
       saveCart(filtered);
-
       renderCartPage();
-
       showToast(`${item.name} removed from your cart.`, "warn");
     };
 
@@ -737,7 +710,6 @@
 
     if (row) {
       row.classList.add("row-removing");
-
       window.setTimeout(remove, 220);
     } else {
       remove();
@@ -801,17 +773,13 @@
 
     if (!code) {
       showToast("Enter a coupon code.", "warn");
-
       input.focus();
-
       return;
     }
 
     if (code !== "SL500") {
       safeStorageRemove(COUPON_KEY);
-
       updateCouponTotalsAndMessage("That coupon code is not valid.", true);
-
       return;
     }
 
@@ -820,7 +788,6 @@
         "SL500 requires a cart subtotal of at least KES 2,000.",
         "warn",
       );
-
       return;
     }
 
@@ -833,7 +800,6 @@
     );
 
     updateCouponTotalsAndMessage("SL500 applied — KES 500 discount.");
-
     showToast("Coupon applied.");
   }
 
@@ -856,7 +822,6 @@
 
     if (button && !button.dataset.couponBound) {
       button.dataset.couponBound = "true";
-
       button.addEventListener("click", applyCoupon);
     }
 
@@ -955,25 +920,15 @@
 
   function initAccountMenu() {
     const guestLinks = $("#accountGuestLinks");
-
     const menu = $("#accountMenu");
-
     const toggleBtn = $("#accountToggle");
-
     const dropdown = $("#accountDropdown");
-
     const avatar = $("#accountAvatar");
-
     const dropdownAvatar = $("#accountDropdownAvatar");
-
     const nameEl = $("#accountDropdownName");
-
     const emailEl = $("#accountDropdownEmail");
-
     const signOutBtn = $("#accountSignOutBtn");
-
     const inlineThemeBtn = $("#accountThemeToggle");
-
     const inlineThemeLabel = $("#accountThemeLabel");
 
     if (!guestLinks && !menu) {
@@ -982,17 +937,13 @@
 
     function closeDropdown() {
       dropdown?.classList.remove("is-open");
-
       toggleBtn?.classList.remove("is-open");
-
       toggleBtn?.setAttribute("aria-expanded", "false");
     }
 
     function openDropdown() {
       dropdown?.classList.add("is-open");
-
       toggleBtn?.classList.add("is-open");
-
       toggleBtn?.setAttribute("aria-expanded", "true");
     }
 
@@ -1027,7 +978,6 @@
             src="${escapeHtml(user.photoURL)}"
             alt="${escapeHtml(name)}">
         `;
-
         return;
       }
 
@@ -1060,11 +1010,9 @@
       }
 
       updateAvatar(user, avatar);
-
       updateAvatar(user, dropdownAvatar);
 
       document.body.classList.add("sl-user-logged-in");
-
       document.body.classList.remove("sl-user-logged-out");
     }
 
@@ -1080,7 +1028,6 @@
       closeDropdown();
 
       document.body.classList.remove("sl-user-logged-in");
-
       document.body.classList.add("sl-user-logged-out");
     }
 
@@ -1132,11 +1079,9 @@
           } catch {}
 
           closeDropdown();
-
           showToast("Signed out successfully.");
         } catch (error) {
           console.error("[SneakersLink] Sign out failed:", error);
-
           showToast("Couldn't sign out. Please try again.", "warn");
         }
       });
@@ -1158,13 +1103,10 @@
 
       inlineThemeBtn.addEventListener("click", () => {
         const current = document.documentElement.getAttribute("data-theme");
-
         const next = current === "dark" ? "light" : "dark";
 
         applyTheme(next);
-
         syncThemeLabel();
-
         closeDropdown();
       });
     }
@@ -1216,9 +1158,7 @@
     }
 
     const button = $(".navbutton");
-
     button?.setAttribute("aria-controls", "navbar");
-
     button?.setAttribute("aria-expanded", String(Boolean(check.checked)));
 
     $$("#navbar a").forEach((link) => {
@@ -1230,7 +1170,6 @@
 
       link.addEventListener("click", () => {
         check.checked = false;
-
         button?.setAttribute("aria-expanded", "false");
       });
     });
@@ -1249,7 +1188,6 @@
       document.addEventListener("click", (event) => {
         if (check.checked && !event.target.closest("nav")) {
           check.checked = false;
-
           button?.setAttribute("aria-expanded", "false");
         }
       });
@@ -1267,7 +1205,6 @@
 
     $$("#navbar a").forEach((link) => {
       const href = link.getAttribute("href") || "";
-
       const page = href.split("#")[0].split("/").pop().toLowerCase();
 
       link.classList.toggle("active", page === current);
@@ -1324,7 +1261,6 @@
       elements.forEach((element) => {
         element.classList.add("reveal--in");
       });
-
       return;
     }
 
@@ -1336,7 +1272,6 @@
           }
 
           entry.target.classList.add("reveal--in");
-
           obs.unobserve(entry.target);
         });
       },
@@ -1363,15 +1298,11 @@
     }
 
     root = document.createElement("div");
-
     root.className = "toast-root";
-
     root.setAttribute("aria-live", "polite");
-
     root.setAttribute("aria-atomic", "true");
 
     document.body.appendChild(root);
-
     return root;
   }
 
@@ -1381,7 +1312,6 @@
     }
 
     const root = ensureToastRoot();
-
     const toast = document.createElement("div");
 
     toast.className = `toast${type === "warn" ? " toast--warn" : ""}`;
@@ -1467,7 +1397,6 @@
 
       if (!input || !input.checkValidity()) {
         input?.classList.add("field-error");
-
         showToast("Please enter a valid email address.", "warn");
 
         window.setTimeout(() => {
@@ -1478,9 +1407,7 @@
       }
 
       safeStorageSet("sl_newsletter_email", input.value.trim().toLowerCase());
-
       input.value = "";
-
       showToast("Thanks! You are subscribed to SneakersLink updates.");
     });
   }
@@ -1509,7 +1436,6 @@
       parsePrice($("h2", details)?.textContent);
 
     const image = $("#mainImg")?.getAttribute("src") || "";
-
     const brand = details.dataset.brand || document.body.dataset.brand || "";
 
     const id =
@@ -1528,7 +1454,6 @@
 
   function initProductPage() {
     const mainImage = $("#mainImg");
-
     const details = $(".single-pro-details");
 
     if (!mainImage || !details) {
@@ -1549,7 +1474,6 @@
 
         if (src) {
           mainImage.src = src;
-
           mainImage.alt = thumbnail.alt || mainImage.alt;
         }
       };
@@ -1574,16 +1498,13 @@
 
     button.addEventListener("click", () => {
       const sizeSelect = $("#sizeSelect", details);
-
       const quantityInput = $("#qtyInput", details);
 
       const size = sizeSelect?.value?.trim() || "";
 
       if (sizeSelect && (!size || size.toLowerCase().includes("select"))) {
         showToast("Please select a size before adding this product.", "warn");
-
         sizeSelect.focus();
-
         return;
       }
 
@@ -1599,7 +1520,6 @@
 
       if (!product) {
         showToast("Product information is unavailable.", "warn");
-
         return;
       }
 
@@ -1621,7 +1541,6 @@
   function getRecentOrderIds() {
     try {
       const ids = JSON.parse(safeStorageGet(RECENT_ORDERS_KEY, "[]"));
-
       return Array.isArray(ids) ? ids.filter(Boolean).slice(0, 10) : [];
     } catch {
       return [];
@@ -1644,7 +1563,6 @@
   function getLocalOrders() {
     try {
       const orders = JSON.parse(safeStorageGet(LOCAL_ORDERS_KEY, "[]"));
-
       return Array.isArray(orders) ? orders : [];
     } catch {
       return [];
@@ -1666,9 +1584,7 @@
 
   function generateLocalOrderId() {
     const time = Date.now().toString(36).toUpperCase().slice(-6);
-
     const random = Math.random().toString(36).slice(2, 7).toUpperCase();
-
     return `SL-${time}${random}`;
   }
 
@@ -1690,15 +1606,12 @@
       ),
 
       "",
-
       `Subtotal: ${money(order.subtotal)}`,
 
       ...(order.discount ? [`Discount: −${money(order.discount)}`] : []),
 
       `Total: ${money(order.total)}`,
-
       "",
-
       "Please confirm availability, delivery details and payment instructions.",
     ];
 
@@ -1714,16 +1627,11 @@
 
     if (!cart.length) {
       showToast("Your cart is empty.", "warn");
-
       return;
     }
 
     const totals = getTotals();
 
-    /*
-     * Open synchronously from the click event.
-     * This improves compatibility with popup blockers.
-     */
     let whatsappWindow = null;
 
     try {
@@ -1739,17 +1647,13 @@
     }
 
     const button = $("#checkoutBtn");
-
     let originalText = "Checkout via WhatsApp";
 
     if (button) {
       button.disabled = true;
-
       originalText =
         button.dataset.originalText || button.textContent || originalText;
-
       button.dataset.originalText = originalText;
-
       button.textContent = "Creating order…";
     }
 
@@ -1763,33 +1667,23 @@
 
     let order = {
       id: generateLocalOrderId(),
-
       items,
-
       subtotal: totals.subtotal,
-
       discount: totals.discount,
-
       total: totals.total,
-
       status: "placed",
-
       placedAt: Date.now(),
-
       updatedAt: Date.now(),
     };
 
     try {
       const ordersConfigured = Boolean(window.SLOrders?.isConfigured);
-
       const canCreateOrder = typeof window.SLOrders?.createOrder === "function";
 
       if (ordersConfigured && canCreateOrder) {
         const created = await window.SLOrders.createOrder(items, totals.total, {
           subtotal: totals.subtotal,
-
           discount: totals.discount,
-
           coupon: totals.coupon?.code || "",
         });
 
@@ -1797,11 +1691,8 @@
           order = {
             ...order,
             ...created,
-
             subtotal: totals.subtotal,
-
             discount: totals.discount,
-
             total: totals.total,
           };
         }
@@ -1810,27 +1701,27 @@
       saveLocalOrder(order);
     } catch (error) {
       console.error("[SneakersLink] Order creation failed:", error);
-
       saveLocalOrder(order);
-
       showToast(
         "Cloud order tracking is unavailable, but your WhatsApp order can still continue.",
         "warn",
       );
     } finally {
       saveLocalOrder(order);
-
       rememberOrder(order.id);
 
       if (button) {
         button.disabled = false;
-
         button.textContent = originalText;
       }
     }
 
-    const message = encodeURIComponent(buildWhatsAppMessage(order));
+    // Clear cart & apply state after processing checkout
+    saveCart([]);
+    safeStorageRemove(COUPON_KEY);
+    renderCartPage();
 
+    const message = encodeURIComponent(buildWhatsAppMessage(order));
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
 
     if (whatsappWindow && !whatsappWindow.closed) {
@@ -1854,7 +1745,6 @@
     }
 
     button.dataset.checkoutBound = "true";
-
     button.addEventListener("click", checkoutViaWhatsApp);
   }
 
@@ -1887,7 +1777,6 @@
 
   function renderTrackResult(order) {
     const result = $("#trackResult");
-
     const notFound = $("#trackNotFound");
 
     if (!result) {
@@ -2001,7 +1890,6 @@
 
   function renderRecentOrders() {
     const container = $("#recentOrders");
-
     const list = container ? $("ul", container) : null;
 
     if (!container || !list) {
@@ -2064,7 +1952,6 @@
 
     if (!cleanId) {
       showToast("Enter your order reference.", "warn");
-
       return;
     }
 
@@ -2077,7 +1964,6 @@
     activeTrackUnsubscribe = null;
 
     const result = $("#trackResult");
-
     const notFound = $("#trackNotFound");
 
     if (notFound) {
@@ -2086,7 +1972,6 @@
 
     if (result) {
       result.hidden = false;
-
       result.innerHTML = `
         <div class="track-loading">
           Looking up ${escapeHtml(cleanId)}…
@@ -2096,14 +1981,12 @@
 
     try {
       const configured = Boolean(window.SLOrders?.isConfigured);
-
       const canSubscribe =
         typeof window.SLOrders?.subscribeOrder === "function";
 
       if (configured && canSubscribe) {
         activeTrackUnsubscribe = window.SLOrders.subscribeOrder(
           cleanId,
-
           (order) => {
             if (!order) {
               if (result) {
@@ -2122,7 +2005,6 @@
               id: order.id || cleanId,
             });
           },
-
           (error) => {
             console.error("[SneakersLink] Order tracking error:", error);
 
@@ -2181,7 +2063,6 @@
 
   function initTrackOrder() {
     const form = $("#trackForm") || $(".track-form");
-
     const input = $("#trackOrderId") || $("input", form || document);
 
     if (!form || !input) {
@@ -2193,7 +2074,6 @@
 
       form.addEventListener("submit", (event) => {
         event.preventDefault();
-
         trackOrder(input.value);
       });
     }
@@ -2211,12 +2091,8 @@
 
   function initHomeWelcome() {
     const welcome = document.getElementById("homeWelcome");
-
     const welcomeText = document.getElementById("homeWelcomeText");
 
-    /*
-     * This section only exists on index.html.
-     */
     if (!welcome || !welcomeText) {
       return;
     }
@@ -2242,9 +2118,7 @@
     function showWelcome(user) {
       if (!user) {
         welcome.hidden = true;
-
         welcome.classList.remove("is-visible");
-
         return;
       }
 
@@ -2252,9 +2126,7 @@
 
       if (!nickname) {
         welcome.hidden = true;
-
         welcome.classList.remove("is-visible");
-
         return;
       }
 
@@ -2363,23 +2235,15 @@
 
   window.SneakersLinkCart = {
     get: getCart,
-
     count: getCartCount,
-
     subtotal: getCartSubtotal,
-
     totals: getTotals,
-
     add: addToCart,
-
     remove: (id, size = "") => removeCartItem(id, size),
-
     updateQuantity: (id, size, quantity) =>
       updateCartQuantity(id, size, quantity),
-
     clear: () => {
       saveCart([]);
-
       renderCartPage();
     },
   };
@@ -2389,9 +2253,6 @@
      ========================================================= */
 
   function init() {
-    /*
-     * Prevent accidental double initialisation.
-     */
     if (appInitialised) {
       return;
     }
@@ -2399,45 +2260,22 @@
     appInitialised = true;
 
     initTheme();
-
     initAccountMenu();
-
     updateCartBadge();
-
     initMobileNavigation();
-
     initActiveNavigation();
-
     initNavbarScroll();
-
     initProductCards();
-
     initCartEvents();
-
     renderCartPage();
-
     initCoupon();
-
     initScrollReveal();
-
     initBackToTop();
-
     initNewsletter();
-
     initProductPage();
-
     initCheckout();
-
     initTrackOrder();
-
     initStorageSync();
-
-    /*
-     * IMPORTANT:
-     * This was missing in the original code.
-     * Without it, the personalized homepage
-     * greeting never initializes.
-     */
     initHomeWelcome();
   }
 
