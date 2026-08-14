@@ -28,47 +28,79 @@
 
     <!-- NAVIGATIOB BAR -->
 
-    <nav>
-        <!-- Menu Icon -->
-        <input type="checkbox" id="check">
-        <label for="check" class="navbutton">
+    <nav class="home-nav" aria-label="Main navigation">
+
+        <!-- Mobile menu -->
+        <input
+            type="checkbox"
+            id="check"
+            aria-label="Toggle navigation menu"
+        >
+
+        <label
+            for="check"
+            class="navbutton"
+            aria-label="Open navigation menu"
+        >
             <i class="fas fa-bars"></i>
         </label>
-        <!-- Shopping Cart Icon -->
-        <a href="cart.html" class="cart">
-            <i class="fa fa-shopping-bag"></i><span class="cart-count" data-cart-count>0</span></a>
-        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-            <i class="fas fa-moon"></i><i class="fas fa-sun"></i>
-        </button>
-        <!-- Account -->
-        <div class="account-area" id="accountArea">
-            <span class="account-guest-links" id="accountGuestLinks">
-                <a href="login.html?mode=login" class="account-text-link">Sign in</a>
-                <a href="login.html?mode=signup" class="account-text-link account-text-link--primary">Sign up</a>
-            </span>
-            <div class="account-menu" id="accountMenu" hidden>
-                <button type="button" class="account-toggle" id="accountToggle" aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
-                    <i class="fas fa-user"></i>
-                </button>
-                <div class="account-dropdown" id="accountDropdown">
-                    <p class="account-dropdown-email" id="accountDropdownEmail"></p>
-                    <a href="profile.html" class="account-dropdown-link"><i class="fas fa-user"></i> My Profile</a>
-                    <a href="track-order.html" class="account-dropdown-link"><i class="fas fa-truck"></i> Track Order</a>
-                    <button type="button" class="account-dropdown-link" id="accountThemeToggle"><i class="fas fa-moon"></i> <span id="accountThemeLabel">Dark Mode</span></button>
-                    <button type="button" class="account-dropdown-link account-dropdown-link--danger" id="accountSignOutBtn"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+
+        <div class="nav-actions">
+
+            <!-- Shopping cart -->
+            <a
+                href="cart.html"
+                class="cart"
+                aria-label="Shopping cart"
+            >
+                <i class="fas fa-shopping-bag"></i>
+                <span
+                    class="cart-count"
+                    data-cart-count
+                    aria-hidden="true"
+                >0</span>
+            </a>
+
+            <!-- Account -->
+            <div class="account-area" id="accountArea">
+                <span class="account-guest-links" id="accountGuestLinks">
+                    <a href="login.html?mode=login" class="account-text-link">Sign in</a>
+                    <a href="login.html?mode=signup" class="account-text-link account-text-link--primary">Sign up</a>
+                </span>
+                <div class="account-menu" id="accountMenu" hidden>
+                    <button type="button" class="account-toggle" id="accountToggle" aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div class="account-dropdown" id="accountDropdown">
+                        <p class="account-dropdown-email" id="accountDropdownEmail"></p>
+                        <a href="profile.html" class="account-dropdown-link"><i class="fas fa-user"></i> My Profile</a>
+                        <a href="track-order.html" class="account-dropdown-link"><i class="fas fa-truck"></i> Track Order</a>
+                        <button type="button" class="account-dropdown-link" id="accountThemeToggle"><i class="fas fa-moon"></i> <span id="accountThemeLabel">Dark Mode</span></button>
+                        <button type="button" class="account-dropdown-link account-dropdown-link--danger" id="accountSignOutBtn"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+                    </div>
                 </div>
             </div>
+
         </div>
 
+        <!-- Logo -->
+        <a
+            href="index.html"
+            class="logo nav-logo"
+            aria-label="SneakersLink home"
+        >
+            Sneakers<span>Link</span>
+        </a>
 
-        <label class="logo">Sneakers<span>Link</span></label>
+        <!-- Menu -->
         <ul id="navbar">
-            <li><a href="index.html">Home</a></li>
+                        <li><a href="index.html">Home</a></li>
             <li><a href="shop.html">Shop</a></li>
             <li><a href="blog.html">Blog</a></li>
-            <li><a class= "active" href="about.html">About</a></li>
+            <li><a class="active" href="about.html" aria-current="page">About</a></li>
             <li><a href="contact.html">Contact</a></li>
-    </ul>
+        </ul>
+
     </nav>
 
     <!-- HEADLINE -->

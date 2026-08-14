@@ -364,10 +364,6 @@ nav ul a:hover::after {
   color: var(--brand);
 }
 
-#sneakers1 .pro .cart, #sneakers2 .pro .cart {
-  font-size: 15px;
-}
-
 /* OFFER BANNER */
 #banner {
   display: flex;
@@ -1696,6 +1692,9 @@ nav ul a:hover::after {
 }
 
 .add-cart-btn i {
+  font-size: 15px;
+  line-height: 1;
+  color: currentColor;
   transition: color 0.2s var(--ease);
 }
 
