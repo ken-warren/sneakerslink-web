@@ -48,7 +48,7 @@
     <!-- =========================================================
          NAVIGATION
          ========================================================= -->
-    <nav aria-label="Main navigation">
+    <nav class="home-nav" aria-label="Main navigation">
 
         <!-- Mobile menu -->
         <input
@@ -65,6 +65,8 @@
             <i class="fas fa-bars"></i>
         </label>
 
+        <div class="nav-actions">
+
         <!-- Shopping cart -->
         <a
             href="cart.html"
@@ -79,17 +81,6 @@
             >0</span>
         </a>
 
-        <!-- Theme toggle -->
-        <button
-            type="button"
-            class="theme-toggle"
-            id="themeToggle"
-            aria-label="Toggle dark mode"
-            title="Toggle dark mode"
-        >
-            <i class="fas fa-moon" aria-hidden="true"></i>
-            <i class="fas fa-sun" aria-hidden="true"></i>
-        </button>
         <!-- Account -->
         <div class="account-area" id="accountArea">
             <span class="account-guest-links" id="accountGuestLinks">
@@ -110,11 +101,12 @@
             </div>
         </div>
 
+        </div>
 
         <!-- Logo -->
         <a
             href="index.html"
-            class="logo"
+            class="logo nav-logo"
             aria-label="SneakersLink home"
         >
             Sneakers<span>Link</span>
