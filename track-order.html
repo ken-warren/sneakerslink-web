@@ -1774,72 +1774,133 @@
     </main>
 
 
-    <!-- =========================================================
-         FOOTER
-         ========================================================= -->
+    <footer class="site-footer">
 
-    <footer class="section-p1">
+    <div class="footer-main">
 
-        <div class="col">
+        <!-- =====================================================
+             BRAND / CONTACT
+             ===================================================== -->
 
-            <img
-                class="logo"
-                src="img/logo.png"
-                alt="SneakersLink logo"
-                loading="lazy"
+        <div class="footer-brand">
+
+            <a
+                href="index.html"
+                class="footer-logo"
+                aria-label="SneakersLink home"
             >
+                Sneakers<span>Link</span>
+            </a>
 
-            <h4>Contact</h4>
-
-            <p>
-                <strong>Location:</strong>
-                Dubai Merchant Mall - Nairobi, Kenya
+            <p class="footer-tagline">
+                Your plug for premium sneakers in Kenya.
             </p>
 
-            <p>
-                <strong>Phone:</strong>
-                +254 768 372955 / +254 114 141830
-            </p>
+            <div class="footer-contact">
 
-            <p>
-                <strong>Email:</strong>
-                sneakerslink254@gmail.com
-            </p>
+                <a href="tel:+254768372955">
+                    <i class="fas fa-phone-alt" aria-hidden="true"></i>
+                    <span>+254 768 372955</span>
+                </a>
 
-            <p>
-                <strong>Hours:</strong>
-                10:00 a.m - 6:00 p.m, Mon - Sat
-            </p>
+                <a href="mailto:sneakerslink254@gmail.com">
+                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                    <span>sneakerslink254@gmail.com</span>
+                </a>
+
+                <span>
+                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                    <span>Nairobi, Kenya</span>
+                </span>
+
+            </div>
 
 
-            <div class="socials">
+            <!-- SOCIALS -->
 
-                <h4>Follow Us</h4>
+            <div class="footer-socials">
 
-                <div class="icon">
+                <a
+                    href="#"
+                    aria-label="SneakersLink Facebook"
+                    title="Facebook"
+                >
+                    <i class="fab fa-facebook-f"></i>
+                </a>
 
-                    <a href="#" aria-label="Facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
+                <a
+                    href="#"
+                    aria-label="SneakersLink Instagram"
+                    title="Instagram"
+                >
+                    <i class="fab fa-instagram"></i>
+                </a>
 
-                    <a href="#" aria-label="Instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
+                <a
+                    href="#"
+                    aria-label="SneakersLink TikTok"
+                    title="TikTok"
+                >
+                    <i class="fab fa-tiktok"></i>
+                </a>
 
-                    <a href="#" aria-label="TikTok">
-                        <i class="fab fa-tiktok"></i>
-                    </a>
-
-                </div>
+                <a
+                    href="https://wa.me/254768372955"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="SneakersLink WhatsApp"
+                    title="WhatsApp"
+                >
+                    <i class="fab fa-whatsapp"></i>
+                </a>
 
             </div>
 
         </div>
 
 
-        <div class="col">
+        <!-- =====================================================
+             SHOP
+             ===================================================== -->
 
-            <h4>About</h4>
+        <div class="footer-column">
+
+            <h4>
+                Shop
+            </h4>
+
+            <a href="shop.html">
+                All Sneakers
+            </a>
+
+            <a href="shop.html">
+                Adidas Samba
+            </a>
+
+            <a href="shop.html">
+                Adidas Campus
+            </a>
+
+            <a href="shop.html">
+                New Arrivals
+            </a>
+
+            <a href="shop.html">
+                Special Offers
+            </a>
+
+        </div>
+
+
+        <!-- =====================================================
+             INFORMATION
+             ===================================================== -->
+
+        <div class="footer-column">
+
+            <h4>
+                Information
+            </h4>
 
             <a href="about.html">
                 About Us
@@ -1854,7 +1915,7 @@
             </a>
 
             <a href="#">
-                Terms & Conditions
+                Terms &amp; Conditions
             </a>
 
             <a href="contact.html">
@@ -1864,45 +1925,60 @@
         </div>
 
 
-        <div class="col">
+        <!-- =====================================================
+             ACCOUNT / SUPPORT
+             ===================================================== -->
 
-            <h4>My Account</h4>
+        <div class="footer-column">
 
-            <a href="login.html">
+            <h4>
+                My Account
+            </h4>
+
+            <a
+                href="login.html"
+                id="footerLoginLink"
+            >
                 Sign In
+            </a>
+
+            <a
+                href="profile.html"
+                id="footerProfileLink"
+            >
+                My Profile
             </a>
 
             <a href="cart.html">
                 My Cart
             </a>
 
-            <a href="#">
-                My Wishlist
-            </a>
-
-            <a
-                href="track-order.html"
-                class="active"
-            >
+            <a href="track-order.html">
                 Track My Order
             </a>
 
-            <a href="#">
-                Help
+            <a href="contact.html">
+                Help &amp; Support
             </a>
 
         </div>
 
 
-        <div class="col install">
+        <!-- =====================================================
+             APP / PAYMENT
+             ===================================================== -->
 
-            <h4>Install App</h4>
+        <div class="footer-column footer-app">
+
+            <h4>
+                Get the App
+            </h4>
 
             <p>
-                From App Store or Google Play
+                Shop SneakersLink wherever you go.
             </p>
 
-            <div class="row">
+            <div class="footer-app-links">
 
                 <img
                     src="img/pay/app.jpg"
@@ -1918,30 +1994,51 @@
 
             </div>
 
-            <p>
-                Secure Payment Options
-            </p>
+            <span class="payment-label">
+                Secure payments
+            </span>
 
             <img
+                class="mpesa-logo"
                 src="img/pay/mpesa2.png"
-                alt="M-Pesa accepted here"
+                alt="M-Pesa accepted"
                 loading="lazy"
             >
 
         </div>
 
+    </div>
 
-        <div class="copyright">
 
-            <p>
-                <strong>
-                    SneakersLink ©, 2024 | All Rights Reserved
-                </strong>
-            </p>
+    <!-- =========================================================
+         FOOTER BOTTOM
+         ========================================================= -->
+
+    <div class="footer-bottom">
+
+        <p>
+            © 2024 SneakersLink. All rights reserved.
+        </p>
+
+        <div class="footer-bottom-links">
+
+            <a href="#">
+                Privacy
+            </a>
+
+            <a href="#">
+                Terms
+            </a>
+
+            <a href="contact.html">
+                Contact
+            </a>
 
         </div>
 
-    </footer>
+    </div>
+
+</footer>
 
 
     <!-- =========================================================
