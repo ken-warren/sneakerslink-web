@@ -3,13 +3,16 @@
   <head>
     <meta charset="UTF-8" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
 
     <title>My Profile — SneakersLink</title>
 
     <meta
       name="description"
-      content="Manage your SneakersLink Account."
+      content="Manage your SneakersLink customer profile."
     />
 
     <!-- =========================================================
@@ -27,7 +30,11 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
 
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
@@ -36,47 +43,57 @@
 
     <!-- =========================================================
          PREVENT THEME FLASH
-         ---------------------------------------------------------
-         Supports both:
-             sl-theme
-             sl_theme
-
-         sl-theme is preferred because it matches the newer
-         SneakersLink theme convention.
          ========================================================= -->
 
     <script>
       (function () {
         try {
-          const themeKeys = ["sl-theme", "sl_theme"];
+          const themeKeys = [
+            "sl-theme",
+            "sl_theme",
+          ];
 
           let savedTheme = null;
 
           for (const key of themeKeys) {
-            const value = localStorage.getItem(key);
+            const value =
+              localStorage.getItem(key);
 
-            if (value === "dark" || value === "light") {
+            if (
+              value === "dark" ||
+              value === "light"
+            ) {
               savedTheme = value;
               break;
             }
           }
 
           if (savedTheme) {
-            document.documentElement.setAttribute("data-theme", savedTheme);
+            document.documentElement.setAttribute(
+              "data-theme",
+              savedTheme,
+            );
 
             return;
           }
 
           const prefersDark =
             window.matchMedia &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches;
+            window.matchMedia(
+              "(prefers-color-scheme: dark)",
+            ).matches;
 
           document.documentElement.setAttribute(
             "data-theme",
-            prefersDark ? "dark" : "light",
+            prefersDark
+              ? "dark"
+              : "light",
           );
         } catch (error) {
-          document.documentElement.setAttribute("data-theme", "light");
+          document.documentElement.setAttribute(
+            "data-theme",
+            "light",
+          );
         }
       })();
     </script>
@@ -86,65 +103,33 @@
          ========================================================= -->
 
     <style>
-      /* =====================================================
-           VARIABLES
-           ===================================================== */
-
       :root {
         --sl-bg: #f7f7f8;
-
         --sl-surface: #ffffff;
-
         --sl-surface-soft: #f3f4f6;
-
         --sl-text: #111111;
-
         --sl-text-secondary: #6b7280;
-
         --sl-border: #e5e7eb;
-
         --sl-primary: #111111;
-
         --sl-primary-text: #ffffff;
-
         --sl-danger: #dc2626;
-
         --sl-success: #16a34a;
-
         --sl-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
-
         --sl-radius: 20px;
-
         --sl-transition: 0.25s ease;
       }
 
-      /* =====================================================
-           DARK THEME
-           ===================================================== */
-
       html[data-theme="dark"] {
         --sl-bg: #0d0f12;
-
         --sl-surface: #15181d;
-
         --sl-surface-soft: #1d2128;
-
         --sl-text: #f5f5f5;
-
         --sl-text-secondary: #a5abb5;
-
         --sl-border: #2a2f38;
-
         --sl-primary: #ffffff;
-
         --sl-primary-text: #111111;
-
         --sl-shadow: 0 15px 45px rgba(0, 0, 0, 0.35);
       }
-
-      /* =====================================================
-           RESET
-           ===================================================== */
 
       * {
         margin: 0;
@@ -158,9 +143,7 @@
 
       body {
         min-height: 100vh;
-
         background: var(--sl-bg);
-
         color: var(--sl-text);
 
         font-family:
@@ -190,18 +173,15 @@
       }
 
       /* =====================================================
-           PAGE HEADER
-           ===================================================== */
+         HEADER
+         ===================================================== */
 
       .profile-header {
         width: 100%;
-
         height: 76px;
 
         display: flex;
-
         align-items: center;
-
         justify-content: space-between;
 
         padding: 0 32px;
@@ -211,9 +191,7 @@
         border-bottom: 1px solid var(--sl-border);
 
         position: sticky;
-
         top: 0;
-
         z-index: 100;
 
         transition:
@@ -221,29 +199,20 @@
           border-color var(--sl-transition);
       }
 
-      /* =====================================================
-           BACK BUTTON
-           ===================================================== */
-
       .profile-back {
         display: inline-flex;
-
         align-items: center;
-
         gap: 9px;
 
         padding: 10px 15px;
 
         border: 1px solid var(--sl-border);
-
         border-radius: 12px;
 
         background: var(--sl-surface);
-
         color: var(--sl-text);
 
         font-size: 14px;
-
         font-weight: 500;
 
         transition: all var(--sl-transition);
@@ -251,7 +220,6 @@
 
       .profile-back:hover {
         background: var(--sl-surface-soft);
-
         transform: translateX(-2px);
       }
 
@@ -259,27 +227,18 @@
         font-size: 13px;
       }
 
-      /* =====================================================
-           HEADER PROFILE ICON
-           ===================================================== */
-
       .header-profile-button {
         width: 44px;
-
         height: 44px;
 
         border: 1px solid var(--sl-border);
-
         border-radius: 50%;
 
         background: var(--sl-surface-soft);
-
         color: var(--sl-text);
 
         display: flex;
-
         align-items: center;
-
         justify-content: center;
 
         overflow: hidden;
@@ -289,17 +248,13 @@
 
       .header-profile-button:hover {
         transform: translateY(-1px);
-
         border-color: var(--sl-text);
       }
 
       .header-profile-button img {
         width: 100%;
-
         height: 100%;
-
         object-fit: cover;
-
         display: none;
       }
 
@@ -312,22 +267,17 @@
       }
 
       /* =====================================================
-           MAIN
-           ===================================================== */
+         MAIN
+         ===================================================== */
 
       .profile-page {
         width: 100%;
-
         max-width: 1080px;
 
         margin: 0 auto;
 
         padding: 45px 24px 70px;
       }
-
-      /* =====================================================
-           PAGE INTRO
-           ===================================================== */
 
       .profile-intro {
         margin-bottom: 30px;
@@ -354,8 +304,8 @@
       }
 
       /* =====================================================
-           PROFILE CARD
-           ===================================================== */
+         CARD
+         ===================================================== */
 
       .profile-card {
         background: var(--sl-surface);
@@ -374,8 +324,8 @@
       }
 
       /* =====================================================
-           PROFILE HERO
-           ===================================================== */
+         HERO
+         ===================================================== */
 
       .profile-hero {
         padding: 32px;
@@ -389,10 +339,6 @@
         border-bottom: 1px solid var(--sl-border);
       }
 
-      /* =====================================================
-           AVATAR
-           ===================================================== */
-
       .profile-avatar-wrapper {
         position: relative;
 
@@ -401,7 +347,6 @@
 
       .profile-avatar {
         width: 112px;
-
         height: 112px;
 
         border-radius: 50%;
@@ -425,7 +370,6 @@
 
       .profile-avatar img {
         width: 100%;
-
         height: 100%;
 
         object-fit: cover;
@@ -441,19 +385,13 @@
         display: none;
       }
 
-      /* =====================================================
-           AVATAR EDIT BUTTON
-           ===================================================== */
-
       .avatar-edit-button {
         position: absolute;
 
         right: 2px;
-
         bottom: 2px;
 
         width: 34px;
-
         height: 34px;
 
         border: 3px solid var(--sl-surface);
@@ -480,10 +418,6 @@
       .avatar-edit-button i {
         font-size: 13px;
       }
-
-      /* =====================================================
-           PROFILE SUMMARY
-           ===================================================== */
 
       .profile-summary {
         min-width: 0;
@@ -538,8 +472,8 @@
       }
 
       /* =====================================================
-           FORM AREA
-           ===================================================== */
+         FORM
+         ===================================================== */
 
       .profile-form {
         padding: 32px;
@@ -563,14 +497,14 @@
         font-size: 12px;
       }
 
-      /* =====================================================
-           FORM GRID
-           ===================================================== */
-
       .form-grid {
         display: grid;
 
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns:
+          repeat(
+            2,
+            minmax(0, 1fr)
+          );
 
         gap: 20px;
       }
@@ -624,7 +558,9 @@
       .form-input:focus {
         border-color: var(--sl-text);
 
-        box-shadow: 0 0 0 3px rgba(128, 128, 128, 0.12);
+        box-shadow:
+          0 0 0 3px
+          rgba(128, 128, 128, 0.12);
       }
 
       .form-input:disabled {
@@ -636,8 +572,8 @@
       }
 
       /* =====================================================
-           ACTIONS
-           ===================================================== */
+         ACTIONS
+         ===================================================== */
 
       .profile-actions {
         margin-top: 30px;
@@ -718,11 +654,13 @@
 
         color: var(--sl-danger);
 
-        border-color: rgba(220, 38, 38, 0.25);
+        border-color:
+          rgba(220, 38, 38, 0.25);
       }
 
       .button-danger:hover {
-        background: rgba(220, 38, 38, 0.08);
+        background:
+          rgba(220, 38, 38, 0.08);
       }
 
       .button:disabled {
@@ -734,8 +672,8 @@
       }
 
       /* =====================================================
-           STATUS MESSAGE
-           ===================================================== */
+         MESSAGE
+         ===================================================== */
 
       .profile-message {
         display: none;
@@ -760,20 +698,22 @@
       }
 
       .profile-message.success {
-        background: rgba(22, 163, 74, 0.1);
+        background:
+          rgba(22, 163, 74, 0.1);
 
         color: var(--sl-success);
       }
 
       .profile-message.error {
-        background: rgba(220, 38, 38, 0.1);
+        background:
+          rgba(220, 38, 38, 0.1);
 
         color: var(--sl-danger);
       }
 
       /* =====================================================
-           LOADING
-           ===================================================== */
+         LOADING
+         ===================================================== */
 
       .profile-loading {
         min-height: 400px;
@@ -804,7 +744,11 @@
 
         border-radius: 50%;
 
-        animation: profileSpin 0.8s linear infinite;
+        animation:
+          profileSpin
+          0.8s
+          linear
+          infinite;
       }
 
       @keyframes profileSpin {
@@ -814,8 +758,8 @@
       }
 
       /* =====================================================
-           ERROR STATE
-           ===================================================== */
+         ERROR
+         ===================================================== */
 
       .profile-error {
         display: none;
@@ -838,7 +782,8 @@
 
         border-radius: 50%;
 
-        background: rgba(220, 38, 38, 0.1);
+        background:
+          rgba(220, 38, 38, 0.1);
 
         color: var(--sl-danger);
 
@@ -869,17 +814,9 @@
         line-height: 1.6;
       }
 
-      /* =====================================================
-           HIDDEN FILE INPUT
-           ===================================================== */
-
       #avatarFileInput {
         display: none;
       }
-
-      /* =====================================================
-           FOOTER
-           ===================================================== */
 
       .profile-footer {
         text-align: center;
@@ -892,8 +829,8 @@
       }
 
       /* =====================================================
-           MOBILE
-           ===================================================== */
+         MOBILE
+         ===================================================== */
 
       @media (max-width: 700px) {
         .profile-header {
@@ -977,10 +914,6 @@
         }
       }
 
-      /* =====================================================
-           SMALL MOBILE
-           ===================================================== */
-
       @media (max-width: 400px) {
         .profile-page {
           padding-left: 10px;
@@ -1025,9 +958,12 @@
         id="backButton"
         aria-label="Go back"
       >
-        <i class="fas fa-arrow-left" aria-hidden="true"></i>
+        <i
+          class="fas fa-arrow-left"
+          aria-hidden="true"
+        ></i>
 
-        <span> Back </span>
+        <span>Back</span>
       </button>
 
       <button
@@ -1036,11 +972,19 @@
         id="headerProfileButton"
         aria-label="Profile"
       >
-        <i class="fas fa-user" aria-hidden="true"></i>
+        <i
+          class="fas fa-user"
+          aria-hidden="true"
+        ></i>
 
-        <img id="headerProfileImage" src="" alt="" />
+        <img
+          id="headerProfileImage"
+          src=""
+          alt=""
+        />
       </button>
     </header>
+
 
     <!-- =========================================================
          MAIN
@@ -1050,53 +994,98 @@
       <div class="profile-intro">
         <h1>My Profile</h1>
 
-        <p>Manage your SneakerLink Account.</p>
+        <p>
+          Manage your personal information
+          and profile photo.
+        </p>
       </div>
 
       <section class="profile-card">
-        <!-- =================================================
-                 LOADING STATE
-                 ================================================= -->
 
-        <div class="profile-loading" id="profileLoading">
-          <div class="loading-spinner" aria-hidden="true"></div>
+        <!-- =====================================================
+             LOADING
+             ===================================================== -->
 
-          <span id="loadingText"> Loading your profile... </span>
+        <div
+          class="profile-loading"
+          id="profileLoading"
+        >
+          <div
+            class="loading-spinner"
+            aria-hidden="true"
+          ></div>
+
+          <span id="loadingText">
+            Loading your profile...
+          </span>
         </div>
 
-        <!-- =================================================
-                 ERROR STATE
-                 ================================================= -->
 
-        <div class="profile-error" id="profileError">
+        <!-- =====================================================
+             ERROR
+             ===================================================== -->
+
+        <div
+          class="profile-error"
+          id="profileError"
+        >
           <div class="profile-error-icon">
-            <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+            <i
+              class="fas fa-circle-exclamation"
+              aria-hidden="true"
+            ></i>
           </div>
 
-          <h2>Unable to load profile</h2>
+          <h2>
+            Unable to load profile
+          </h2>
 
-          <p id="profileErrorText">We couldn't load your profile.</p>
+          <p id="profileErrorText">
+            We couldn't load your profile.
+          </p>
 
-          <a href="login.html?mode=login" class="button button-primary">
-            <i class="fas fa-right-to-bracket" aria-hidden="true"></i>
+          <a
+            href="login.html?mode=login"
+            class="button button-primary"
+          >
+            <i
+              class="fas fa-right-to-bracket"
+              aria-hidden="true"
+            ></i>
 
             Sign In
           </a>
         </div>
 
-        <!-- =================================================
-                 PROFILE CONTENT
-                 ================================================= -->
 
-        <div id="profileContent" hidden>
+        <!-- =====================================================
+             PROFILE CONTENT
+             ===================================================== -->
+
+        <div
+          id="profileContent"
+          hidden
+        >
+
           <div class="profile-hero">
+
             <!-- Avatar -->
 
             <div class="profile-avatar-wrapper">
-              <div class="profile-avatar" id="profileAvatar">
-                <i class="fas fa-user" aria-hidden="true"></i>
+              <div
+                class="profile-avatar"
+                id="profileAvatar"
+              >
+                <i
+                  class="fas fa-user"
+                  aria-hidden="true"
+                ></i>
 
-                <img id="profileAvatarImage" src="" alt="Profile photo" />
+                <img
+                  id="profileAvatarImage"
+                  src=""
+                  alt="Profile photo"
+                />
               </div>
 
               <button
@@ -1106,52 +1095,89 @@
                 aria-label="Change profile photo"
                 title="Change profile photo"
               >
-                <i class="fas fa-camera" aria-hidden="true"></i>
+                <i
+                  class="fas fa-camera"
+                  aria-hidden="true"
+                ></i>
               </button>
             </div>
+
 
             <!-- Summary -->
 
             <div class="profile-summary">
-              <h2 id="profileName">Profile</h2>
+              <h2 id="profileName">
+                Profile
+              </h2>
 
-              <p id="profileEmail">—</p>
+              <p id="profileEmail">
+                —
+              </p>
 
-              <span class="profile-status" id="profileStatus">
-                <i class="fas fa-circle" aria-hidden="true"></i>
+              <span
+                class="profile-status"
+                id="profileStatus"
+              >
+                <i
+                  class="fas fa-circle"
+                  aria-hidden="true"
+                ></i>
 
                 Account active
               </span>
             </div>
           </div>
 
-          <!-- =================================================
-                     FORM
-                     ================================================= -->
 
-          <form class="profile-form" id="profileForm" novalidate>
+          <!-- ===================================================
+               FORM
+               =================================================== -->
+
+          <form
+            class="profile-form"
+            id="profileForm"
+            novalidate
+          >
+
             <div
               class="profile-message"
               id="profileMessage"
               role="status"
               aria-live="polite"
             >
-              <i class="fas fa-circle-check" aria-hidden="true"></i>
+              <i
+                class="fas fa-circle-check"
+                aria-hidden="true"
+              ></i>
 
-              <span id="profileMessageText"></span>
+              <span
+                id="profileMessageText"
+              ></span>
             </div>
+
 
             <div class="section-heading">
-              <h3>Personal Information</h3>
+              <h3>
+                Personal Information
+              </h3>
 
-              <p>Keep your customer details up to date.</p>
+              <p>
+                Keep your customer details up to date.
+              </p>
             </div>
 
+
             <div class="form-grid">
+
               <!-- Name -->
 
               <div class="form-group">
-                <label class="form-label" for="displayName"> Full Name </label>
+                <label
+                  class="form-label"
+                  for="displayName"
+                >
+                  Full Name
+                </label>
 
                 <input
                   type="text"
@@ -1163,10 +1189,16 @@
                 />
               </div>
 
+
               <!-- Email -->
 
               <div class="form-group">
-                <label class="form-label" for="email"> Email Address </label>
+                <label
+                  class="form-label"
+                  for="email"
+                >
+                  Email Address
+                </label>
 
                 <input
                   type="email"
@@ -1179,10 +1211,16 @@
                 />
               </div>
 
+
               <!-- Phone -->
 
               <div class="form-group">
-                <label class="form-label" for="phone"> Phone Number </label>
+                <label
+                  class="form-label"
+                  for="phone"
+                >
+                  Phone Number
+                </label>
 
                 <input
                   type="tel"
@@ -1194,10 +1232,16 @@
                 />
               </div>
 
+
               <!-- Country -->
 
               <div class="form-group">
-                <label class="form-label" for="country"> Country </label>
+                <label
+                  class="form-label"
+                  for="country"
+                >
+                  Country
+                </label>
 
                 <input
                   type="text"
@@ -1209,10 +1253,16 @@
                 />
               </div>
 
+
               <!-- Address -->
 
               <div class="form-group full-width">
-                <label class="form-label" for="address"> Address </label>
+                <label
+                  class="form-label"
+                  for="address"
+                >
+                  Address
+                </label>
 
                 <input
                   type="text"
@@ -1224,10 +1274,16 @@
                 />
               </div>
 
+
               <!-- City -->
 
               <div class="form-group">
-                <label class="form-label" for="city"> City </label>
+                <label
+                  class="form-label"
+                  for="city"
+                >
+                  City
+                </label>
 
                 <input
                   type="text"
@@ -1239,10 +1295,16 @@
                 />
               </div>
 
+
               <!-- Postal Code -->
 
               <div class="form-group">
-                <label class="form-label" for="postalCode"> Postal Code </label>
+                <label
+                  class="form-label"
+                  for="postalCode"
+                >
+                  Postal Code
+                </label>
 
                 <input
                   type="text"
@@ -1253,23 +1315,31 @@
                   autocomplete="postal-code"
                 />
               </div>
+
             </div>
 
+
             <!-- =================================================
-                         ACTIONS
-                         ================================================= -->
+                 ACTIONS
+                 ================================================= -->
 
             <div class="profile-actions">
+
               <div class="avatar-actions">
+
                 <button
                   type="button"
                   class="button button-secondary"
                   id="changePhotoButton"
                 >
-                  <i class="fas fa-camera" aria-hidden="true"></i>
+                  <i
+                    class="fas fa-camera"
+                    aria-hidden="true"
+                  ></i>
 
                   Change Photo
                 </button>
+
 
                 <button
                   type="button"
@@ -1277,28 +1347,45 @@
                   id="removePhotoButton"
                   style="display: none"
                 >
-                  <i class="fas fa-trash" aria-hidden="true"></i>
+                  <i
+                    class="fas fa-trash"
+                    aria-hidden="true"
+                  ></i>
 
                   Remove
                 </button>
+
               </div>
+
 
               <button
                 type="submit"
                 class="button button-primary save-button"
                 id="saveProfileButton"
               >
-                <i class="fas fa-check" aria-hidden="true"></i>
+                <i
+                  class="fas fa-check"
+                  aria-hidden="true"
+                ></i>
 
                 Save Changes
               </button>
+
             </div>
+
           </form>
+
         </div>
+
       </section>
 
-      <div class="profile-footer">SneakersLink</div>
+
+      <div class="profile-footer">
+        SneakersLink
+      </div>
+
     </main>
+
 
     <!-- =========================================================
          HIDDEN FILE INPUT
@@ -1310,11 +1397,16 @@
       accept="image/jpeg,image/png,image/webp,image/gif"
     />
 
+
     <!-- =========================================================
          FIREBASE PROFILE ENGINE
          ========================================================= -->
 
-    <script type="module" src="./firebase-profile.js"></script>
+    <script
+      type="module"
+      src="./firebase-profile.js"
+    ></script>
+
 
     <!-- =========================================================
          PROFILE PAGE ENGINE
@@ -1324,71 +1416,150 @@
       (() => {
         "use strict";
 
-        /* =================================================
-               ELEMENTS
-               ================================================= */
 
-        const loading = document.getElementById("profileLoading");
+        /* =====================================================
+           ELEMENTS
+           ===================================================== */
 
-        const loadingText = document.getElementById("loadingText");
+        const loading =
+          document.getElementById(
+            "profileLoading",
+          );
 
-        const errorState = document.getElementById("profileError");
+        const loadingText =
+          document.getElementById(
+            "loadingText",
+          );
 
-        const errorText = document.getElementById("profileErrorText");
+        const errorState =
+          document.getElementById(
+            "profileError",
+          );
 
-        const content = document.getElementById("profileContent");
+        const errorText =
+          document.getElementById(
+            "profileErrorText",
+          );
 
-        const profileForm = document.getElementById("profileForm");
+        const content =
+          document.getElementById(
+            "profileContent",
+          );
 
-        const profileName = document.getElementById("profileName");
+        const profileForm =
+          document.getElementById(
+            "profileForm",
+          );
 
-        const profileEmail = document.getElementById("profileEmail");
+        const profileName =
+          document.getElementById(
+            "profileName",
+          );
 
-        const emailInput = document.getElementById("email");
+        const profileEmail =
+          document.getElementById(
+            "profileEmail",
+          );
 
-        const displayNameInput = document.getElementById("displayName");
+        const emailInput =
+          document.getElementById(
+            "email",
+          );
 
-        const phoneInput = document.getElementById("phone");
+        const displayNameInput =
+          document.getElementById(
+            "displayName",
+          );
 
-        const addressInput = document.getElementById("address");
+        const phoneInput =
+          document.getElementById(
+            "phone",
+          );
 
-        const cityInput = document.getElementById("city");
+        const addressInput =
+          document.getElementById(
+            "address",
+          );
 
-        const postalCodeInput = document.getElementById("postalCode");
+        const cityInput =
+          document.getElementById(
+            "city",
+          );
 
-        const countryInput = document.getElementById("country");
+        const postalCodeInput =
+          document.getElementById(
+            "postalCode",
+          );
 
-        const profileAvatar = document.getElementById("profileAvatar");
+        const countryInput =
+          document.getElementById(
+            "country",
+          );
+
+        const profileAvatar =
+          document.getElementById(
+            "profileAvatar",
+          );
 
         const profileAvatarImage =
-          document.getElementById("profileAvatarImage");
+          document.getElementById(
+            "profileAvatarImage",
+          );
 
-        const headerProfileButton = document.getElementById(
-          "headerProfileButton",
-        );
+        const headerProfileButton =
+          document.getElementById(
+            "headerProfileButton",
+          );
 
         const headerProfileImage =
-          document.getElementById("headerProfileImage");
+          document.getElementById(
+            "headerProfileImage",
+          );
 
-        const avatarFileInput = document.getElementById("avatarFileInput");
+        const avatarFileInput =
+          document.getElementById(
+            "avatarFileInput",
+          );
 
-        const avatarEditButton = document.getElementById("avatarEditButton");
+        const avatarEditButton =
+          document.getElementById(
+            "avatarEditButton",
+          );
 
-        const changePhotoButton = document.getElementById("changePhotoButton");
+        const changePhotoButton =
+          document.getElementById(
+            "changePhotoButton",
+          );
 
-        const removePhotoButton = document.getElementById("removePhotoButton");
+        const removePhotoButton =
+          document.getElementById(
+            "removePhotoButton",
+          );
 
-        const saveButton = document.getElementById("saveProfileButton");
+        const saveButton =
+          document.getElementById(
+            "saveProfileButton",
+          );
 
-        const message = document.getElementById("profileMessage");
+        const message =
+          document.getElementById(
+            "profileMessage",
+          );
 
-        const messageText = document.getElementById("profileMessageText");
+        const messageText =
+          document.getElementById(
+            "profileMessageText",
+          );
 
-        const backButton = document.getElementById("backButton");
+        const backButton =
+          document.getElementById(
+            "backButton",
+          );
 
-        /* =================================================
-               STATE
-               ================================================= */
+
+        /* =====================================================
+           STATE
+           ===================================================== */
 
         let currentProfile = null;
 
@@ -1398,761 +1569,1214 @@
 
         let messageTimeout = null;
 
-        /* =================================================
-               THEME
-               -------------------------------------------------
-               Supports BOTH historical SneakersLink keys:
-                   sl-theme
-                   sl_theme
-               ================================================= */
+
+        /* =====================================================
+           THEME
+           ===================================================== */
 
         function getSavedTheme() {
           try {
-            const preferred = localStorage.getItem("sl-theme");
+            const preferred =
+              localStorage.getItem(
+                "sl-theme",
+              );
 
-            if (preferred === "dark" || preferred === "light") {
+            if (
+              preferred === "dark" ||
+              preferred === "light"
+            ) {
               return preferred;
             }
 
-            const legacy = localStorage.getItem("sl_theme");
+            const legacy =
+              localStorage.getItem(
+                "sl_theme",
+              );
 
-            if (legacy === "dark" || legacy === "light") {
+            if (
+              legacy === "dark" ||
+              legacy === "light"
+            ) {
               return legacy;
             }
           } catch (error) {
-            console.warn("Unable to read saved theme.", error);
+            console.warn(
+              "Unable to read saved theme.",
+              error,
+            );
           }
 
           return null;
         }
 
+
         function applyTheme(theme) {
-          if (theme !== "dark" && theme !== "light") {
+          if (
+            theme !== "dark" &&
+            theme !== "light"
+          ) {
             return;
           }
 
-          document.documentElement.setAttribute("data-theme", theme);
+          document.documentElement.setAttribute(
+            "data-theme",
+            theme,
+          );
         }
 
+
         function initialiseTheme() {
-          const savedTheme = getSavedTheme();
+          const savedTheme =
+            getSavedTheme();
 
           if (savedTheme) {
             applyTheme(savedTheme);
-
             return;
           }
 
           const prefersDark =
             window.matchMedia &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches;
+            window.matchMedia(
+              "(prefers-color-scheme: dark)",
+            ).matches;
 
-          applyTheme(prefersDark ? "dark" : "light");
+          applyTheme(
+            prefersDark
+              ? "dark"
+              : "light",
+          );
         }
+
 
         initialiseTheme();
 
-        /*
-         * Keep the page synchronized with the rest
-         * of the SneakersLink site.
-         */
 
-        window.addEventListener("storage", (event) => {
-          if (event.key === "sl-theme" || event.key === "sl_theme") {
-            applyTheme(event.newValue);
-          }
-        });
+        window.addEventListener(
+          "storage",
+          (event) => {
+            if (
+              event.key === "sl-theme" ||
+              event.key === "sl_theme"
+            ) {
+              applyTheme(
+                event.newValue,
+              );
+            }
+          },
+        );
 
-        /*
-         * Some site scripts change the theme in the
-         * same browser tab. Storage events do not fire
-         * in the same document, so also listen for the
-         * custom events used by common theme toggles.
-         */
 
-        window.addEventListener("sl:themechange", (event) => {
-          const theme = event?.detail?.theme;
+        window.addEventListener(
+          "sl:themechange",
+          (event) => {
+            const theme =
+              event?.detail?.theme;
 
-          if (theme === "dark" || theme === "light") {
-            applyTheme(theme);
-          }
-        });
+            if (
+              theme === "dark" ||
+              theme === "light"
+            ) {
+              applyTheme(theme);
+            }
+          },
+        );
 
-        window.addEventListener("themechange", (event) => {
-          const theme = event?.detail?.theme || event?.detail;
 
-          if (theme === "dark" || theme === "light") {
-            applyTheme(theme);
-          }
-        });
+        window.addEventListener(
+          "themechange",
+          (event) => {
+            const theme =
+              event?.detail?.theme ||
+              event?.detail;
 
-        /* =================================================
-               HELPERS
-               ================================================= */
+            if (
+              theme === "dark" ||
+              theme === "light"
+            ) {
+              applyTheme(theme);
+            }
+          },
+        );
 
-        function showLoading(text = "Loading your profile...") {
+
+        /* =====================================================
+           UI STATE
+           ===================================================== */
+
+        function showLoading(
+          text = "Loading your profile...",
+        ) {
           loading.hidden = false;
+
+          loading.style.display = "flex";
 
           loadingText.textContent = text;
 
-          errorState.classList.remove("show");
+          errorState.classList.remove(
+            "show",
+          );
+
+          errorState.style.display = "none";
 
           content.hidden = true;
+
+          content.style.display = "none";
         }
 
+
         function showContent() {
+          /*
+           * Kill the loading state completely.
+           */
           loading.hidden = true;
 
-          errorState.classList.remove("show");
+          loading.style.display = "none";
 
+          /*
+           * Hide error.
+           */
+          errorState.classList.remove(
+            "show",
+          );
+
+          errorState.style.display = "none";
+
+          /*
+           * Show profile.
+           */
           content.hidden = false;
+
+          content.style.display = "block";
 
           profileLoaded = true;
         }
 
+
         function showError(error) {
-          console.error("SneakersLink profile error:", error);
+          console.error(
+            "SneakersLink profile error:",
+            error,
+          );
 
           loading.hidden = true;
 
+          loading.style.display = "none";
+
           content.hidden = true;
 
-          errorState.classList.add("show");
+          content.style.display = "none";
 
-          let text = "We couldn't load your profile. Please try again.";
+          errorState.classList.add(
+            "show",
+          );
 
-          if (error && error.message) {
+          errorState.style.display =
+            "block";
+
+          let text =
+            "We couldn't load your profile. Please try again.";
+
+          if (
+            error &&
+            error.message
+          ) {
             text = error.message;
           }
 
           errorText.textContent = text;
         }
 
-        function showMessage(text, type = "success") {
-          message.className = "profile-message show " + type;
 
-          messageText.textContent = text;
+        function showMessage(
+          text,
+          type = "success",
+        ) {
+          message.className =
+            "profile-message show " +
+            type;
 
-          const icon = message.querySelector("i");
+          messageText.textContent =
+            text;
+
+          const icon =
+            message.querySelector("i");
 
           if (type === "error") {
-            icon.className = "fas fa-circle-exclamation";
+            icon.className =
+              "fas fa-circle-exclamation";
           } else {
-            icon.className = "fas fa-circle-check";
+            icon.className =
+              "fas fa-circle-check";
           }
 
           if (messageTimeout) {
-            clearTimeout(messageTimeout);
+            clearTimeout(
+              messageTimeout,
+            );
           }
 
-          messageTimeout = setTimeout(() => {
-            message.className = "profile-message";
-            messageTimeout = null;
-          }, 4500);
+          messageTimeout = setTimeout(
+            () => {
+              message.className =
+                "profile-message";
+
+              messageTimeout = null;
+            },
+            4500,
+          );
         }
 
-        /*
-         * Promise timeout helper.
-         *
-         * Prevents Firestore or Storage from leaving
-         * the UI in an endless loading state.
-         */
 
-        function withTimeout(promise, milliseconds, timeoutMessage) {
+        /* =====================================================
+           TIMEOUT
+           ===================================================== */
+
+        function withTimeout(
+          promise,
+          milliseconds,
+          timeoutMessage,
+        ) {
+          let timeoutId;
+
+          const timeoutPromise =
+            new Promise(
+              (_, reject) => {
+                timeoutId = setTimeout(
+                  () => {
+                    reject(
+                      new Error(
+                        timeoutMessage,
+                      ),
+                    );
+                  },
+                  milliseconds,
+                );
+              },
+            );
+
           return Promise.race([
-            promise,
-
-            new Promise((_, reject) => {
-              setTimeout(() => {
-                reject(new Error(timeoutMessage));
-              }, milliseconds);
+            promise.finally(() => {
+              clearTimeout(
+                timeoutId,
+              );
             }),
+
+            timeoutPromise,
           ]);
         }
 
-        function setButtonLoading(button, loadingState, loadingTextValue) {
+
+        /* =====================================================
+           BUTTON LOADING
+           ===================================================== */
+
+        function setButtonLoading(
+          button,
+          loadingState,
+          loadingTextValue,
+        ) {
           if (!button) {
             return;
           }
 
           if (loadingState) {
-            if (!button.dataset.originalText) {
-              button.dataset.originalText = button.innerHTML;
+            if (
+              !button.dataset
+                .originalText
+            ) {
+              button.dataset.originalText =
+                button.innerHTML;
             }
 
             button.disabled = true;
 
             button.innerHTML = `
-                        <i class="fas fa-spinner fa-spin"></i>
-                        ${loadingTextValue}
-                        `;
+              <i class="fas fa-spinner fa-spin"></i>
+              ${loadingTextValue}
+            `;
           } else {
             button.disabled = false;
 
-            if (button.dataset.originalText) {
-              button.innerHTML = button.dataset.originalText;
+            if (
+              button.dataset
+                .originalText
+            ) {
+              button.innerHTML =
+                button.dataset.originalText;
 
-              delete button.dataset.originalText;
+              delete button.dataset
+                .originalText;
             }
           }
         }
 
-        /* =================================================
-               AVATAR DISPLAY
-               ================================================= */
+
+        /* =====================================================
+           AVATAR
+           ===================================================== */
 
         function setAvatar(photoURL) {
           const validURL =
-            typeof photoURL === "string" && photoURL.trim() !== "";
+            typeof photoURL ===
+              "string" &&
+            photoURL.trim() !== "";
 
           if (validURL) {
-            profileAvatarImage.src = photoURL;
+            profileAvatarImage.src =
+              photoURL;
 
-            profileAvatarImage.alt = "Profile photo";
+            profileAvatarImage.alt =
+              "Profile photo";
 
-            profileAvatar.classList.add("has-image");
+            profileAvatar.classList.add(
+              "has-image",
+            );
 
-            headerProfileImage.src = photoURL;
+            headerProfileImage.src =
+              photoURL;
 
-            headerProfileImage.alt = "Profile photo";
+            headerProfileImage.alt =
+              "Profile photo";
 
-            headerProfileButton.classList.add("has-image");
+            headerProfileButton.classList.add(
+              "has-image",
+            );
 
-            removePhotoButton.style.display = "inline-flex";
+            removePhotoButton.style.display =
+              "inline-flex";
           } else {
-            profileAvatarImage.removeAttribute("src");
+            profileAvatarImage.removeAttribute(
+              "src",
+            );
 
-            profileAvatar.classList.remove("has-image");
+            profileAvatar.classList.remove(
+              "has-image",
+            );
 
-            headerProfileImage.removeAttribute("src");
+            headerProfileImage.removeAttribute(
+              "src",
+            );
 
-            headerProfileButton.classList.remove("has-image");
+            headerProfileButton.classList.remove(
+              "has-image",
+            );
 
-            removePhotoButton.style.display = "none";
+            removePhotoButton.style.display =
+              "none";
           }
         }
 
-        /* =================================================
-               POPULATE PROFILE
-               ================================================= */
 
-        function populateProfile(profile) {
+        /* =====================================================
+           POPULATE PROFILE
+           ===================================================== */
+
+        function populateProfile(
+          profile,
+        ) {
           currentProfile = profile;
 
-          const name = profile?.displayName || "Profile";
+          const name =
+            profile?.displayName ||
+            "Profile";
 
-          const email = profile?.email || "No email available";
+          const email =
+            profile?.email ||
+            "No email available";
 
-          profileName.textContent = name;
+          profileName.textContent =
+            name;
 
-          profileEmail.textContent = email;
+          profileEmail.textContent =
+            email;
 
-          displayNameInput.value = profile?.displayName || "";
+          displayNameInput.value =
+            profile?.displayName ||
+            "";
 
-          emailInput.value = profile?.email || "";
+          emailInput.value =
+            profile?.email ||
+            "";
 
-          phoneInput.value = profile?.phone || "";
+          phoneInput.value =
+            profile?.phone ||
+            "";
 
-          addressInput.value = profile?.address || "";
+          addressInput.value =
+            profile?.address ||
+            "";
 
-          cityInput.value = profile?.city || "";
+          cityInput.value =
+            profile?.city ||
+            "";
 
-          postalCodeInput.value = profile?.postalCode || "";
+          postalCodeInput.value =
+            profile?.postalCode ||
+            "";
 
-          countryInput.value = profile?.country || "";
+          countryInput.value =
+            profile?.country ||
+            "";
 
-          setAvatar(profile?.photoURL || "");
+          setAvatar(
+            profile?.photoURL || "",
+          );
         }
 
-        /* =================================================
-               WAIT FOR PROFILE ENGINE
-               ================================================= */
+
+        /* =====================================================
+           WAIT FOR FIREBASE PROFILE ENGINE
+           ===================================================== */
 
         function waitForProfileEngine() {
-          return new Promise((resolve, reject) => {
-            if (window.SLProfile) {
-              resolve(window.SLProfile);
+          return new Promise(
+            (resolve, reject) => {
+              /*
+               * IMPORTANT:
+               * Because firebase-profile.js is a module,
+               * it can execute before or after this
+               * script depending on browser timing.
+               *
+               * First check immediately.
+               */
 
-              return;
-            }
-
-            let finished = false;
-
-            const cleanup = () => {
-              window.removeEventListener("slprofile:ready", readyHandler);
-
-              clearTimeout(timeout);
-            };
-
-            const readyHandler = () => {
-              if (finished) {
-                return;
-              }
-
-              finished = true;
-
-              cleanup();
-
-              if (window.SLProfile) {
-                resolve(window.SLProfile);
-              } else {
-                reject(
-                  new Error(
-                    "Firebase profile engine initialized without exposing the profile API.",
-                  ),
+              if (
+                window.SLProfile
+              ) {
+                resolve(
+                  window.SLProfile,
                 );
-              }
-            };
 
-            const timeout = setTimeout(() => {
-              if (finished) {
                 return;
               }
 
-              finished = true;
+              let finished = false;
 
-              cleanup();
+              let timeoutId = null;
 
-              reject(
-                new Error(
-                  "Firebase profile engine did not load. Check firebase-profile.js and firebase-config.js.",
-                ),
-              );
-            }, 12000);
-
-            window.addEventListener("slprofile:ready", readyHandler);
-          });
-        }
-
-        /* =================================================
-               WAIT FOR AUTHENTICATED USER
-               -------------------------------------------------
-               IMPORTANT:
-               Firebase can initially report null while it
-               restores the persisted session.
-
-               Therefore a temporary null is NOT immediately
-               treated as a logged-out user.
-               ================================================= */
-
-        function waitForAuthenticatedUser() {
-          return new Promise((resolve) => {
-            if (
-              !window.SLProfile ||
-              typeof window.SLProfile.onProfileAuthChange !== "function"
-            ) {
-              resolve(null);
-
-              return;
-            }
-
-            let finished = false;
-
-            let unsubscribe = null;
-
-            const finish = (user) => {
-              if (finished) {
-                return;
-              }
-
-              finished = true;
-
-              clearTimeout(timeout);
-
-              if (typeof unsubscribe === "function") {
-                try {
-                  unsubscribe();
-                } catch (error) {
-                  console.warn(
-                    "Unable to unsubscribe from auth listener.",
-                    error,
+              const cleanup =
+                () => {
+                  window.removeEventListener(
+                    "slprofile:ready",
+                    readyHandler,
                   );
-                }
-              }
 
-              resolve(user || null);
-            };
+                  if (timeoutId) {
+                    clearTimeout(
+                      timeoutId,
+                    );
+                  }
+                };
 
-            /*
-             * Give Firebase enough time to restore
-             * the existing authenticated session.
-             */
-
-            const timeout = setTimeout(() => {
-              const currentUser = window.SLProfile.getCurrentUser();
-
-              finish(currentUser);
-            }, 12000);
-
-            try {
-              unsubscribe = window.SLProfile.onProfileAuthChange((user) => {
-                /*
-                 * Do NOT finish on
-                 * temporary null.
-                 */
-
-                if (!user) {
-                  const currentUser = window.SLProfile.getCurrentUser();
-
-                  if (currentUser) {
-                    finish(currentUser);
+              const finish =
+                (api) => {
+                  if (finished) {
+                    return;
                   }
 
-                  return;
-                }
+                  finished = true;
 
-                finish(user);
-              });
-            } catch (error) {
-              console.error("Auth listener error:", error);
+                  cleanup();
 
-              finish(window.SLProfile.getCurrentUser());
-            }
-          });
+                  if (api) {
+                    resolve(api);
+                  } else {
+                    reject(
+                      new Error(
+                        "Firebase profile engine initialized without exposing the profile API.",
+                      ),
+                    );
+                  }
+                };
+
+              const readyHandler =
+                () => {
+                  finish(
+                    window.SLProfile,
+                  );
+                };
+
+              window.addEventListener(
+                "slprofile:ready",
+                readyHandler,
+              );
+
+              /*
+               * Hard stop.
+               */
+              timeoutId = setTimeout(
+                () => {
+                  finish(
+                    window.SLProfile,
+                  );
+
+                  if (
+                    !window.SLProfile
+                  ) {
+                    reject(
+                      new Error(
+                        "Firebase profile engine did not load. Check firebase-profile.js and firebase-config.js.",
+                      ),
+                    );
+                  }
+                },
+                10000,
+              );
+            },
+          );
         }
 
-        /* =================================================
-               LOAD PROFILE
-               ================================================= */
+
+        /* =====================================================
+           WAIT FOR AUTHENTICATED USER
+           ===================================================== */
+
+        function waitForAuthenticatedUser() {
+          return new Promise(
+            (resolve) => {
+              if (
+                !window.SLProfile ||
+                typeof window
+                  .SLProfile
+                  .onProfileAuthChange !==
+                  "function"
+              ) {
+                resolve(null);
+
+                return;
+              }
+
+              /*
+               * CRITICAL FIX:
+               *
+               * Firebase may have already restored
+               * the authenticated session before
+               * this function runs.
+               *
+               * Use currentUser immediately.
+               */
+
+              const existingUser =
+                window.SLProfile.getCurrentUser();
+
+              if (existingUser) {
+                resolve(
+                  existingUser,
+                );
+
+                return;
+              }
+
+              let finished = false;
+
+              let unsubscribe =
+                null;
+
+              let timeoutId =
+                null;
+
+              const finish =
+                (user) => {
+                  if (finished) {
+                    return;
+                  }
+
+                  finished = true;
+
+                  if (timeoutId) {
+                    clearTimeout(
+                      timeoutId,
+                    );
+                  }
+
+                  if (
+                    typeof unsubscribe ===
+                    "function"
+                  ) {
+                    try {
+                      unsubscribe();
+                    } catch (
+                      error
+                    ) {
+                      console.warn(
+                        "Unable to unsubscribe from auth listener.",
+                        error,
+                      );
+                    }
+                  }
+
+                  resolve(
+                    user || null,
+                  );
+                };
+
+
+              /*
+               * Firebase gets a limited amount of time
+               * to restore authentication.
+               *
+               * This prevents infinite loading.
+               */
+
+              timeoutId =
+                setTimeout(
+                  () => {
+                    const currentUser =
+                      window
+                        .SLProfile
+                        .getCurrentUser();
+
+                    finish(
+                      currentUser,
+                    );
+                  },
+                  8000,
+                );
+
+
+              try {
+                unsubscribe =
+                  window
+                    .SLProfile
+                    .onProfileAuthChange(
+                      (user) => {
+                        if (user) {
+                          finish(user);
+                        }
+                      },
+                    );
+              } catch (
+                error
+              ) {
+                console.error(
+                  "Auth listener error:",
+                  error,
+                );
+
+                finish(
+                  window
+                    .SLProfile
+                    .getCurrentUser(),
+                );
+              }
+            },
+          );
+        }
+
+
+        /* =====================================================
+           LOAD PROFILE
+           ===================================================== */
 
         async function loadProfile() {
-          showLoading("Checking your account...");
+          showLoading(
+            "Checking your account...",
+          );
 
           try {
             /*
-             * Wait for firebase-profile.js.
+             * Wait for profile engine.
              */
 
-            await waitForProfileEngine();
+            const profileAPI =
+              await waitForProfileEngine();
 
-            if (!window.SLProfile) {
+            if (!profileAPI) {
               throw new Error(
                 "The Firebase profile engine could not be loaded.",
               );
             }
 
+
             /*
-             * Wait for Firebase Authentication.
+             * Authentication.
              */
 
-            showLoading("Checking your account...");
+            showLoading(
+              "Checking your account...",
+            );
 
-            const user = await waitForAuthenticatedUser();
+            const user =
+              await waitForAuthenticatedUser();
+
 
             /*
-             * Only redirect after Firebase has had
-             * enough time to restore authentication.
+             * Not authenticated.
              */
 
             if (!user) {
-              window.location.href = "login.html?mode=login";
+              window.location.href =
+                "login.html?mode=login";
 
               return;
             }
 
+
             /*
-             * Load Firestore profile with a hard timeout.
+             * Firestore profile.
              */
 
-            showLoading("Loading your profile...");
-
-            const profile = await withTimeout(
-              window.SLProfile.getProfile(),
-              15000,
-              "Your profile request timed out. Please check your Firebase connection and Firestore configuration.",
+            showLoading(
+              "Loading your profile...",
             );
 
-            populateProfile(profile);
+            const profile =
+              await withTimeout(
+                profileAPI.getProfile(),
+                15000,
+                "Your profile request timed out. Please check your Firebase connection and Firestore configuration.",
+              );
+
 
             /*
-             * Profile is fully rendered BEFORE the
-             * loading state is removed.
+             * Populate the UI FIRST.
+             */
+
+            populateProfile(
+              profile,
+            );
+
+
+            /*
+             * THEN remove loading.
+             *
+             * This is the critical fix.
              */
 
             showContent();
+
           } catch (error) {
             showError(error);
           }
         }
 
-        /* =================================================
-               LIVE NAME UPDATE
-               ================================================= */
 
-        displayNameInput.addEventListener("input", () => {
-          const name = displayNameInput.value.trim();
+        /* =====================================================
+           LIVE NAME UPDATE
+           ===================================================== */
 
-          profileName.textContent = name || "Profile";
-        });
+        displayNameInput.addEventListener(
+          "input",
+          () => {
+            const name =
+              displayNameInput.value.trim();
 
-        /* =================================================
-               OPEN FILE PICKER
-               ================================================= */
+            profileName.textContent =
+              name || "Profile";
+          },
+        );
+
+
+        /* =====================================================
+           FILE PICKER
+           ===================================================== */
 
         function openFilePicker() {
-          if (uploadInProgress) {
+          if (
+            uploadInProgress
+          ) {
             return;
           }
 
           avatarFileInput.click();
         }
 
-        avatarEditButton.addEventListener("click", openFilePicker);
 
-        changePhotoButton.addEventListener("click", openFilePicker);
+        avatarEditButton.addEventListener(
+          "click",
+          openFilePicker,
+        );
 
-        /* =================================================
-               AVATAR UPLOAD
-               ================================================= */
+        changePhotoButton.addEventListener(
+          "click",
+          openFilePicker,
+        );
 
-        avatarFileInput.addEventListener("change", async () => {
-          if (uploadInProgress) {
-            return;
-          }
 
-          const file = avatarFileInput.files?.[0];
+        /* =====================================================
+           AVATAR UPLOAD
+           ===================================================== */
 
-          if (!file) {
-            return;
-          }
-
-          uploadInProgress = true;
-
-          try {
-            /*
-             * Client-side validation.
-             */
-
-            if (!file.type || !file.type.startsWith("image/")) {
-              throw new Error("Please select a valid image file.");
+        avatarFileInput.addEventListener(
+          "change",
+          async () => {
+            if (
+              uploadInProgress
+            ) {
+              return;
             }
 
-            const maxSize = 5 * 1024 * 1024;
+            const file =
+              avatarFileInput.files?.[0];
 
-            if (file.size > maxSize) {
-              throw new Error("Profile images must be smaller than 5 MB.");
+            if (!file) {
+              return;
             }
 
-            /*
-             * Disable all avatar actions while
-             * upload is running.
-             */
+            uploadInProgress = true;
 
-            setButtonLoading(changePhotoButton, true, "Uploading...");
+            try {
+              if (
+                !file.type ||
+                !file.type.startsWith(
+                  "image/",
+                )
+              ) {
+                throw new Error(
+                  "Please select a valid image file.",
+                );
+              }
 
-            avatarEditButton.disabled = true;
+              const maxSize =
+                5 * 1024 * 1024;
 
-            removePhotoButton.disabled = true;
+              if (
+                file.size > maxSize
+              ) {
+                throw new Error(
+                  "Profile images must be smaller than 5 MB.",
+                );
+              }
 
-            /*
-             * Upload with timeout.
-             *
-             * This is important because the old
-             * implementation could remain at
-             * "Uploading..." indefinitely if Storage
-             * was unavailable or blocked by rules.
-             */
 
-            const downloadURL = await withTimeout(
-              window.SLProfile.uploadAvatar(file),
-              30000,
-              "Profile photo upload timed out. Please check your Firebase Storage configuration and try again.",
-            );
+              setButtonLoading(
+                changePhotoButton,
+                true,
+                "Uploading...",
+              );
 
-            if (!downloadURL) {
-              throw new Error(
-                "Firebase uploaded the image but did not return a download URL.",
+              avatarEditButton.disabled =
+                true;
+
+              removePhotoButton.disabled =
+                true;
+
+
+              const downloadURL =
+                await withTimeout(
+                  window.SLProfile.uploadAvatar(
+                    file,
+                  ),
+                  30000,
+                  "Profile photo upload timed out. Please check your Firebase Storage configuration and try again.",
+                );
+
+
+              if (!downloadURL) {
+                throw new Error(
+                  "Firebase uploaded the image but did not return a download URL.",
+                );
+              }
+
+
+              setAvatar(
+                downloadURL,
+              );
+
+
+              if (currentProfile) {
+                currentProfile.photoURL =
+                  downloadURL;
+              }
+
+
+              showMessage(
+                "Profile photo updated successfully.",
+              );
+
+            } catch (error) {
+              console.error(
+                "Avatar upload error:",
+                error,
+              );
+
+              let errorMessage =
+                error?.message ||
+                "Unable to upload your profile photo.";
+
+
+              if (
+                error?.code ===
+                "storage/unauthorized"
+              ) {
+                errorMessage =
+                  "Photo upload was denied by Firebase Storage rules. Please check your Storage security rules.";
+              } else if (
+                error?.code ===
+                "storage/unauthenticated"
+              ) {
+                errorMessage =
+                  "Your Firebase session has expired. Please sign in again.";
+              } else if (
+                error?.code ===
+                "storage/quota-exceeded"
+              ) {
+                errorMessage =
+                  "Firebase Storage quota has been exceeded.";
+              } else if (
+                error?.code ===
+                "storage/canceled"
+              ) {
+                errorMessage =
+                  "The profile photo upload was canceled.";
+              }
+
+
+              showMessage(
+                errorMessage,
+                "error",
+              );
+
+            } finally {
+              uploadInProgress = false;
+
+              setButtonLoading(
+                changePhotoButton,
+                false,
+              );
+
+              avatarEditButton.disabled =
+                false;
+
+              removePhotoButton.disabled =
+                false;
+
+              avatarFileInput.value =
+                "";
+            }
+          },
+        );
+
+
+        /* =====================================================
+           REMOVE AVATAR
+           ===================================================== */
+
+        removePhotoButton.addEventListener(
+          "click",
+          async () => {
+            if (
+              uploadInProgress
+            ) {
+              return;
+            }
+
+            if (
+              !currentProfile ||
+              !currentProfile.photoURL
+            ) {
+              return;
+            }
+
+
+            const confirmed =
+              window.confirm(
+                "Remove your profile photo?",
+              );
+
+            if (!confirmed) {
+              return;
+            }
+
+
+            uploadInProgress = true;
+
+
+            try {
+              setButtonLoading(
+                removePhotoButton,
+                true,
+                "Removing...",
+              );
+
+              avatarEditButton.disabled =
+                true;
+
+              changePhotoButton.disabled =
+                true;
+
+
+              await withTimeout(
+                window.SLProfile.deleteAvatar(),
+                20000,
+                "Removing the profile photo timed out. Please try again.",
+              );
+
+
+              setAvatar("");
+
+              if (currentProfile) {
+                currentProfile.photoURL =
+                  "";
+              }
+
+
+              showMessage(
+                "Profile photo removed.",
+              );
+
+            } catch (error) {
+              console.error(
+                "Avatar removal error:",
+                error,
+              );
+
+              let errorMessage =
+                error?.message ||
+                "Unable to remove your profile photo.";
+
+
+              if (
+                error?.code ===
+                "storage/unauthorized"
+              ) {
+                errorMessage =
+                  "Photo removal was denied by Firebase Storage rules. Please check your Storage security rules.";
+              }
+
+
+              showMessage(
+                errorMessage,
+                "error",
+              );
+
+            } finally {
+              uploadInProgress = false;
+
+              setButtonLoading(
+                removePhotoButton,
+                false,
+              );
+
+              avatarEditButton.disabled =
+                false;
+
+              changePhotoButton.disabled =
+                false;
+            }
+          },
+        );
+
+
+        /* =====================================================
+           SAVE PROFILE
+           ===================================================== */
+
+        profileForm.addEventListener(
+          "submit",
+          async (event) => {
+            event.preventDefault();
+
+            try {
+              setButtonLoading(
+                saveButton,
+                true,
+                "Saving...",
+              );
+
+
+              const fields = {
+                displayName:
+                  displayNameInput.value,
+
+                phone:
+                  phoneInput.value,
+
+                address:
+                  addressInput.value,
+
+                city:
+                  cityInput.value,
+
+                postalCode:
+                  postalCodeInput.value,
+
+                country:
+                  countryInput.value,
+              };
+
+
+              const updatedProfile =
+                await withTimeout(
+                  window.SLProfile.updateProfile(
+                    fields,
+                  ),
+                  15000,
+                  "Saving your profile timed out. Please check your connection and try again.",
+                );
+
+
+              populateProfile(
+                updatedProfile,
+              );
+
+
+              showMessage(
+                "Your profile has been saved successfully.",
+              );
+
+            } catch (error) {
+              console.error(
+                "Profile update error:",
+                error,
+              );
+
+              showMessage(
+                error?.message ||
+                  "Unable to save your profile.",
+                "error",
+              );
+
+            } finally {
+              setButtonLoading(
+                saveButton,
+                false,
               );
             }
+          },
+        );
 
-            /*
-             * Update UI immediately.
-             */
 
-            setAvatar(downloadURL);
+        /* =====================================================
+           BACK BUTTON
+           ===================================================== */
 
-            if (currentProfile) {
-              currentProfile.photoURL = downloadURL;
+        backButton.addEventListener(
+          "click",
+          () => {
+            if (
+              window.history.length > 1
+            ) {
+              window.history.back();
+            } else {
+              window.location.href =
+                "index.html";
             }
+          },
+        );
 
-            showMessage("Profile photo updated successfully.");
-          } catch (error) {
-            console.error("Avatar upload error:", error);
 
-            let errorMessage =
-              error?.message || "Unable to upload your profile photo.";
+        /* =====================================================
+           HEADER PROFILE BUTTON
+           ===================================================== */
 
-            /*
-             * Make Firebase Storage errors
-             * easier for the customer to understand.
-             */
+        headerProfileButton.addEventListener(
+          "click",
+          () => {
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth",
+            });
+          },
+        );
 
-            if (error?.code === "storage/unauthorized") {
-              errorMessage =
-                "Photo upload was denied by Firebase Storage rules. Please check your Storage security rules.";
-            } else if (error?.code === "storage/unauthenticated") {
-              errorMessage =
-                "Your Firebase session has expired. Please sign in again.";
-            } else if (error?.code === "storage/quota-exceeded") {
-              errorMessage = "Firebase Storage quota has been exceeded.";
-            } else if (error?.code === "storage/canceled") {
-              errorMessage = "The profile photo upload was canceled.";
-            }
 
-            showMessage(errorMessage, "error");
-          } finally {
-            uploadInProgress = false;
-
-            setButtonLoading(changePhotoButton, false);
-
-            avatarEditButton.disabled = false;
-
-            removePhotoButton.disabled = false;
-
-            /*
-             * Reset file input so the same image
-             * can be selected again.
-             */
-
-            avatarFileInput.value = "";
-          }
-        });
-
-        /* =================================================
-               REMOVE AVATAR
-               ================================================= */
-
-        removePhotoButton.addEventListener("click", async () => {
-          if (uploadInProgress) {
-            return;
-          }
-
-          if (!currentProfile || !currentProfile.photoURL) {
-            return;
-          }
-
-          const confirmed = window.confirm("Remove your profile photo?");
-
-          if (!confirmed) {
-            return;
-          }
-
-          uploadInProgress = true;
-
-          try {
-            setButtonLoading(removePhotoButton, true, "Removing...");
-
-            avatarEditButton.disabled = true;
-
-            changePhotoButton.disabled = true;
-
-            await withTimeout(
-              window.SLProfile.deleteAvatar(),
-              20000,
-              "Removing the profile photo timed out. Please try again.",
-            );
-
-            setAvatar("");
-
-            if (currentProfile) {
-              currentProfile.photoURL = "";
-            }
-
-            showMessage("Profile photo removed.");
-          } catch (error) {
-            console.error("Avatar removal error:", error);
-
-            let errorMessage =
-              error?.message || "Unable to remove your profile photo.";
-
-            if (error?.code === "storage/unauthorized") {
-              errorMessage =
-                "Photo removal was denied by Firebase Storage rules. Please check your Storage security rules.";
-            }
-
-            showMessage(errorMessage, "error");
-          } finally {
-            setButtonLoading(removePhotoButton, false);
-
-            avatarEditButton.disabled = false;
-
-            changePhotoButton.disabled = false;
-          }
-        });
-
-        /* =================================================
-               SAVE PROFILE
-               ================================================= */
-
-        profileForm.addEventListener("submit", async (event) => {
-          event.preventDefault();
-
-          try {
-            setButtonLoading(saveButton, true, "Saving...");
-
-            const fields = {
-              displayName: displayNameInput.value,
-
-              phone: phoneInput.value,
-
-              address: addressInput.value,
-
-              city: cityInput.value,
-
-              postalCode: postalCodeInput.value,
-
-              country: countryInput.value,
-            };
-
-            const updatedProfile = await withTimeout(
-              window.SLProfile.updateProfile(fields),
-              15000,
-              "Saving your profile timed out. Please check your connection and try again.",
-            );
-
-            populateProfile(updatedProfile);
-
-            showMessage("Your profile has been saved successfully.");
-          } catch (error) {
-            console.error("Profile update error:", error);
-
-            showMessage(
-              error?.message || "Unable to save your profile.",
-              "error",
-            );
-          } finally {
-            setButtonLoading(saveButton, false);
-          }
-        });
-
-        /* =================================================
-               BACK BUTTON
-               ================================================= */
-
-        backButton.addEventListener("click", () => {
-          if (window.history.length > 1) {
-            window.history.back();
-          } else {
-            window.location.href = "index.html";
-          }
-        });
-
-        /* =================================================
-               HEADER PROFILE BUTTON
-               ================================================= */
-
-        headerProfileButton.addEventListener("click", () => {
-          window.scrollTo({
-            top: 0,
-            behavior: "smooth",
-          });
-        });
-
-        /* =================================================
-               INITIALISE
-               ================================================= */
+        /* =====================================================
+           INITIALISE
+           ===================================================== */
 
         loadProfile();
+
       })();
     </script>
   </body>
