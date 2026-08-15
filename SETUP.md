@@ -32,9 +32,18 @@ It takes about 10–15 minutes, all through the Firebase website — no coding.
    };
    ```
 
-4. Open **`firebase-config.js`** in this project and replace the placeholder
-   values with your real ones (keep the `export const firebaseConfig = {...}`
-   structure — just swap the values inside).
+4. **Setup environment variables** (RECOMMENDED for security):
+   - Copy `.env.example` to `.env` in the project root
+   - Fill in your Firebase credentials from step 3 into the `.env` file
+   - `.env` is already in `.gitignore` — it won't be committed to git
+
+   **OR** (Legacy approach):
+   - Open **`firebase-config.js`** and replace the placeholder values with your
+     real ones from step 3 (keep the `export const firebaseConfig = {...}`
+     structure — just swap the values inside).
+
+   > **Note:** The environment variable approach is more secure for production.
+   > See `.env.example` for detailed instructions on each Firebase credential.
 
 ## 3. Turn on Firestore (the database)
 
@@ -62,7 +71,7 @@ It takes about 10–15 minutes, all through the Firebase website — no coding.
    > **What this does:** a customer can only ever fetch an order if they
    > already know its exact reference (e.g. `SL-AB12CDE`) — they can't browse
    > or list other people's orders. Only someone signed in as an admin can see
-   > the full order list or change a status. Order *creation* is left open
+   > the full order list or change a status. Order _creation_ is left open
    > since checkout happens with no one signed in — fine for a small shop, but
    > if this ever gets targeted by spam order-creation, look into adding
    > [Firebase App Check](https://firebase.google.com/docs/app-check) later.
@@ -72,7 +81,7 @@ It takes about 10–15 minutes, all through the Firebase website — no coding.
 1. **Build → Authentication → Get started**.
 2. Under **Sign-in method**, enable **Email/Password** → Save.
 3. Go to the **Users** tab → **Add user** → enter the email and password
-   *you* want to log into `admin.html` with → **Add user**.
+   _you_ want to log into `admin.html` with → **Add user**.
 
    This is not a customer account — it's just you. Don't share it, and don't
    build a public sign-up flow pointing at it.
@@ -87,8 +96,8 @@ local file. Any of these work — pick whichever's easiest:
 - **GitHub Pages:** push this folder to a GitHub repo → Settings → Pages →
   deploy from the `main` branch.
 - **Firebase Hosting:** since you already have a Firebase project, `npm
-  install -g firebase-tools`, then `firebase init hosting` and `firebase
-  deploy` from this folder (needs Node.js installed).
+install -g firebase-tools`, then `firebase init hosting` and `firebase
+deploy` from this folder (needs Node.js installed).
 
 ## 6. Test it end-to-end
 
