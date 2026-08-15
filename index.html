@@ -17,7 +17,9 @@
         href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
     >
 
-    <!-- Apply saved/system theme before the page renders -->
+    <!-- =========================================================
+         APPLY SAVED / SYSTEM THEME BEFORE PAGE RENDERS
+         ========================================================= -->
     <script>
         (function () {
             try {
@@ -48,312 +50,319 @@
     <!-- =========================================================
          NAVIGATION
          ========================================================= -->
-    <!-- =========================================================
-     SNEAKERSLINK NAVIGATION
-     ========================================================= -->
 
-<!-- =========================================================
-     SNEAKERSLINK NAVIGATION
-     ========================================================= -->
+    <nav class="home-nav" aria-label="Main navigation">
 
-<nav class="home-nav" aria-label="Main navigation">
+        <!-- MOBILE MENU TOGGLE -->
 
-    <!-- MOBILE MENU TOGGLE -->
-    <input
-        type="checkbox"
-        id="check"
-        aria-label="Toggle navigation menu"
-    >
+        <input
+            type="checkbox"
+            id="check"
+            aria-label="Toggle navigation menu"
+        >
 
-    <label
-        for="check"
-        class="navbutton"
-        aria-label="Open navigation menu"
-    >
-        <i class="fas fa-bars" aria-hidden="true"></i>
-    </label>
-
-
-    <!-- LOGO -->
-    <a
-        href="index.html"
-        class="logo nav-logo"
-        aria-label="SneakersLink Home"
-    >
-        Sneakers<span>Link</span>
-    </a>
-
-
-    <!-- MAIN NAVIGATION -->
-    <ul id="navbar">
-
-        <li>
-            <a href="index.html">
-                Home
-            </a>
-        </li>
-
-        <li>
-            <a href="shop.html">
-                Shop
-            </a>
-        </li>
-
-        <li>
-            <a href="blog.html">
-                Blog
-            </a>
-        </li>
-
-        <li>
-            <a href="about.html">
-                About
-            </a>
-        </li>
-
-        <li>
-            <a href="contact.html">
-                Contact
-            </a>
-        </li>
-
-    </ul>
-
-
-    <!-- =====================================================
-         RIGHT-SIDE ACTIONS
-         ===================================================== -->
-
-    <div
-        class="nav-actions"
-        aria-label="Shopping cart and account"
-    >
-
-        <!-- =================================================
-             CART
-             ================================================= -->
-
-        <a
-            href="cart.html"
-            class="cart"
-            id="navbarCart"
-            aria-label="Shopping cart"
-            title="Shopping Cart"
+        <label
+            for="check"
+            class="navbutton"
+            aria-label="Open navigation menu"
         >
             <i
-                class="fas fa-shopping-bag"
+                class="fas fa-bars"
                 aria-hidden="true"
             ></i>
+        </label>
 
-            <span
-                class="cart-count"
-                data-cart-count
-                aria-hidden="true"
-            >
-                0
-            </span>
+
+        <!-- LOGO -->
+
+        <a
+            href="index.html"
+            class="logo nav-logo"
+            aria-label="SneakersLink Home"
+        >
+            Sneakers<span>Link</span>
         </a>
 
 
-        <!-- =================================================
-             ACCOUNT
-             ================================================= -->
+        <!-- MAIN NAVIGATION -->
+
+        <ul id="navbar">
+
+            <li>
+                <a href="index.html">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="shop.html">
+                    Shop
+                </a>
+            </li>
+
+            <li>
+                <a href="blog.html">
+                    Blog
+                </a>
+            </li>
+
+            <li>
+                <a href="about.html">
+                    About
+                </a>
+            </li>
+
+            <li>
+                <a href="contact.html">
+                    Contact
+                </a>
+            </li>
+
+        </ul>
+
+
+        <!-- =====================================================
+             RIGHT-SIDE ACTIONS
+             ===================================================== -->
 
         <div
-            class="account-area"
-            id="accountArea"
+            class="nav-actions"
+            aria-label="Shopping cart and account"
         >
 
-            <!-- =================================================
-                 LOGGED OUT
-                 ================================================= -->
+            <!-- CART -->
 
-            <span
-                class="account-guest-links"
-                id="accountGuestLinks"
+            <a
+                href="cart.html"
+                class="cart"
+                id="navbarCart"
+                aria-label="Shopping cart"
+                title="Shopping Cart"
             >
 
-                <a
-                    href="login.html?mode=login"
-                    class="account-text-link"
+                <i
+                    class="fas fa-shopping-bag"
+                    aria-hidden="true"
+                ></i>
+
+                <span
+                    class="cart-count"
+                    data-cart-count
+                    aria-hidden="true"
                 >
-                    Sign in
-                </a>
+                    0
+                </span>
 
-                <a
-                    href="login.html?mode=signup"
-                    class="account-text-link account-text-link--primary"
-                >
-                    Sign up
-                </a>
-
-            </span>
+            </a>
 
 
-            <!-- =================================================
-                 LOGGED IN
-                 ================================================= -->
+            <!-- ACCOUNT -->
 
             <div
-                class="account-menu"
-                id="accountMenu"
-                hidden
+                class="account-area"
+                id="accountArea"
             >
 
-                <!-- PROFILE BUTTON -->
+                <!-- LOGGED OUT -->
 
-                <button
-                    type="button"
-                    class="account-toggle"
-                    id="accountToggle"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                    aria-label="Open profile menu"
-                    title="Profile"
+                <span
+                    class="account-guest-links"
+                    id="accountGuestLinks"
                 >
 
-                    <span
-                        class="account-avatar"
-                        id="accountAvatar"
+                    <a
+                        href="login.html?mode=login"
+                        class="account-text-link"
                     >
-                        <i
-                            class="fas fa-user"
-                            aria-hidden="true"
-                        ></i>
-                    </span>
+                        Sign in
+                    </a>
 
-                </button>
+                    <a
+                        href="login.html?mode=signup"
+                        class="account-text-link account-text-link--primary"
+                    >
+                        Sign up
+                    </a>
+
+                </span>
 
 
-                <!-- =================================================
-                     PROFILE DROPDOWN
-                     ================================================= -->
+                <!-- LOGGED IN -->
 
                 <div
-                    class="account-dropdown"
-                    id="accountDropdown"
+                    class="account-menu"
+                    id="accountMenu"
+                    hidden
                 >
 
-                    <!-- PROFILE SUMMARY -->
+                    <!-- PROFILE BUTTON -->
 
-                    <div class="account-profile-summary">
+                    <button
+                        type="button"
+                        class="account-toggle"
+                        id="accountToggle"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        aria-label="Open profile menu"
+                        title="Profile"
+                    >
 
-                        <div
-                            class="account-avatar account-avatar-large"
-                            id="accountDropdownAvatar"
+                        <span
+                            class="account-avatar"
+                            id="accountAvatar"
                         >
+
                             <i
                                 class="fas fa-user"
                                 aria-hidden="true"
                             ></i>
+
+                        </span>
+
+                    </button>
+
+
+                    <!-- PROFILE DROPDOWN -->
+
+                    <div
+                        class="account-dropdown"
+                        id="accountDropdown"
+                    >
+
+                        <!-- PROFILE SUMMARY -->
+
+                        <div class="account-profile-summary">
+
+                            <div
+                                class="account-avatar account-avatar-large"
+                                id="accountDropdownAvatar"
+                            >
+
+                                <i
+                                    class="fas fa-user"
+                                    aria-hidden="true"
+                                ></i>
+
+                            </div>
+
+                            <div class="account-profile-text">
+
+                                <strong id="accountDropdownName">
+                                    Profile
+                                </strong>
+
+                                <span id="accountDropdownEmail">
+                                    Signed in
+                                </span>
+
+                            </div>
+
                         </div>
 
-                        <div class="account-profile-text">
 
-                            <strong id="accountDropdownName">
-                                Profile
-                            </strong>
+                        <div class="account-dropdown-divider"></div>
 
-                            <span id="accountDropdownEmail">
-                                Signed in
+
+                        <!-- MY PROFILE -->
+
+                        <a
+                            href="profile.html"
+                            class="account-dropdown-link"
+                        >
+
+                            <i
+                                class="fas fa-user"
+                                aria-hidden="true"
+                            ></i>
+
+                            <span>
+                                My Profile
                             </span>
 
-                        </div>
+                        </a>
+
+
+                        <!-- TRACK ORDER -->
+
+                        <a
+                            href="track-order.html"
+                            class="account-dropdown-link"
+                        >
+
+                            <i
+                                class="fas fa-truck"
+                                aria-hidden="true"
+                            ></i>
+
+                            <span>
+                                Track Order
+                            </span>
+
+                        </a>
+
+
+                        <!-- MY CART -->
+
+                        <a
+                            href="cart.html"
+                            class="account-dropdown-link"
+                        >
+
+                            <i
+                                class="fas fa-shopping-bag"
+                                aria-hidden="true"
+                            ></i>
+
+                            <span>
+                                My Cart
+                            </span>
+
+                        </a>
+
+
+                        <!-- THEME -->
+
+                        <button
+                            type="button"
+                            class="account-dropdown-link"
+                            id="accountThemeToggle"
+                        >
+
+                            <i
+                                class="fas fa-moon"
+                                aria-hidden="true"
+                            ></i>
+
+                            <span id="accountThemeLabel">
+                                Dark Mode
+                            </span>
+
+                        </button>
+
+
+                        <div class="account-dropdown-divider"></div>
+
+
+                        <!-- SIGN OUT -->
+
+                        <button
+                            type="button"
+                            class="account-dropdown-link account-dropdown-link--danger"
+                            id="accountSignOutBtn"
+                        >
+
+                            <i
+                                class="fas fa-sign-out-alt"
+                                aria-hidden="true"
+                            ></i>
+
+                            <span>
+                                Sign Out
+                            </span>
+
+                        </button>
 
                     </div>
-
-
-                    <div class="account-dropdown-divider"></div>
-
-
-                    <!-- MY PROFILE -->
-
-                    <a
-                        href="profile.html"
-                        class="account-dropdown-link"
-                    >
-                        <i
-                            class="fas fa-user"
-                            aria-hidden="true"
-                        ></i>
-
-                        <span>
-                            My Profile
-                        </span>
-                    </a>
-
-
-                    <!-- TRACK ORDER -->
-
-                    <a
-                        href="track-order.html"
-                        class="account-dropdown-link"
-                    >
-                        <i
-                            class="fas fa-truck"
-                            aria-hidden="true"
-                        ></i>
-
-                        <span>
-                            Track Order
-                        </span>
-                    </a>
-
-
-                    <!-- MY CART -->
-
-                    <a
-                        href="cart.html"
-                        class="account-dropdown-link"
-                    >
-                        <i
-                            class="fas fa-shopping-bag"
-                            aria-hidden="true"
-                        ></i>
-
-                        <span>
-                            My Cart
-                        </span>
-                    </a>
-
-
-                    <!-- THEME -->
-
-                    <button
-                        type="button"
-                        class="account-dropdown-link"
-                        id="accountThemeToggle"
-                    >
-                        <i
-                            class="fas fa-moon"
-                            aria-hidden="true"
-                        ></i>
-
-                        <span id="accountThemeLabel">
-                            Dark Mode
-                        </span>
-                    </button>
-
-
-                    <div class="account-dropdown-divider"></div>
-
-
-                    <!-- SIGN OUT -->
-
-                    <button
-                        type="button"
-                        class="account-dropdown-link account-dropdown-link--danger"
-                        id="accountSignOutBtn"
-                    >
-                        <i
-                            class="fas fa-sign-out-alt"
-                            aria-hidden="true"
-                        ></i>
-
-                        <span>
-                            Sign Out
-                        </span>
-                    </button>
 
                 </div>
 
@@ -361,45 +370,49 @@
 
         </div>
 
-    </div>
-
-</nav>
-
-<!-- =========================================================
-     PERSONALIZED CUSTOMER WELCOME
-     ========================================================= -->
-
-<section
-    id="homeWelcome"
-    class="home-welcome"
-    aria-live="polite"
-    hidden
->
-
-    <div class="home-welcome-inner">
-
-        <div class="home-welcome-content">
-
-            <p
-                id="homeWelcomeText"
-                class="home-welcome-text"
-            ></p>
-
-            <p class="home-welcome-subtext">
-                Great to have you at SneakersLink.
-            </p>
-
-        </div>
-
-    </div>
-
-</section>
+    </nav>
 
 
     <!-- =========================================================
-         HERO / HEADLINE
+         PERSONALIZED CUSTOMER WELCOME
          ========================================================= -->
+
+    <section
+        id="homeWelcome"
+        class="home-welcome"
+        aria-live="polite"
+        hidden
+    >
+
+        <div class="home-welcome-inner">
+
+            <div class="home-welcome-content">
+
+                <p
+                    id="homeWelcomeText"
+                    class="home-welcome-text"
+                ></p>
+
+                <p class="home-welcome-subtext">
+                    Great to have you at SneakersLink.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         MAIN CONTENT
+         ========================================================= -->
+
     <main>
+
+        <!-- =====================================================
+             HERO / HEADLINE
+             ===================================================== -->
 
         <section
             class="headline-container"
@@ -415,15 +428,20 @@
                 preload="metadata"
                 aria-hidden="true"
             >
+
                 <source
                     src="img/vid1.mp4"
                     type="video/mp4"
                 >
+
             </video>
+
 
             <div id="headline">
 
-                <h4>Hot Deals 🔥</h4>
+                <h4>
+                    Hot Deals 🔥
+                </h4>
 
                 <h2>
                     Form ni Samba na Campus
@@ -442,12 +460,14 @@
                     href="shop.html"
                     aria-label="Shop SneakersLink sneakers"
                 >
+
                     <button
                         type="button"
                         class="normal"
                     >
                         Shop Now
                     </button>
+
                 </a>
 
             </div>
@@ -458,6 +478,7 @@
         <!-- =====================================================
              FEATURES
              ===================================================== -->
+
         <section
             id="feature"
             class="section-p1"
@@ -465,48 +486,77 @@
         >
 
             <div class="ft-box">
+
                 <img
                     src="img/feature/f1.png"
                     alt="Free delivery"
                     loading="lazy"
                 >
-                <h6>Free Delivery</h6>
+
+                <h6>
+                    Free Delivery
+                </h6>
+
             </div>
 
+
             <div class="ft-box">
+
                 <img
                     src="img/feature/f2.png"
                     alt="Order online"
                     loading="lazy"
                 >
-                <h6>Order Online</h6>
+
+                <h6>
+                    Order Online
+                </h6>
+
             </div>
 
+
             <div class="ft-box">
+
                 <img
                     src="img/feature/f4.png"
                     alt="Special offers"
                     loading="lazy"
                 >
-                <h6>Offers</h6>
+
+                <h6>
+                    Offers
+                </h6>
+
             </div>
 
+
             <div class="ft-box">
+
                 <img
                     src="img/feature/f5.png"
                     alt="Happy customers"
                     loading="lazy"
                 >
-                <h6>Happy Customers</h6>
+
+                <h6>
+                    Happy Customers
+                </h6>
+
             </div>
 
+
             <div class="ft-box">
+
                 <img
                     src="img/feature/f6.png"
                     alt="24/7 customer support"
                     loading="lazy"
                 >
-                <h6>24/7 Support</h6>
+
+                <h6>
+                    24/7 Support
+                </h6>
+
             </div>
 
         </section>
@@ -515,20 +565,25 @@
         <!-- =====================================================
              SNEAKERS — ON DEMAND
              ===================================================== -->
+
         <section
             id="sneakers1"
             class="section-p1"
         >
 
-            <h2>Sneakers on Demand</h2>
+            <h2>
+                Sneakers on Demand
+            </h2>
 
             <p>
                 Hurry while stock still lasts
             </p>
 
+
             <div class="pro-container">
 
-                <!-- Product 1 -->
+                <!-- PRODUCT 1 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -539,6 +594,7 @@
                     data-product-image="img/sneakers/s1.png"
                     style="--i: 0"
                 >
+
                     <img
                         src="img/sneakers/s1.png"
                         alt="Adidas Black Samba OG"
@@ -546,7 +602,10 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
+
+                        <span>
+                            Adidas
+                        </span>
 
                         <h5>
                             Black Samba OG
@@ -556,14 +615,19 @@
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,100</h4>
+                        <h4>
+                            Kes 3,100
+                        </h4>
+
                     </div>
 
                     <button
@@ -571,15 +635,19 @@
                         class="add-cart-btn"
                         aria-label="Add Black Samba OG to cart"
                     >
+
                         <i
                             class="fas fa-shopping-cart"
                             aria-hidden="true"
                         ></i>
+
                     </button>
+
                 </div>
 
 
-                <!-- Product 2 -->
+                <!-- PRODUCT 2 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -590,6 +658,7 @@
                     data-product-image="img/sneakers/s2.jpeg"
                     style="--i: 1"
                 >
+
                     <img
                         src="img/sneakers/s2.jpeg"
                         alt="Adidas Samba OG White"
@@ -597,7 +666,10 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
+
+                        <span>
+                            Adidas
+                        </span>
 
                         <h5>
                             Samba OG White
@@ -607,14 +679,19 @@
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,100</h4>
+                        <h4>
+                            Kes 3,100
+                        </h4>
+
                     </div>
 
                     <button
@@ -622,15 +699,19 @@
                         class="add-cart-btn"
                         aria-label="Add Samba OG White to cart"
                     >
+
                         <i
                             class="fas fa-shopping-cart"
                             aria-hidden="true"
                         ></i>
+
                     </button>
+
                 </div>
 
 
-                <!-- Product 3 -->
+                <!-- PRODUCT 3 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -641,6 +722,7 @@
                     data-product-image="img/sneakers/s3.jpeg"
                     style="--i: 2"
                 >
+
                     <img
                         src="img/sneakers/s3.jpeg"
                         alt="Adidas Samba OG White and Royal"
@@ -648,7 +730,10 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
+
+                        <span>
+                            Adidas
+                        </span>
 
                         <h5>
                             Samba OG White/Royal
@@ -658,30 +743,39 @@
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,100</h4>
+                        <h4>
+                            Kes 3,100
+                        </h4>
+
                     </div>
 
                     <button
                         type="button"
                         class="add-cart-btn"
-                        aria-label="Add Samba OG White/Royal to cart"
+                        aria-label="Add Samba x White Royal to cart"
                     >
+
                         <i
                             class="fas fa-shopping-cart"
                             aria-hidden="true"
                         ></i>
+
                     </button>
+
                 </div>
 
 
-                <!-- Product 4 -->
+                <!-- PRODUCT 4 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -692,6 +786,7 @@
                     data-product-image="img/sneakers/s4.jpeg"
                     style="--i: 3"
                 >
+
                     <img
                         src="img/sneakers/s4.jpeg"
                         alt="Adidas Samba x CDG Valentines"
@@ -699,7 +794,10 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
+
+                        <span>
+                            Adidas
+                        </span>
 
                         <h5>
                             Samba x CDG Valentines
@@ -709,14 +807,19 @@
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,300</h4>
+                        <h4>
+                            Kes 3,300
+                        </h4>
+
                     </div>
 
                     <button
@@ -724,15 +827,19 @@
                         class="add-cart-btn"
                         aria-label="Add Samba x CDG Valentines to cart"
                     >
+
                         <i
                             class="fas fa-shopping-cart"
                             aria-hidden="true"
                         ></i>
+
                     </button>
+
                 </div>
 
 
-                <!-- Product 5 -->
+                <!-- PRODUCT 5 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -743,6 +850,7 @@
                     data-product-image="img/sneakers/c1.jpeg"
                     style="--i: 4"
                 >
+
                     <img
                         src="img/sneakers/c1.jpeg"
                         alt="Adidas Campus 00s Black White Gum"
@@ -750,7 +858,10 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
+
+                        <span>
+                            Adidas
+                        </span>
 
                         <h5>
                             Campus 00s 'Black White Gum'
@@ -760,14 +871,19 @@
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,500</h4>
+                        <h4>
+                            Kes 3,500
+                        </h4>
+
                     </div>
 
                     <button
@@ -775,15 +891,19 @@
                         class="add-cart-btn"
                         aria-label="Add Campus 00s Black White Gum to cart"
                     >
+
                         <i
                             class="fas fa-shopping-cart"
                             aria-hidden="true"
                         ></i>
+
                     </button>
+
                 </div>
 
 
-                <!-- Product 6 -->
+                <!-- PRODUCT 6 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -794,6 +914,7 @@
                     data-product-image="img/sneakers/c2.jpeg"
                     style="--i: 5"
                 >
+
                     <img
                         src="img/sneakers/c2.jpeg"
                         alt="Adidas Campus 00s Bliss Lilac"
@@ -801,7 +922,10 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
+
+                        <span>
+                            Adidas
+                        </span>
 
                         <h5>
                             Campus 00s 'Bliss Lilac'
@@ -811,14 +935,19 @@
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,500</h4>
+                        <h4>
+                            Kes 3,500
+                        </h4>
+
                     </div>
 
                     <button
@@ -826,15 +955,19 @@
                         class="add-cart-btn"
                         aria-label="Add Campus 00s Bliss Lilac to cart"
                     >
+
                         <i
                             class="fas fa-shopping-cart"
                             aria-hidden="true"
                         ></i>
+
                     </button>
+
                 </div>
 
 
-                <!-- Product 7 -->
+                <!-- PRODUCT 7 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -845,6 +978,7 @@
                     data-product-image="img/sneakers/c3.jpeg"
                     style="--i: 6"
                 >
+
                     <img
                         src="img/sneakers/c3.jpeg"
                         alt="Adidas Campus 00s Grey White"
@@ -852,7 +986,10 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
+
+                        <span>
+                            Adidas
+                        </span>
 
                         <h5>
                             Campus 00s Grey/White
@@ -862,14 +999,19 @@
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,500</h4>
+                        <h4>
+                            Kes 3,500
+                        </h4>
+
                     </div>
 
                     <button
@@ -877,15 +1019,19 @@
                         class="add-cart-btn"
                         aria-label="Add Campus 00s Grey White to cart"
                     >
+
                         <i
                             class="fas fa-shopping-cart"
                             aria-hidden="true"
                         ></i>
+
                     </button>
+
                 </div>
 
 
-                <!-- Product 8 -->
+                <!-- PRODUCT 8 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -896,6 +1042,7 @@
                     data-product-image="img/sneakers/c4.jpeg"
                     style="--i: 7"
                 >
+
                     <img
                         src="img/sneakers/c4.jpeg"
                         alt="Adidas Campus 00s Full Black"
@@ -903,7 +1050,10 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
+
+                        <span>
+                            Adidas
+                        </span>
 
                         <h5>
                             Campus 00s Full Black
@@ -913,14 +1063,19 @@
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,500</h4>
+                        <h4>
+                            Kes 3,500
+                        </h4>
+
                     </div>
 
                     <button
@@ -928,59 +1083,43 @@
                         class="add-cart-btn"
                         aria-label="Add Campus 00s Full Black to cart"
                     >
+
                         <i
                             class="fas fa-shopping-cart"
                             aria-hidden="true"
                         ></i>
+
                     </button>
+
                 </div>
 
             </div>
-        </section>
 
-
-        <!-- =====================================================
-             OFFER BANNER
-             ===================================================== -->
-        <section
-            id="banner"
-            class="section-m1"
-        >
-            <h4>October Sale!</h4>
-
-            <h2>
-                Up to <span>30% off</span>
-                - On Adidas Samba and Campus Sneakers
-            </h2>
-
-            <a href="shop.html">
-                <button
-                    type="button"
-                    class="normal"
-                >
-                    Check Out
-                </button>
-            </a>
         </section>
 
 
         <!-- =====================================================
              NEW STOCK
              ===================================================== -->
+
         <section
             id="sneakers2"
             class="section-p1"
         >
 
-            <h2>New Stock</h2>
+            <h2>
+                New Stock
+            </h2>
 
             <p>
                 Hurry while stock still lasts
             </p>
 
+
             <div class="pro-container">
 
-                <!-- Product 1 -->
+                <!-- PRODUCT 1 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -991,6 +1130,7 @@
                     data-product-image="img/sneakers/s1.png"
                     style="--i: 0"
                 >
+
                     <img
                         src="img/sneakers/s1.png"
                         alt="Adidas Black Samba OG"
@@ -998,21 +1138,32 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
-                        <h5>Black Samba OG</h5>
+
+                        <span>
+                            Adidas
+                        </span>
+
+                        <h5>
+                            Black Samba OG
+                        </h5>
 
                         <div
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,100</h4>
+                        <h4>
+                            Kes 3,100
+                        </h4>
+
                     </div>
 
                     <button
@@ -1020,12 +1171,19 @@
                         class="add-cart-btn"
                         aria-label="Add Black Samba OG to cart"
                     >
-                        <i class="fas fa-shopping-cart"></i>
+
+                        <i
+                            class="fas fa-shopping-cart"
+                            aria-hidden="true"
+                        ></i>
+
                     </button>
+
                 </div>
 
 
-                <!-- Product 2 -->
+                <!-- PRODUCT 2 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -1036,6 +1194,7 @@
                     data-product-image="img/sneakers/s2.jpeg"
                     style="--i: 1"
                 >
+
                     <img
                         src="img/sneakers/s2.jpeg"
                         alt="Adidas Samba OG White"
@@ -1043,21 +1202,32 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
-                        <h5>Samba OG White</h5>
+
+                        <span>
+                            Adidas
+                        </span>
+
+                        <h5>
+                            Samba OG White
+                        </h5>
 
                         <div
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,100</h4>
+                        <h4>
+                            Kes 3,100
+                        </h4>
+
                     </div>
 
                     <button
@@ -1065,12 +1235,19 @@
                         class="add-cart-btn"
                         aria-label="Add Samba OG White to cart"
                     >
-                        <i class="fas fa-shopping-cart"></i>
+
+                        <i
+                            class="fas fa-shopping-cart"
+                            aria-hidden="true"
+                        ></i>
+
                     </button>
+
                 </div>
 
 
-                <!-- Product 3 -->
+                <!-- PRODUCT 3 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -1081,6 +1258,7 @@
                     data-product-image="img/sneakers/s3.jpeg"
                     style="--i: 2"
                 >
+
                     <img
                         src="img/sneakers/s3.jpeg"
                         alt="Adidas Samba OG White Royal"
@@ -1088,21 +1266,32 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
-                        <h5>Samba OG White/Royal</h5>
+
+                        <span>
+                            Adidas
+                        </span>
+
+                        <h5>
+                            Samba OG White/Royal
+                        </h5>
 
                         <div
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,100</h4>
+                        <h4>
+                            Kes 3,100
+                        </h4>
+
                     </div>
 
                     <button
@@ -1110,12 +1299,19 @@
                         class="add-cart-btn"
                         aria-label="Add Samba OG White Royal to cart"
                     >
-                        <i class="fas fa-shopping-cart"></i>
+
+                        <i
+                            class="fas fa-shopping-cart"
+                            aria-hidden="true"
+                        ></i>
+
                     </button>
+
                 </div>
 
 
-                <!-- Product 4 -->
+                <!-- PRODUCT 4 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -1126,6 +1322,7 @@
                     data-product-image="img/sneakers/s4.jpeg"
                     style="--i: 3"
                 >
+
                     <img
                         src="img/sneakers/s4.jpeg"
                         alt="Adidas Samba x CDG Valentines"
@@ -1133,21 +1330,32 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
-                        <h5>Samba x CDG Valentines</h5>
+
+                        <span>
+                            Adidas
+                        </span>
+
+                        <h5>
+                            Samba x CDG Valentines
+                        </h5>
 
                         <div
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,300</h4>
+                        <h4>
+                            Kes 3,300
+                        </h4>
+
                     </div>
 
                     <button
@@ -1155,12 +1363,19 @@
                         class="add-cart-btn"
                         aria-label="Add Samba x CDG Valentines to cart"
                     >
-                        <i class="fas fa-shopping-cart"></i>
+
+                        <i
+                            class="fas fa-shopping-cart"
+                            aria-hidden="true"
+                        ></i>
+
                     </button>
+
                 </div>
 
 
-                <!-- Product 5 -->
+                <!-- PRODUCT 5 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -1171,6 +1386,7 @@
                     data-product-image="img/sneakers/c1.jpeg"
                     style="--i: 4"
                 >
+
                     <img
                         src="img/sneakers/c1.jpeg"
                         alt="Adidas Campus 00s Black White Gum"
@@ -1178,21 +1394,32 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
-                        <h5>Campus 00s 'Black White Gum'</h5>
+
+                        <span>
+                            Adidas
+                        </span>
+
+                        <h5>
+                            Campus 00s 'Black White Gum'
+                        </h5>
 
                         <div
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,500</h4>
+                        <h4>
+                            Kes 3,500
+                        </h4>
+
                     </div>
 
                     <button
@@ -1200,12 +1427,19 @@
                         class="add-cart-btn"
                         aria-label="Add Campus 00s Black White Gum to cart"
                     >
-                        <i class="fas fa-shopping-cart"></i>
+
+                        <i
+                            class="fas fa-shopping-cart"
+                            aria-hidden="true"
+                        ></i>
+
                     </button>
+
                 </div>
 
 
-                <!-- Product 6 -->
+                <!-- PRODUCT 6 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -1216,6 +1450,7 @@
                     data-product-image="img/sneakers/c2.jpeg"
                     style="--i: 5"
                 >
+
                     <img
                         src="img/sneakers/c2.jpeg"
                         alt="Adidas Campus 00s Bliss Lilac"
@@ -1223,21 +1458,32 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
-                        <h5>Campus 00s 'Bliss Lilac'</h5>
+
+                        <span>
+                            Adidas
+                        </span>
+
+                        <h5>
+                            Campus 00s 'Bliss Lilac'
+                        </h5>
 
                         <div
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,500</h4>
+                        <h4>
+                            Kes 3,500
+                        </h4>
+
                     </div>
 
                     <button
@@ -1245,12 +1491,19 @@
                         class="add-cart-btn"
                         aria-label="Add Campus 00s Bliss Lilac to cart"
                     >
-                        <i class="fas fa-shopping-cart"></i>
+
+                        <i
+                            class="fas fa-shopping-cart"
+                            aria-hidden="true"
+                        ></i>
+
                     </button>
+
                 </div>
 
 
-                <!-- Product 7 -->
+                <!-- PRODUCT 7 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -1261,6 +1514,7 @@
                     data-product-image="img/sneakers/c3.jpeg"
                     style="--i: 6"
                 >
+
                     <img
                         src="img/sneakers/c3.jpeg"
                         alt="Adidas Campus 00s Grey White"
@@ -1268,21 +1522,32 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
-                        <h5>Campus 00s Grey/White</h5>
+
+                        <span>
+                            Adidas
+                        </span>
+
+                        <h5>
+                            Campus 00s Grey/White
+                        </h5>
 
                         <div
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,500</h4>
+                        <h4>
+                            Kes 3,500
+                        </h4>
+
                     </div>
 
                     <button
@@ -1290,12 +1555,19 @@
                         class="add-cart-btn"
                         aria-label="Add Campus 00s Grey White to cart"
                     >
-                        <i class="fas fa-shopping-cart"></i>
+
+                        <i
+                            class="fas fa-shopping-cart"
+                            aria-hidden="true"
+                        ></i>
+
                     </button>
+
                 </div>
 
 
-                <!-- Product 8 -->
+                <!-- PRODUCT 8 -->
+
                 <div
                     class="pro reveal"
                     data-href="sproduct.html"
@@ -1306,6 +1578,7 @@
                     data-product-image="img/sneakers/c4.jpeg"
                     style="--i: 7"
                 >
+
                     <img
                         src="img/sneakers/c4.jpeg"
                         alt="Adidas Campus 00s Full Black"
@@ -1313,21 +1586,32 @@
                     >
 
                     <div class="des">
-                        <span>Adidas</span>
-                        <h5>Campus 00s Full Black</h5>
+
+                        <span>
+                            Adidas
+                        </span>
+
+                        <h5>
+                            Campus 00s Full Black
+                        </h5>
 
                         <div
                             class="star"
                             aria-label="5 out of 5 stars"
                         >
+
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
+
                         </div>
 
-                        <h4>Kes 3,500</h4>
+                        <h4>
+                            Kes 3,500
+                        </h4>
+
                     </div>
 
                     <button
@@ -1335,102 +1619,62 @@
                         class="add-cart-btn"
                         aria-label="Add Campus 00s Full Black to cart"
                     >
-                        <i class="fas fa-shopping-cart"></i>
+
+                        <i
+                            class="fas fa-shopping-cart"
+                            aria-hidden="true"
+                        ></i>
+
                     </button>
+
                 </div>
 
             </div>
+
         </section>
 
 
         <!-- =====================================================
-             SMALL BANNERS
+             SINGLE MINIMAL PROMOTIONAL BANNER
              ===================================================== -->
+
         <section
-            id="sm-banner"
-            class="section-p1"
+            id="banner"
+            class="section-m1"
+            aria-label="SneakersLink collection promotion"
         >
 
-            <div class="banner-box">
+            <div class="banner-content">
 
-                <h4>Crazy Deals</h4>
+                <span class="banner-eyebrow">
+                    SNEAKERSLINK NDIO PLUG!
+                </span>
 
                 <h2>
-                    Buy More than two pairs
-                    and get Kes 500/= off
+                    Your next pair<br>
+                    starts here.
                 </h2>
 
-                <span>
-                    Tafuta Your Vibe – Kicks That Match Your Energy!
-                </span>
+                <p>
+                    Discover the latest Kicks &amp; Unique styles.
+                </p>
 
-                <a href="shop.html">
-                    <button
-                        type="button"
-                        class="white"
-                    >
-                        Explore
-                    </button>
+                <a
+                    href="shop.html"
+                    class="banner-cta"
+                    aria-label="Shop SneakersLink collection"
+                >
+
+                    Shop Now
+
+                    <i
+                        class="fas fa-arrow-right"
+                        aria-hidden="true"
+                    ></i>
+
                 </a>
 
             </div>
-
-
-            <div class="banner-box banner-box2">
-
-                <h4>Christmas Offers</h4>
-
-                <h2>Upcoming</h2>
-
-                <span>
-                    Tafuta Your Vibe – Kicks That Match Your Energy!
-                </span>
-
-                <a href="shop.html">
-                    <button
-                        type="button"
-                        class="white"
-                    >
-                        Explore
-                    </button>
-                </a>
-
-            </div>
-
-        </section>
-
-
-        <!-- =====================================================
-             BANNER 3
-             ===================================================== -->
-        <section id="banner3">
-
-            <a
-                href="shop.html"
-                class="banner-box"
-                aria-label="Shop October sale"
-            >
-                <h2>OCTOBER SALE</h2>
-                <h3>SneakerLink Ndio Plug!</h3>
-            </a>
-
-            <a
-                href="shop.html"
-                class="banner-box banner-box2"
-                aria-label="Shop October sale"
-            >
-                <h2>OCTOBER SALE</h2>
-                <h3>SneakerLink Ndio Plug!</h3>
-            </a>
-
-            <a
-                href="shop.html"
-                class="banner-box banner-box3"
-                aria-label="Shop October sale"
-            >
-                <h2>OCTOBER SALE</h2>
-                <h3>SneakerLink Ndio Plug!</h3>
-            </a>
 
         </section>
 
@@ -1438,6 +1682,7 @@
         <!-- =====================================================
              NEWSLETTER
              ===================================================== -->
+
         <section
             id="newsletter"
             class="section-p1 section-m1"
@@ -1455,6 +1700,7 @@
                 </p>
 
             </div>
+
 
             <form
                 class="form"
@@ -1489,77 +1735,134 @@
     <!-- =========================================================
          FOOTER
          ========================================================= -->
-    <footer class="section-p1">
 
-        <div class="col">
+    <footer class="site-footer">
 
-            <a href="index.html" aria-label="SneakersLink home">
-                <img
-                    class="logo"
-                    src="img/logo.png"
-                    alt="SneakersLink logo"
-                >
+    <div class="footer-main">
+
+        <!-- =====================================================
+             BRAND / CONTACT
+             ===================================================== -->
+
+        <div class="footer-brand">
+
+            <a
+                href="index.html"
+                class="footer-logo"
+                aria-label="SneakersLink home"
+            >
+                Sneakers<span>Link</span>
             </a>
 
-            <h4>Contact</h4>
-
-            <p>
-                <strong>Location:</strong>
-                Dubai Merchant Mall - Nairobi, Kenya
+            <p class="footer-tagline">
+                Your plug for premium sneakers in Kenya.
             </p>
 
-            <p>
-                <strong>Phone:</strong>
-                +254 768 372955 / +254 114 141830
-            </p>
+            <div class="footer-contact">
 
-            <p>
-                <strong>Email:</strong>
-                sneakerslink254@gmail.com
-            </p>
+                <a href="tel:+254768372955">
+                    <i class="fas fa-phone-alt" aria-hidden="true"></i>
+                    <span>+254 768 372955</span>
+                </a>
 
-            <p>
-                <strong>Hours:</strong>
-                10:00 a.m - 6:00 p.m, Mon - Sat
-            </p>
+                <a href="mailto:sneakerslink254@gmail.com">
+                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                    <span>sneakerslink254@gmail.com</span>
+                </a>
 
-            <div class="socials">
+                <span>
+                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                    <span>Nairobi, Kenya</span>
+                </span>
 
-                <h4>Follow Us</h4>
+            </div>
 
-                <div class="icon">
 
-                    <a
-                        href="#"
-                        aria-label="SneakersLink Facebook"
-                    >
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
+            <!-- SOCIALS -->
 
-                    <a
-                        href="#"
-                        aria-label="SneakersLink Instagram"
-                    >
-                        <i class="fab fa-instagram"></i>
-                    </a>
+            <div class="footer-socials">
 
-                    <a
-                        href="#"
-                        aria-label="SneakersLink TikTok"
-                    >
-                        <i class="fab fa-tiktok"></i>
-                    </a>
+                <a
+                    href="#"
+                    aria-label="SneakersLink Facebook"
+                    title="Facebook"
+                >
+                    <i class="fab fa-facebook-f"></i>
+                </a>
 
-                </div>
+                <a
+                    href="#"
+                    aria-label="SneakersLink Instagram"
+                    title="Instagram"
+                >
+                    <i class="fab fa-instagram"></i>
+                </a>
+
+                <a
+                    href="#"
+                    aria-label="SneakersLink TikTok"
+                    title="TikTok"
+                >
+                    <i class="fab fa-tiktok"></i>
+                </a>
+
+                <a
+                    href="https://wa.me/254768372955"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="SneakersLink WhatsApp"
+                    title="WhatsApp"
+                >
+                    <i class="fab fa-whatsapp"></i>
+                </a>
 
             </div>
 
         </div>
 
 
-        <div class="col">
+        <!-- =====================================================
+             SHOP
+             ===================================================== -->
 
-            <h4>About</h4>
+        <div class="footer-column">
+
+            <h4>
+                Shop
+            </h4>
+
+            <a href="shop.html">
+                All Sneakers
+            </a>
+
+            <a href="shop.html">
+                Adidas Samba
+            </a>
+
+            <a href="shop.html">
+                Adidas Campus
+            </a>
+
+            <a href="shop.html">
+                New Arrivals
+            </a>
+
+            <a href="shop.html">
+                Special Offers
+            </a>
+
+        </div>
+
+
+        <!-- =====================================================
+             INFORMATION
+             ===================================================== -->
+
+        <div class="footer-column">
+
+            <h4>
+                Information
+            </h4>
 
             <a href="about.html">
                 About Us
@@ -1574,7 +1877,7 @@
             </a>
 
             <a href="#">
-                Terms & Conditions
+                Terms &amp; Conditions
             </a>
 
             <a href="contact.html">
@@ -1584,9 +1887,15 @@
         </div>
 
 
-        <div class="col">
+        <!-- =====================================================
+             ACCOUNT / SUPPORT
+             ===================================================== -->
 
-            <h4>My Account</h4>
+        <div class="footer-column">
+
+            <h4>
+                My Account
+            </h4>
 
             <a
                 href="login.html"
@@ -1606,30 +1915,32 @@
                 My Cart
             </a>
 
-            <a href="#">
-                My Wishlist
-            </a>
-
             <a href="track-order.html">
                 Track My Order
             </a>
 
             <a href="contact.html">
-                Help
+                Help &amp; Support
             </a>
 
         </div>
 
 
-        <div class="col install">
+        <!-- =====================================================
+             APP / PAYMENT
+             ===================================================== -->
 
-            <h4>Install App</h4>
+        <div class="footer-column footer-app">
+
+            <h4>
+                Get the App
+            </h4>
 
             <p>
-                From App Store or Google Play
+                Shop SneakersLink wherever you go.
             </p>
 
-            <div class="row">
+            <div class="footer-app-links">
 
                 <img
                     src="img/pay/app.jpg"
@@ -1645,35 +1956,57 @@
 
             </div>
 
-            <p>
-                Secure Payment Options
-            </p>
+            <span class="payment-label">
+                Secure payments
+            </span>
 
             <img
+                class="mpesa-logo"
                 src="img/pay/mpesa2.png"
-                alt="M-Pesa accepted here"
+                alt="M-Pesa accepted"
                 loading="lazy"
             >
 
         </div>
 
+    </div>
 
-        <div class="copyright">
 
-            <p>
-                <strong>
-                    SneakersLink©, 2024 | All Rights Reserved
-                </strong>
-            </p>
+    <!-- =========================================================
+         FOOTER BOTTOM
+         ========================================================= -->
+
+    <div class="footer-bottom">
+
+        <p>
+            © 2024 SneakersLink. All rights reserved.
+        </p>
+
+        <div class="footer-bottom-links">
+
+            <a href="#">
+                Privacy
+            </a>
+
+            <a href="#">
+                Terms
+            </a>
+
+            <a href="contact.html">
+                Contact
+            </a>
 
         </div>
 
-    </footer>
+    </div>
+
+</footer>
 
 
     <!-- =========================================================
          WHATSAPP
          ========================================================= -->
+
     <a
         href="https://wa.me/254768372955?text=Hi%20SneakersLink%2C%20I%27d%20like%20to%20ask%20about..."
         class="whatsapp-fab"
@@ -1682,16 +2015,19 @@
         aria-label="Chat with SneakersLink on WhatsApp"
         title="Chat with us on WhatsApp"
     >
+
         <i
             class="fab fa-whatsapp"
             aria-hidden="true"
         ></i>
+
     </a>
 
 
     <!-- =========================================================
          BACK TO TOP
          ========================================================= -->
+
     <button
         type="button"
         id="backToTop"
@@ -1699,16 +2035,19 @@
         aria-label="Back to top"
         title="Back to top"
     >
+
         <i
             class="fas fa-arrow-up"
             aria-hidden="true"
         ></i>
+
     </button>
 
 
     <!-- =========================================================
          SITE JAVASCRIPT
          ========================================================= -->
+
     <script type="module" src="firebase-auth.js"></script>
     <script type="module" src="firebase-profile.js"></script>
     <script type="module" src="firebase-orders.js"></script>
