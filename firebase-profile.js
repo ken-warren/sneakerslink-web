@@ -4,7 +4,7 @@
    Customer profile data lives in:
 
        Firestore
-       customers/{uid}
+       users/{uid}
 
    Profile images live in:
 
@@ -57,30 +57,27 @@ import {
   deleteObject,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-
 /* =========================================================
    FIREBASE INITIALISATION
    ========================================================= */
 
 const isConfigured =
+  firebaseConfig &&
   firebaseConfig.apiKey &&
   !firebaseConfig.apiKey.startsWith("YOUR_");
 
-let app;
-let db;
-let auth;
-let storage;
+let app = null;
+let db = null;
+let auth = null;
+let storage = null;
 
 if (isConfigured) {
-  app = getApps().length
-    ? getApp()
-    : initializeApp(firebaseConfig);
+  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
   db = getFirestore(app);
   auth = getAuth(app);
   storage = getStorage(app);
 }
-
 
 /* =========================================================
    HELPERS
@@ -88,23 +85,17 @@ if (isConfigured) {
 
 function requireFirebase() {
   if (!isConfigured) {
-    throw new Error(
-      "Firebase isn't configured yet — add your project keys to firebase-config.js (see SETUP.md)."
-    );
+    throw new Error("Firebase isn't configured yet. Check firebase-config.js.");
   }
 }
-
 
 function requireAuth() {
   requireFirebase();
 
   if (!auth) {
-    throw new Error(
-      "Firebase Authentication is not available."
-    );
+    throw new Error("Firebase Authentication is not available.");
   }
 }
-
 
 function getCurrentUser() {
   if (!isConfigured || !auth) {
@@ -114,21 +105,40 @@ function getCurrentUser() {
   return auth.currentUser || null;
 }
 
-
 function requireUser() {
   requireAuth();
 
   const user = getCurrentUser();
 
   if (!user) {
-    throw new Error(
-      "You must be signed in to access your profile."
-    );
+    throw new Error("You must be signed in to access your profile.");
   }
 
   return user;
 }
 
+/* =========================================================
+   PROFILE REFERENCE
+   ---------------------------------------------------------
+   IMPORTANT:
+   This MUST match Firestore rules:
+
+       match /users/{userId}
+
+   Therefore every profile is stored at:
+
+       users/{authenticated-user-uid}
+   ========================================================= */
+
+function getProfileRef(uid) {
+  requireFirebase();
+
+  if (!uid) {
+    throw new Error("A Firebase Authentication UID is required.");
+  }
+
+  return doc(db, "users", uid);
+}
 
 /* =========================================================
    PROFILE DEFAULTS
@@ -140,8 +150,7 @@ function createDefaultProfile(user) {
 
     email: user.email || "",
 
-    displayName:
-      user.displayName || "",
+    displayName: user.displayName || "",
 
     phone: "",
 
@@ -153,15 +162,13 @@ function createDefaultProfile(user) {
 
     country: "",
 
-    photoURL:
-      user.photoURL || "",
+    photoURL: user.photoURL || "",
 
     createdAt: serverTimestamp(),
 
     updatedAt: serverTimestamp(),
   };
 }
-
 
 /* =========================================================
    NORMALISE PROFILE
@@ -171,51 +178,27 @@ function normaliseProfile(data, user) {
   return {
     uid: data?.uid || user.uid,
 
-    email:
-      data?.email ??
-      user.email ??
-      "",
+    email: data?.email ?? user.email ?? "",
 
-    displayName:
-      data?.displayName ??
-      user.displayName ??
-      "",
+    displayName: data?.displayName ?? user.displayName ?? "",
 
-    phone:
-      data?.phone ??
-      "",
+    phone: data?.phone ?? "",
 
-    address:
-      data?.address ??
-      "",
+    address: data?.address ?? "",
 
-    city:
-      data?.city ??
-      "",
+    city: data?.city ?? "",
 
-    postalCode:
-      data?.postalCode ??
-      "",
+    postalCode: data?.postalCode ?? "",
 
-    country:
-      data?.country ??
-      "",
+    country: data?.country ?? "",
 
-    photoURL:
-      data?.photoURL ??
-      user.photoURL ??
-      "",
+    photoURL: data?.photoURL ?? user.photoURL ?? "",
 
-    createdAt:
-      data?.createdAt ??
-      null,
+    createdAt: data?.createdAt ?? null,
 
-    updatedAt:
-      data?.updatedAt ??
-      null,
+    updatedAt: data?.updatedAt ?? null,
   };
 }
-
 
 /* =========================================================
    GET PROFILE
@@ -224,45 +207,38 @@ function normaliseProfile(data, user) {
 /**
  * Load the currently authenticated customer's profile.
  *
- * If no profile document exists yet, a new profile document
- * is created automatically.
+ * Profile location:
+ *
+ *     users/{uid}
+ *
+ * If the document does not exist, it is created automatically.
  */
 async function getProfile() {
   const user = requireUser();
 
-  const profileRef = doc(
-    db,
-    "customers",
-    user.uid
-  );
+  const profileRef = getProfileRef(user.uid);
 
   const snap = await getDoc(profileRef);
 
   if (!snap.exists()) {
-    const newProfile =
-      createDefaultProfile(user);
+    const newProfile = createDefaultProfile(user);
 
-    await setDoc(
-      profileRef,
-      newProfile
-    );
+    await setDoc(profileRef, newProfile);
 
     return normaliseProfile(
       {
         ...newProfile,
+
         createdAt: null,
+
         updatedAt: null,
       },
-      user
+      user,
     );
   }
 
-  return normaliseProfile(
-    snap.data(),
-    user
-  );
+  return normaliseProfile(snap.data(), user);
 }
-
 
 /* =========================================================
    UPDATE PROFILE
@@ -271,10 +247,7 @@ async function getProfile() {
 /**
  * Update customer profile fields.
  *
- * Only the fields below are accepted.
- *
- * This prevents arbitrary Firestore fields from accidentally
- * being written by the profile UI.
+ * Only approved fields are accepted.
  */
 async function updateProfile(fields = {}) {
   const user = requireUser();
@@ -291,58 +264,36 @@ async function updateProfile(fields = {}) {
   const updates = {};
 
   allowedFields.forEach((field) => {
-    if (
-      Object.prototype.hasOwnProperty.call(
-        fields,
-        field
-      )
-    ) {
-      updates[field] =
-        String(fields[field] ?? "").trim();
+    if (Object.prototype.hasOwnProperty.call(fields, field)) {
+      updates[field] = String(fields[field] ?? "").trim();
     }
   });
 
-  if (
-    Object.keys(updates).length === 0
-  ) {
+  if (Object.keys(updates).length === 0) {
     return getProfile();
   }
 
-  /*
-   * Keep Firebase Authentication's displayName
-   * synchronized with the Firestore customer profile.
-   */
-  if (
-    Object.prototype.hasOwnProperty.call(
-      updates,
-      "displayName"
-    )
-  ) {
+  /* -------------------------------------------------------
+     Keep Firebase Authentication displayName synchronized
+     with the Firestore profile.
+     ------------------------------------------------------- */
+
+  if (Object.prototype.hasOwnProperty.call(updates, "displayName")) {
     await updateAuthProfile(user, {
       displayName: updates.displayName,
     });
   }
 
-  updates.updatedAt =
-    serverTimestamp();
+  updates.updatedAt = serverTimestamp();
 
-  const profileRef = doc(
-    db,
-    "customers",
-    user.uid
-  );
+  const profileRef = getProfileRef(user.uid);
 
-  await setDoc(
-    profileRef,
-    updates,
-    {
-      merge: true,
-    }
-  );
+  await setDoc(profileRef, updates, {
+    merge: true,
+  });
 
   return getProfile();
 }
-
 
 /* =========================================================
    AVATAR VALIDATION
@@ -350,47 +301,38 @@ async function updateProfile(fields = {}) {
 
 function validateAvatar(file) {
   if (!file) {
-    throw new Error(
-      "Please select an image."
-    );
+    throw new Error("Please select an image.");
   }
 
-  if (!file.type.startsWith("image/")) {
-    throw new Error(
-      "Please select a valid image file."
-    );
+  if (!file.type || !file.type.startsWith("image/")) {
+    throw new Error("Please select a valid image file.");
   }
 
   /*
-   * Keep profile images reasonably small.
-   *
-   * 5 MB is large enough for normal phone/camera images
-   * while preventing accidental huge uploads.
+   * Maximum profile image size:
+   * 5 MB
    */
-  const maxSize =
-    5 * 1024 * 1024;
+
+  const maxSize = 5 * 1024 * 1024;
 
   if (file.size > maxSize) {
-    throw new Error(
-      "Profile images must be smaller than 5 MB."
-    );
+    throw new Error("Profile images must be smaller than 5 MB.");
   }
 }
-
 
 /* =========================================================
    UPLOAD AVATAR
    ========================================================= */
 
 /**
- * Upload/replace the customer's profile avatar.
+ * Upload/replace customer's profile avatar.
  *
  * Storage path:
  *
- * profile-images/{uid}/avatar
+ *     profile-images/{uid}/avatar
  *
- * The same path is reused so a new upload replaces the
- * previous avatar rather than creating endless files.
+ * The same path is reused so the new image replaces
+ * the previous image.
  */
 async function uploadAvatar(file) {
   const user = requireUser();
@@ -398,154 +340,135 @@ async function uploadAvatar(file) {
   validateAvatar(file);
 
   if (!storage) {
-    throw new Error(
-      "Firebase Storage is not available."
-    );
+    throw new Error("Firebase Storage is not available.");
   }
 
-  const avatarRef = ref(
-    storage,
-    `profile-images/${user.uid}/avatar`
-  );
+  const avatarRef = ref(storage, `profile-images/${user.uid}/avatar`);
 
-  const snapshot =
-    await uploadBytes(
-      avatarRef,
-      file,
-      {
-        contentType: file.type,
-      }
-    );
+  const snapshot = await uploadBytes(avatarRef, file, {
+    contentType: file.type,
+  });
 
-  const downloadURL =
-    await getDownloadURL(
-      snapshot.ref
-    );
+  const downloadURL = await getDownloadURL(snapshot.ref);
 
-  const profileRef = doc(
-    db,
-    "customers",
-    user.uid
-  );
+  /*
+   * Update Firebase Authentication profile
+   * as well as Firestore.
+   */
+
+  await updateAuthProfile(user, {
+    photoURL: downloadURL,
+  });
+
+  const profileRef = getProfileRef(user.uid);
 
   await setDoc(
     profileRef,
     {
       photoURL: downloadURL,
+
       updatedAt: serverTimestamp(),
     },
     {
       merge: true,
-    }
+    },
   );
 
   return downloadURL;
 }
 
-
 /* =========================================================
    DELETE AVATAR
    ========================================================= */
 
-/**
- * Remove the customer's profile avatar from Storage and
- * clear photoURL from Firestore.
- */
 async function deleteAvatar() {
   const user = requireUser();
 
   if (!storage) {
-    throw new Error(
-      "Firebase Storage is not available."
-    );
+    throw new Error("Firebase Storage is not available.");
   }
 
-  const avatarRef = ref(
-    storage,
-    `profile-images/${user.uid}/avatar`
-  );
+  const avatarRef = ref(storage, `profile-images/${user.uid}/avatar`);
 
   try {
-    await deleteObject(
-      avatarRef
-    );
+    await deleteObject(avatarRef);
   } catch (error) {
     /*
-     * Firebase returns an error when the file doesn't exist.
-     *
-     * That situation should not prevent us from clearing
-     * the Firestore profile URL.
+     * If the image does not exist,
+     * continue with clearing the profile URL.
      */
-    if (
-      error?.code !==
-      "storage/object-not-found"
-    ) {
+
+    if (error?.code !== "storage/object-not-found") {
       throw error;
     }
   }
 
-  const profileRef = doc(
-    db,
-    "customers",
-    user.uid
-  );
+  /*
+   * Clear Firebase Authentication photo.
+   */
 
-  await updateDoc(
+  await updateAuthProfile(user, {
+    photoURL: null,
+  });
+
+  /*
+   * Clear Firestore photo URL.
+   */
+
+  const profileRef = getProfileRef(user.uid);
+
+  await setDoc(
     profileRef,
     {
       photoURL: "",
-      updatedAt: serverTimestamp(),
-    }
-  );
-}
 
+      updatedAt: serverTimestamp(),
+    },
+    {
+      merge: true,
+    },
+  );
+
+  return true;
+}
 
 /* =========================================================
    AUTH STATE
    ========================================================= */
 
 /**
- * Subscribe to customer authentication changes.
+ * Subscribe to Firebase Authentication changes.
  *
- * The profile page can use this to redirect a logged-out
- * customer to the login/register flow.
+ * This is especially important on profile.html because
+ * Firebase may still be restoring the user's session when
+ * the page initially loads.
  */
 function onProfileAuthChange(callback) {
-  if (
-    !isConfigured ||
-    !auth
-  ) {
+  if (!isConfigured || !auth) {
     callback(null);
 
     return () => {};
   }
 
-  return onAuthStateChanged(
-    auth,
-    (user) => {
-      callback(
-        user
-          ? {
-              uid: user.uid,
-
-              email:
-                user.email || "",
-
-              displayName:
-                user.displayName || "",
-
-              photoURL:
-                user.photoURL || "",
-
-              emailVerified:
-                !!user.emailVerified,
-            }
-          : null
-      );
+  return onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      callback(null);
+      return;
     }
-  );
-}
 
+    callback({
+      uid: user.uid,
+
+      email: user.email || "",
+
+      displayName: user.displayName || "",
+
+      photoURL: user.photoURL || "",
+
+      emailVerified: !!user.emailVerified,
+    });
+  });
+}
 
 /* =========================================================
    PUBLIC API
@@ -567,13 +490,8 @@ window.SLProfile = {
   onProfileAuthChange,
 };
 
-
 /* =========================================================
    READY EVENT
    ========================================================= */
 
-window.dispatchEvent(
-  new CustomEvent(
-    "slprofile:ready"
-  )
-);
+window.dispatchEvent(new CustomEvent("slprofile:ready"));
