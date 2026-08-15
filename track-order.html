@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -11,7 +14,7 @@
 
     <meta
         name="description"
-        content="Track your SneakersLink order and view the latest delivery status."
+        content="Track your SneakersLink orders and view your complete order history."
     >
 
     <link
@@ -30,7 +33,9 @@
         href="style.css"
     >
 
+
     <style>
+
         /* =========================================================
            TRACK ORDER PAGE
            ========================================================= */
@@ -41,11 +46,13 @@
             background: var(--background, #f8f9fa);
         }
 
+
         .track-header {
             max-width: 720px;
             margin: 0 auto 32px;
             text-align: center;
         }
+
 
         .track-header h1 {
             margin: 0 0 10px;
@@ -55,6 +62,7 @@
             line-height: 1.15;
         }
 
+
         .track-header p {
             margin: 0;
             color: var(--text-muted, #666);
@@ -62,11 +70,36 @@
             line-height: 1.7;
         }
 
+
         .track-page {
             width: 100%;
-            max-width: 700px;
+            max-width: 760px;
             margin: 0 auto;
         }
+
+
+        /* =========================================================
+           AUTH NOTICE
+           ========================================================= */
+
+        .track-auth-notice {
+            display: none;
+            margin-bottom: 20px;
+            padding: 16px 18px;
+            border: 1px solid rgba(8, 129, 120, 0.18);
+            border-radius: 12px;
+            background: rgba(8, 129, 120, 0.06);
+            color: var(--ink, #222);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+
+        .track-auth-notice a {
+            color: var(--brand-dark, #06665f);
+            font-weight: 700;
+        }
+
 
         /* =========================================================
            TRACK FORM
@@ -80,6 +113,7 @@
             box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06);
         }
 
+
         .track-form {
             display: grid;
             grid-template-columns: minmax(0, 1fr) auto;
@@ -87,9 +121,11 @@
             gap: 12px;
         }
 
+
         .track-field {
             min-width: 0;
         }
+
 
         .track-form-label {
             display: block;
@@ -98,6 +134,7 @@
             font-size: 13px;
             font-weight: 700;
         }
+
 
         .track-form input {
             width: 100%;
@@ -114,16 +151,17 @@
                 box-shadow 0.2s ease;
         }
 
+
         .track-form input::placeholder {
             color: #999;
         }
 
+
         .track-form input:focus {
             border-color: var(--brand, #088178);
-            box-shadow:
-                0 0 0 4px
-                rgba(8, 129, 120, 0.12);
+            box-shadow: 0 0 0 4px rgba(8, 129, 120, 0.12);
         }
+
 
         .track-form button {
             display: inline-flex;
@@ -146,12 +184,12 @@
                 opacity 0.2s ease;
         }
 
+
         .track-form button:hover {
             transform: translateY(-1px);
-            box-shadow:
-                0 7px 18px
-                rgba(8, 129, 120, 0.22);
+            box-shadow: 0 7px 18px rgba(8, 129, 120, 0.22);
         }
+
 
         .track-form button:disabled {
             opacity: 0.65;
@@ -160,6 +198,7 @@
             box-shadow: none;
         }
 
+
         .track-help {
             margin: 12px 0 0;
             color: var(--text-muted, #777);
@@ -167,80 +206,9 @@
             line-height: 1.6;
         }
 
-        /* =========================================================
-           SIGN-IN NOTICE
-           ========================================================= */
-
-        .track-auth-notice {
-            display: none;
-            margin-bottom: 20px;
-            padding: 16px 18px;
-            border: 1px solid
-                rgba(8, 129, 120, 0.18);
-            border-radius: 12px;
-            background:
-                rgba(8, 129, 120, 0.06);
-            color: var(--ink, #222);
-            font-size: 13px;
-            line-height: 1.6;
-        }
-
-        .track-auth-notice a {
-            color: var(--brand-dark, #06665f);
-            font-weight: 700;
-        }
 
         /* =========================================================
-           RECENT ORDERS
-           ========================================================= */
-
-        .recent-orders {
-            margin-top: 22px;
-        }
-
-        .recent-orders-title {
-            margin: 0 0 10px;
-            color: var(--ink, #222);
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .recent-orders ul {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .recent-order-btn {
-            padding: 8px 12px;
-            background:
-                rgba(8, 129, 120, 0.07);
-            border: 1px solid
-                rgba(8, 129, 120, 0.15);
-            border-radius: 999px;
-            color: var(--brand-dark, #06665f);
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition:
-                background 0.2s ease,
-                border-color 0.2s ease,
-                transform 0.2s ease;
-        }
-
-        .recent-order-btn:hover {
-            background:
-                rgba(8, 129, 120, 0.12);
-            border-color:
-                var(--brand, #088178);
-            transform: translateY(-1px);
-        }
-
-        /* =========================================================
-           STATUS / ERROR
+           STATUS MESSAGE
            ========================================================= */
 
         .track-status-message {
@@ -252,106 +220,473 @@
             line-height: 1.6;
         }
 
+
         .track-status-message--error {
             background: #fff5f5;
             border: 1px solid #ffd4d4;
             color: #a33;
         }
 
+
         .track-status-message--info {
-            background:
-                rgba(8, 129, 120, 0.06);
-            border: 1px solid
-                rgba(8, 129, 120, 0.15);
+            background: rgba(8, 129, 120, 0.06);
+            border: 1px solid rgba(8, 129, 120, 0.15);
             color: var(--ink, #222);
         }
+
 
         .track-status-message a {
             color: var(--brand-dark, #06665f);
             font-weight: 700;
         }
 
+
         /* =========================================================
-           RESULT
+           ORDER HISTORY
            ========================================================= */
 
-        #trackResult {
-            margin-top: 24px;
+        .order-history {
+            margin-top: 28px;
         }
 
-        .track-card {
-            padding: 28px 24px;
-            background: var(--surface, #fff);
-            border: 1px solid var(--border, #e6e6e6);
-            border-radius: 18px;
-            box-shadow:
-                0 10px 35px
-                rgba(0, 0, 0, 0.06);
-            animation:
-                trackRiseIn 0.35s ease;
-        }
 
-        @keyframes trackRiseIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .track-card-head {
+        .order-history-header {
             display: flex;
-            align-items: flex-start;
+            align-items: flex-end;
             justify-content: space-between;
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 15px;
+            margin-bottom: 14px;
         }
 
-        .track-order-id {
+
+        .order-history-heading {
             margin: 0;
             color: var(--ink, #222);
             font-size: 18px;
             font-weight: 700;
         }
 
-        .track-order-date {
-            margin: 5px 0 0;
+
+        .order-history-subtitle {
+            margin: 4px 0 0;
             color: var(--text-muted, #777);
             font-size: 12px;
         }
 
-        .track-order-total {
-            color: var(--brand, #088178);
-            font-size: 18px;
-            font-weight: 700;
-            white-space: nowrap;
-        }
 
-        /* =========================================================
-           STATUS BADGE
-           ========================================================= */
-
-        .track-current-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            margin-top: 9px;
-            padding: 6px 10px;
+        .order-history-count {
+            flex: 0 0 auto;
+            padding: 5px 9px;
             border-radius: 999px;
-            background:
-                rgba(8, 129, 120, 0.08);
+            background: rgba(8, 129, 120, 0.08);
             color: var(--brand-dark, #06665f);
             font-size: 11px;
             font-weight: 700;
         }
 
+
+        .history-list {
+            display: grid;
+            gap: 10px;
+        }
+
+
+        .history-empty {
+            padding: 25px 20px;
+            background: var(--surface, #fff);
+            border: 1px solid var(--border, #e6e6e6);
+            border-radius: 15px;
+            text-align: center;
+            color: var(--text-muted, #777);
+            font-size: 13px;
+        }
+
+
         /* =========================================================
-           TIMELINE
+           HISTORY ORDER
            ========================================================= */
+
+        .history-order {
+            overflow: hidden;
+            background: var(--surface, #fff);
+            border: 1px solid var(--border, #e6e6e6);
+            border-radius: 15px;
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                transform 0.2s ease;
+        }
+
+
+        .history-order:hover {
+            border-color: rgba(8, 129, 120, 0.25);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            transform: translateY(-1px);
+        }
+
+
+        .history-order--active {
+            border-color: rgba(8, 129, 120, 0.45);
+            box-shadow: 0 8px 25px rgba(8, 129, 120, 0.08);
+        }
+
+
+        .history-order-summary {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 15px;
+            align-items: center;
+            padding: 17px 18px;
+        }
+
+
+        .history-main {
+            min-width: 0;
+        }
+
+
+        .history-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+
+        .history-order-id {
+            margin: 0;
+            color: var(--ink, #222);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+
+        .history-total {
+            color: var(--brand, #088178);
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+
+        .history-date {
+            margin: 4px 0 10px;
+            color: var(--text-muted, #888);
+            font-size: 10px;
+        }
+
+
+        .history-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--brand-dark, #06665f);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+
+        .history-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--brand, #088178);
+        }
+
+
+        /* =========================================================
+           HISTORY PROGRESS
+           ========================================================= */
+
+        .history-progress {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding: 0 2px;
+        }
+
+
+        .history-progress-line {
+            position: absolute;
+            top: 4px;
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background: var(--border, #e8e8e8);
+            z-index: 0;
+            overflow: hidden;
+            border-radius: 999px;
+        }
+
+
+        .history-progress-fill {
+            height: 100%;
+            background: rgba(8, 129, 120, 0.38);
+            border-radius: inherit;
+        }
+
+
+        .history-progress-stage {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            width: 20%;
+        }
+
+
+        .history-progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e1e1e1;
+            border: 2px solid var(--surface, #fff);
+            box-shadow: 0 0 0 1px #ddd;
+        }
+
+
+        .history-progress-stage--done .history-progress-dot {
+            background: rgba(8, 129, 120, 0.55);
+            box-shadow: 0 0 0 1px rgba(8, 129, 120, 0.22);
+        }
+
+
+        .history-progress-label {
+            max-width: 75px;
+            color: #aaa;
+            font-size: 8px;
+            line-height: 1.2;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
+        .history-progress-stage--done .history-progress-label {
+            color: #888;
+        }
+
+
+        /* =========================================================
+           HISTORY OPEN/CLOSE BUTTON
+           ========================================================= */
+
+        .history-arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            flex: 0 0 35px;
+            border: 1px solid var(--border, #e5e5e5);
+            border-radius: 50%;
+            background: var(--surface, #fff);
+            color: var(--brand, #088178);
+            text-decoration: none;
+            font-size: 13px;
+            cursor: pointer;
+            transition:
+                background 0.2s ease,
+                color 0.2s ease,
+                border-color 0.2s ease,
+                transform 0.2s ease;
+        }
+
+
+        .history-arrow:hover {
+            background: var(--brand, #088178);
+            border-color: var(--brand, #088178);
+            color: #fff;
+        }
+
+
+        .history-order--active .history-arrow {
+            background: var(--brand, #088178);
+            border-color: var(--brand, #088178);
+            color: #fff;
+        }
+
+
+        .history-order--active .history-arrow:hover {
+            transform: translateX(-2px);
+        }
+
+
+        /* =========================================================
+           INLINE ORDER DETAILS
+           ========================================================= */
+
+        .history-order-details {
+            display: none;
+            border-top: 1px solid var(--border, #e6e6e6);
+            background: var(--surface-alt, #fafbfb);
+            animation: historyDetailsOpen 0.25s ease;
+        }
+
+
+        .history-order-details.is-open {
+            display: block;
+        }
+
+
+        @keyframes historyDetailsOpen {
+
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+
+
+        .history-details-inner {
+            padding: 22px 18px 20px;
+        }
+
+
+        /* =========================================================
+           INLINE DETAILS HEADER
+           ========================================================= */
+
+        .inline-details-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+
+        .inline-details-order-id {
+            margin: 0;
+            color: var(--ink, #222);
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+
+        .inline-details-date {
+            margin: 4px 0 0;
+            color: var(--text-muted, #777);
+            font-size: 11px;
+        }
+
+
+        .inline-details-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 9px;
+            border-radius: 999px;
+            background: rgba(8, 129, 120, 0.08);
+            color: var(--brand-dark, #06665f);
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+
+        .inline-details-status i {
+            font-size: 6px;
+        }
+
+
+        /* =========================================================
+           CUSTOMER CURRENT DETAILS
+           ========================================================= */
+
+        .current-customer-card {
+            margin-bottom: 22px;
+            padding: 17px;
+            background: var(--surface, #fff);
+            border: 1px solid var(--border, #e5e5e5);
+            border-radius: 13px;
+        }
+
+
+        .current-customer-heading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 14px;
+            color: var(--ink, #222);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+
+        .current-customer-heading i {
+            color: var(--brand, #088178);
+        }
+
+
+        .customer-current-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+
+        .customer-current-field {
+            min-width: 0;
+            padding: 11px 12px;
+            background: var(--surface-alt, #f7f8f8);
+            border-radius: 9px;
+        }
+
+
+        .customer-current-field--full {
+            grid-column: 1 / -1;
+        }
+
+
+        .customer-current-label {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--text-muted, #777);
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+
+        .customer-current-value {
+            display: block;
+            color: var(--ink, #222);
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+
+
+        /* =========================================================
+           INLINE TIMELINE
+           ========================================================= */
+
+        .inline-track-timeline {
+            margin-bottom: 25px;
+        }
+
+
+        .inline-timeline-title {
+            margin: 0 0 13px;
+            color: var(--ink, #222);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
 
         .track-timeline {
             position: relative;
@@ -359,6 +694,7 @@
             padding: 0 5px;
             list-style: none;
         }
+
 
         .track-timeline-line {
             position: absolute;
@@ -372,13 +708,14 @@
             border-radius: 999px;
         }
 
+
         .track-timeline-progress {
-            width: 0;
             height: 100%;
             background: var(--brand, #088178);
             border-radius: inherit;
             transition: width 0.5s ease;
         }
+
 
         .track-steps {
             position: relative;
@@ -390,6 +727,7 @@
             list-style: none;
         }
 
+
         .track-step {
             display: flex;
             flex: 1;
@@ -399,6 +737,7 @@
             min-width: 0;
             text-align: center;
         }
+
 
         .track-step-icon {
             display: flex;
@@ -417,6 +756,7 @@
                 box-shadow 0.25s ease;
         }
 
+
         .track-step-label {
             max-width: 90px;
             color: #999;
@@ -425,97 +765,111 @@
             line-height: 1.35;
         }
 
+
         .track-step--done .track-step-icon {
             background: var(--brand, #088178);
             color: #fff;
         }
 
+
         .track-step--done .track-step-label {
             color: var(--brand-dark, #06665f);
         }
 
+
         .track-step--current .track-step-icon {
             transform: scale(1.08);
-            box-shadow:
-                0 0 0 5px
-                rgba(8, 129, 120, 0.12);
+            box-shadow: 0 0 0 5px rgba(8, 129, 120, 0.12);
         }
 
+
         /* =========================================================
-           ORDER DETAILS
+           ORDER INFORMATION
            ========================================================= */
 
         .track-details {
             display: grid;
-            grid-template-columns:
-                repeat(2, minmax(0, 1fr));
-            gap: 12px;
-            margin-top: 30px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 25px;
         }
 
+
         .track-detail {
-            padding: 15px;
-            background:
-                var(--surface-alt, #f7f8f8);
-            border-radius: 12px;
+            padding: 13px;
+            background: var(--surface, #fff);
+            border: 1px solid var(--border, #e9e9e9);
+            border-radius: 10px;
         }
+
 
         .track-detail--full {
             grid-column: 1 / -1;
         }
 
+
         .track-detail-label {
             display: block;
             margin-bottom: 5px;
             color: var(--text-muted, #777);
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
         }
 
+
         .track-detail-value {
             color: var(--ink, #222);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             line-height: 1.5;
             word-break: break-word;
         }
+
 
         /* =========================================================
            ORDER ITEMS
            ========================================================= */
 
         .track-items {
-            margin-top: 28px;
+            margin-top: 24px;
         }
 
+
         .track-section-title {
-            margin: 0 0 12px;
+            margin: 0 0 10px;
             color: var(--ink, #222);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
         }
+
 
         .track-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 0;
-            border-bottom:
-                1px solid var(--border, #e6e6e6);
+            padding: 11px 0;
+            border-bottom: 1px solid var(--border, #e6e6e6);
         }
+
 
         .track-item:last-child {
             border-bottom: 0;
         }
 
+
         .track-item-image {
-            flex: 0 0 52px;
-            width: 52px;
-            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 50px;
+            width: 50px;
+            height: 50px;
             overflow: hidden;
             border-radius: 9px;
             background: var(--surface-alt, #f7f8f8);
+            color: #aaa;
         }
+
 
         .track-item-image img {
             width: 100%;
@@ -523,30 +877,64 @@
             object-fit: cover;
         }
 
+
         .track-item-info {
             flex: 1;
             min-width: 0;
         }
 
+
         .track-item-name {
             margin: 0;
             color: var(--ink, #222);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
         }
+
 
         .track-item-meta {
             margin: 4px 0 0;
             color: var(--text-muted, #777);
-            font-size: 11px;
+            font-size: 10px;
         }
+
 
         .track-item-price {
             color: var(--ink, #222);
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             white-space: nowrap;
         }
+
+
+        /* =========================================================
+           INLINE TOTAL
+           ========================================================= */
+
+        .inline-order-total {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 17px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border, #e2e2e2);
+        }
+
+
+        .inline-order-total-label {
+            color: var(--text-muted, #777);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+
+        .inline-order-total-value {
+            color: var(--brand, #088178);
+            font-size: 16px;
+            font-weight: 800;
+        }
+
 
         /* =========================================================
            LOADING
@@ -558,22 +946,25 @@
             gap: 8px;
         }
 
+
         .track-spinner {
             width: 15px;
             height: 15px;
-            border: 2px solid
-                rgba(255, 255, 255, 0.35);
+            border: 2px solid rgba(255, 255, 255, 0.35);
             border-top-color: #fff;
             border-radius: 50%;
-            animation:
-                trackSpin 0.7s linear infinite;
+            animation: trackSpin 0.7s linear infinite;
         }
 
+
         @keyframes trackSpin {
+
             to {
                 transform: rotate(360deg);
             }
+
         }
+
 
         /* =========================================================
            MOBILE
@@ -585,27 +976,33 @@
                 padding: 35px 14px 55px;
             }
 
+
             .track-header {
                 margin-bottom: 24px;
             }
+
 
             .track-header h1 {
                 font-size: 28px;
             }
 
+
             .track-header p {
                 font-size: 13px;
             }
+
 
             .track-form-card {
                 padding: 20px 16px;
                 border-radius: 15px;
             }
 
+
             .track-form {
                 grid-template-columns: 1fr;
                 gap: 10px;
             }
+
 
             .track-form input,
             .track-form button {
@@ -613,28 +1010,89 @@
                 height: 48px;
             }
 
+
             .track-form button {
                 padding: 0 16px;
             }
 
-            .track-card {
-                padding: 20px 15px;
-                border-radius: 15px;
+
+            .order-history {
+                margin-top: 22px;
             }
 
-            .track-card-head {
-                flex-direction: column;
-                gap: 8px;
-                margin-bottom: 26px;
-            }
 
-            .track-order-total {
+            .order-history-heading {
                 font-size: 16px;
             }
+
+
+            .history-order-summary {
+                grid-template-columns: minmax(0, 1fr) auto;
+                gap: 10px;
+                padding: 15px 13px;
+            }
+
+
+            .history-total {
+                font-size: 12px;
+            }
+
+
+            .history-progress-label {
+                max-width: 54px;
+                font-size: 7px;
+            }
+
+
+            .history-progress-dot {
+                width: 7px;
+                height: 7px;
+            }
+
+
+            .history-arrow {
+                width: 32px;
+                height: 32px;
+                flex-basis: 32px;
+            }
+
+
+            .history-details-inner {
+                padding: 18px 13px;
+            }
+
+
+            .inline-details-head {
+                flex-direction: column;
+                gap: 8px;
+                margin-bottom: 18px;
+            }
+
+
+            .customer-current-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .customer-current-field--full {
+                grid-column: auto;
+            }
+
+
+            .track-details {
+                grid-template-columns: 1fr;
+            }
+
+
+            .track-detail--full {
+                grid-column: auto;
+            }
+
 
             .track-timeline {
                 padding: 0;
             }
+
 
             .track-timeline-line {
                 top: 17px;
@@ -642,24 +1100,19 @@
                 right: 8%;
             }
 
+
             .track-step-icon {
                 width: 34px;
                 height: 34px;
                 font-size: 12px;
             }
 
+
             .track-step-label {
                 max-width: 60px;
                 font-size: 9px;
             }
 
-            .track-details {
-                grid-template-columns: 1fr;
-            }
-
-            .track-detail--full {
-                grid-column: auto;
-            }
 
             .track-item-image {
                 flex-basis: 46px;
@@ -667,10 +1120,13 @@
                 height: 46px;
             }
 
+
             .track-item-price {
-                font-size: 11px;
+                font-size: 10px;
             }
+
         }
+
 
         @media (max-width: 380px) {
 
@@ -678,36 +1134,179 @@
                 font-size: 25px;
             }
 
+
             .track-form-card {
                 padding: 17px 13px;
             }
+
+
+            .history-progress-label {
+                max-width: 44px;
+                font-size: 6.5px;
+            }
+
 
             .track-step-label {
                 max-width: 52px;
                 font-size: 8.5px;
             }
 
+
             .track-step-icon {
                 width: 31px;
                 height: 31px;
             }
+
         }
+
 
         @media (prefers-reduced-motion: reduce) {
 
-            .track-card,
+            .history-order-details,
             .track-form button,
-            .recent-order-btn,
+            .history-order,
+            .history-arrow,
             .track-step-icon,
             .track-timeline-progress {
                 animation: none !important;
                 transition: none !important;
             }
+
         }
+
+    /* =========================================================
+   SNEAKERSLINK DARK MODE — TRACK ORDER PAGE
+   Uses the project's actual [data-theme="dark"] system.
+   ========================================================= */
+
+[data-theme="dark"] .track-page-wrapper {
+    background: var(--bg);
+}
+
+[data-theme="dark"] .track-header h1 {
+    color: var(--ink);
+}
+
+[data-theme="dark"] .track-header p {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .track-form-card,
+[data-theme="dark"] .track-card,
+[data-theme="dark"] .history-order,
+[data-theme="dark"] .history-empty {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: var(--card-shadow);
+}
+
+[data-theme="dark"] .track-form-label,
+[data-theme="dark"] .order-history-heading,
+[data-theme="dark"] .track-order-id,
+[data-theme="dark"] .track-detail-value,
+[data-theme="dark"] .track-item-name,
+[data-theme="dark"] .history-order-id {
+    color: var(--text);
+}
+
+[data-theme="dark"] .track-header p,
+[data-theme="dark"] .track-help,
+[data-theme="dark"] .order-history-subtitle,
+[data-theme="dark"] .track-order-date,
+[data-theme="dark"] .track-detail-label,
+[data-theme="dark"] .track-item-meta,
+[data-theme="dark"] .history-date {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .track-form input {
+    background: var(--input-bg);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .track-form input::placeholder {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .track-detail {
+    background: var(--surface-alt);
+}
+
+[data-theme="dark"] .track-item-image {
+    background: var(--surface-alt);
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .history-arrow {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--brand);
+}
+
+[data-theme="dark"] .history-arrow:hover {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+}
+
+[data-theme="dark"] .history-progress-line,
+[data-theme="dark"] .track-timeline-line {
+    background: var(--border);
+}
+
+[data-theme="dark"] .history-progress-dot {
+    background: var(--surface-alt);
+    border-color: var(--surface);
+    box-shadow: 0 0 0 1px var(--border);
+}
+
+[data-theme="dark"] .track-step-icon {
+    background: var(--surface-alt);
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .track-status-message--info {
+    background: rgba(53, 214, 196, 0.08);
+    border-color: rgba(53, 214, 196, 0.18);
+    color: var(--text);
+}
+
+[data-theme="dark"] .track-auth-notice {
+    background: rgba(53, 214, 196, 0.08);
+    border-color: rgba(53, 214, 196, 0.18);
+    color: var(--text);
+}
+
+[data-theme="dark"] .track-auth-notice a,
+[data-theme="dark"] .track-status-message a {
+    color: var(--brand);
+}
+
+[data-theme="dark"] .history-progress-label {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .history-progress-stage--done
+.history-progress-label {
+    color: var(--text);
+}
+
+[data-theme="dark"] .track-step-label {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .track-step--done .track-step-label {
+    color: var(--brand);
+}
+    
     </style>
+
 </head>
 
+
 <body>
+
 
     <!-- =========================================================
          NAVBAR
@@ -726,6 +1325,7 @@
             >
         </a>
 
+
         <nav
             aria-label="Main navigation"
             class="home-nav"
@@ -736,6 +1336,7 @@
                 id="check"
                 aria-label="Toggle navigation menu"
             >
+
 
             <label
                 for="check"
@@ -748,6 +1349,7 @@
                 ></i>
             </label>
 
+
             <a
                 href="index.html"
                 class="logo nav-logo"
@@ -755,6 +1357,7 @@
             >
                 Sneakers<span>Link</span>
             </a>
+
 
             <ul id="navbar">
 
@@ -790,6 +1393,7 @@
 
             </ul>
 
+
             <div
                 class="nav-actions"
                 aria-label="Shopping cart and account"
@@ -817,6 +1421,7 @@
 
                 </a>
 
+
                 <div
                     class="account-area"
                     id="accountArea"
@@ -842,6 +1447,7 @@
                         </a>
 
                     </span>
+
 
                     <div
                         class="account-menu"
@@ -871,6 +1477,7 @@
 
                         </button>
 
+
                         <div
                             class="account-dropdown"
                             id="accountDropdown"
@@ -889,6 +1496,7 @@
                                         aria-hidden="true"
                                     ></i>
                                 </div>
+
 
                                 <div
                                     class="account-profile-text"
@@ -910,9 +1518,11 @@
 
                             </div>
 
+
                             <div
                                 class="account-dropdown-divider"
                             ></div>
+
 
                             <a
                                 href="profile.html"
@@ -925,6 +1535,7 @@
                                 My Profile
                             </a>
 
+
                             <a
                                 href="track-order.html"
                                 class="account-dropdown-link active"
@@ -936,6 +1547,7 @@
                                 Track Order
                             </a>
 
+
                             <a
                                 href="cart.html"
                                 class="account-dropdown-link"
@@ -946,6 +1558,7 @@
                                 ></i>
                                 My Cart
                             </a>
+
 
                             <button
                                 type="button"
@@ -966,9 +1579,11 @@
 
                             </button>
 
+
                             <div
                                 class="account-dropdown-divider"
                             ></div>
+
 
                             <button
                                 type="button"
@@ -1013,21 +1628,27 @@
                 </h1>
 
                 <p>
-                    Enter your order number to view your
-                    latest order status and delivery progress.
+                    Track your current order or view
+                    your complete SneakersLink order history.
                 </p>
 
             </header>
+
 
             <div
                 id="track-page"
                 class="track-page"
             >
 
+                <!-- AUTH NOTICE -->
+
                 <div
                     id="trackAuthNotice"
                     class="track-auth-notice"
                 ></div>
+
+
+                <!-- TRACK FORM -->
 
                 <div class="track-form-card">
 
@@ -1059,6 +1680,7 @@
 
                         </div>
 
+
                         <button
                             type="submit"
                             id="trackSubmitBtn"
@@ -1077,16 +1699,12 @@
 
                     </form>
 
+
                     <p class="track-help">
-                        Your order number can be found in your
-                        order confirmation or receipt.
+                        Enter your order number above or select
+                        an order from your history below.
                     </p>
 
-                    <div
-                        id="recentOrders"
-                        class="recent-orders"
-                        aria-live="polite"
-                    ></div>
 
                     <div
                         id="trackStatusMessage"
@@ -1096,10 +1714,58 @@
 
                 </div>
 
-                <div
-                    id="trackResult"
+
+                <!-- =================================================
+                     ORDER HISTORY
+                     ================================================= -->
+
+                <section
+                    id="orderHistory"
+                    class="order-history"
                     aria-live="polite"
-                ></div>
+                    hidden
+                >
+
+                    <div class="order-history-header">
+
+                        <div>
+
+                            <h2 class="order-history-heading">
+                                Your Orders
+                            </h2>
+
+                            <p class="order-history-subtitle">
+                                Your complete order history
+                                and delivery progress.
+                            </p>
+
+                        </div>
+
+
+                        <span
+                            id="orderHistoryCount"
+                            class="order-history-count"
+                        >
+                            0 orders
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="historyList"
+                        class="history-list"
+                    ></div>
+
+                </section>
+
+
+                <!--
+                    No separate result container is required anymore.
+
+                    Order details are inserted directly underneath
+                    the historical order that was clicked.
+                -->
 
             </div>
 
@@ -1145,30 +1811,22 @@
                 10:00 a.m - 6:00 p.m, Mon - Sat
             </p>
 
+
             <div class="socials">
 
                 <h4>Follow Us</h4>
 
                 <div class="icon">
 
-                    <a
-                        href="#"
-                        aria-label="Facebook"
-                    >
+                    <a href="#" aria-label="Facebook">
                         <i class="fab fa-facebook-f"></i>
                     </a>
 
-                    <a
-                        href="#"
-                        aria-label="Instagram"
-                    >
+                    <a href="#" aria-label="Instagram">
                         <i class="fab fa-instagram"></i>
                     </a>
 
-                    <a
-                        href="#"
-                        aria-label="TikTok"
-                    >
+                    <a href="#" aria-label="TikTok">
                         <i class="fab fa-tiktok"></i>
                     </a>
 
@@ -1177,6 +1835,7 @@
             </div>
 
         </div>
+
 
         <div class="col">
 
@@ -1203,6 +1862,7 @@
             </a>
 
         </div>
+
 
         <div class="col">
 
@@ -1232,6 +1892,7 @@
             </a>
 
         </div>
+
 
         <div class="col install">
 
@@ -1269,6 +1930,7 @@
 
         </div>
 
+
         <div class="copyright">
 
             <p>
@@ -1296,6 +1958,7 @@
         <i class="fab fa-whatsapp"></i>
     </a>
 
+
     <button
         id="backToTop"
         class="back-to-top"
@@ -1320,6 +1983,11 @@
         src="firebase-auth.js"
     ></script>
 
+    <script
+        type="module"
+        src="firebase-profile.js"
+    ></script>
+
     <script src="script.js"></script>
 
 
@@ -1331,6 +1999,12 @@
 
         import "./firebase-orders.js";
         import "./firebase-auth.js";
+        import "./firebase-profile.js";
+
+
+        /* =====================================================
+           ELEMENTS
+           ===================================================== */
 
         const form =
             document.getElementById(
@@ -1347,11 +2021,6 @@
                 "trackSubmitBtn"
             );
 
-        const result =
-            document.getElementById(
-                "trackResult"
-            );
-
         const statusMessage =
             document.getElementById(
                 "trackStatusMessage"
@@ -1362,33 +2031,92 @@
                 "trackAuthNotice"
             );
 
-        const recentOrders =
+        const orderHistory =
             document.getElementById(
-                "recentOrders"
+                "orderHistory"
             );
 
-        let unsubscribeOrder =
-            null;
+        const historyList =
+            document.getElementById(
+                "historyList"
+            );
+
+        const historyCount =
+            document.getElementById(
+                "orderHistoryCount"
+            );
+
+
+        /* =====================================================
+           STATE
+           ===================================================== */
+
+        let unsubscribeOrder = null;
+
+        let unsubscribeHistory = null;
+
+        let customerOrders = [];
+
+        let currentProfile = null;
+
+        let openOrderId = null;
 
 
         /* =====================================================
            HELPERS
            ===================================================== */
 
-        function escapeHtml(value) {
+        function escapeHtml(
+            value
+        ) {
 
             return String(
                 value ?? ""
             )
-                .replaceAll("&", "&amp;")
-                .replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll('"', "&quot;")
-                .replaceAll("'", "&#039;");
+                .replaceAll(
+                    "&",
+                    "&amp;"
+                )
+                .replaceAll(
+                    "<",
+                    "&lt;"
+                )
+                .replaceAll(
+                    ">",
+                    "&gt;"
+                )
+                .replaceAll(
+                    '"',
+                    "&quot;"
+                )
+                .replaceAll(
+                    "'",
+                    "&#039;"
+                );
+
         }
 
 
-        function formatMoney(value) {
+        function cleanOrderId(
+            value
+        ) {
+
+            return String(
+                value || ""
+            )
+                .trim()
+                .toUpperCase()
+                .replace(
+                    /\s+/g,
+                    ""
+                );
+
+        }
+
+
+        function formatMoney(
+            value
+        ) {
 
             const amount =
                 Number(value);
@@ -1398,8 +2126,11 @@
                     amount
                 )
             ) {
+
                 return "KES 0";
+
             }
+
 
             return new Intl.NumberFormat(
                 "en-KE",
@@ -1408,36 +2139,61 @@
                     currency: "KES",
                     maximumFractionDigits: 0,
                 }
-            ).format(amount);
+            ).format(
+                amount
+            );
+
         }
 
 
-        function formatDate(value) {
+        function formatDate(
+            value
+        ) {
 
             if (!value) {
+
                 return "Date unavailable";
+
             }
 
-            let date;
+
+            let date = null;
+
 
             if (
                 typeof value?.toDate ===
                 "function"
             ) {
+
                 date =
                     value.toDate();
+
+            } else if (
+                value instanceof Date
+            ) {
+
+                date =
+                    value;
+
             } else {
+
                 date =
                     new Date(value);
+
             }
 
+
             if (
+                !date ||
                 Number.isNaN(
                     date.getTime()
                 )
             ) {
+
                 return "Date unavailable";
+
             }
+
 
             return new Intl.DateTimeFormat(
                 "en-KE",
@@ -1445,7 +2201,10 @@
                     dateStyle: "medium",
                     timeStyle: "short",
                 }
-            ).format(date);
+            ).format(
+                date
+            );
+
         }
 
 
@@ -1462,6 +2221,7 @@
 
             statusMessage.style.display =
                 "block";
+
         }
 
 
@@ -1472,6 +2232,7 @@
 
             statusMessage.innerHTML =
                 "";
+
         }
 
 
@@ -1481,6 +2242,7 @@
 
             submitButton.disabled =
                 loading;
+
 
             if (loading) {
 
@@ -1498,141 +2260,231 @@
                         class="fa-solid fa-magnifying-glass"
                         aria-hidden="true"
                     ></i>
+
                     <span>
                         Track Order
                     </span>
                 `;
+
             }
+
         }
 
 
-        function saveRecentOrder(
-            orderId
+        function getStageIndex(
+            status
         ) {
 
-            try {
+            return window.SLOrders
+                ?.getOrderStageIndex(
+                    status
+                ) ?? -1;
 
-                const key =
-                    "sneakerslink_recent_orders";
-
-                const existing =
-                    JSON.parse(
-                        localStorage.getItem(
-                            key
-                        ) || "[]"
-                    );
-
-                const cleanId =
-                    String(
-                        orderId || ""
-                    )
-                        .trim()
-                        .toUpperCase();
-
-                if (!cleanId) {
-                    return;
-                }
-
-                const updated = [
-                    cleanId,
-                    ...existing.filter(
-                        id =>
-                            id !== cleanId
-                    ),
-                ].slice(0, 5);
-
-                localStorage.setItem(
-                    key,
-                    JSON.stringify(
-                        updated
-                    )
-                );
-
-            } catch (error) {
-
-                console.warn(
-                    "Could not save recent order:",
-                    error
-                );
-            }
         }
 
 
-        function getRecentOrders() {
+        function getStatusLabel(
+            status
+        ) {
 
-            try {
+            return window.SLOrders
+                ?.getOrderStatusLabel(
+                    status
+                ) ||
+                "Order Processing";
 
-                return JSON.parse(
-                    localStorage.getItem(
-                        "sneakerslink_recent_orders"
-                    ) || "[]"
-                );
-
-            } catch {
-
-                return [];
-            }
-        }
-
-
-        function renderRecentOrders() {
-
-            const orders =
-                getRecentOrders();
-
-            if (!orders.length) {
-
-                recentOrders.innerHTML =
-                    "";
-
-                return;
-            }
-
-            recentOrders.innerHTML = `
-                <p class="recent-orders-title">
-                    Recently tracked
-                </p>
-
-                <ul>
-                    ${orders.map(
-                        id => `
-                            <li>
-                                <button
-                                    type="button"
-                                    class="recent-order-btn"
-                                    data-order-id="${escapeHtml(id)}"
-                                >
-                                    ${escapeHtml(id)}
-                                </button>
-                            </li>
-                        `
-                    ).join("")}
-                </ul>
-            `;
-
-            recentOrders
-                .querySelectorAll(
-                    ".recent-order-btn"
-                )
-                .forEach(button => {
-
-                    button.addEventListener(
-                        "click",
-                        () => {
-
-                            input.value =
-                                button.dataset.orderId;
-
-                            form.requestSubmit();
-                        }
-                    );
-
-                });
         }
 
 
         /* =====================================================
-           TIMELINE
+           CUSTOMER CURRENT PROFILE
+           ===================================================== */
+
+        async function loadCurrentCustomerProfile() {
+
+            try {
+
+                if (
+                    !window.SLProfile
+                ) {
+
+                    return null;
+
+                }
+
+
+                const profile =
+                    await window.SLProfile
+                        .getProfile();
+
+
+                currentProfile =
+                    profile || null;
+
+
+                return currentProfile;
+
+            } catch (error) {
+
+                console.error(
+                    "Unable to load current customer profile:",
+                    error
+                );
+
+
+                currentProfile =
+                    null;
+
+
+                return null;
+
+            }
+
+        }
+
+
+        /*
+         * Always prefer the current Firebase profile.
+         *
+         * This means if the customer changes:
+         *
+         * - name
+         * - phone
+         * - address
+         * - city
+         * - postal code
+         * - country
+         *
+         * the Track Order page displays the
+         * latest information from their profile.
+         */
+
+        function getCurrentCustomerValue(
+            field,
+            fallback = "Not provided"
+        ) {
+
+            const value =
+                currentProfile?.[
+                    field
+                ];
+
+
+            if (
+                value !== undefined &&
+                value !== null &&
+                String(value).trim()
+            ) {
+
+                return String(
+                    value
+                ).trim();
+
+            }
+
+
+            return fallback;
+
+        }
+
+
+        /* =====================================================
+           HISTORY PROGRESS
+           ===================================================== */
+
+        function renderHistoryProgress(
+            status
+        ) {
+
+            const stages =
+                window.SLOrders
+                    ?.ORDER_STAGES || [];
+
+
+            const currentIndex =
+                getStageIndex(
+                    status
+                );
+
+
+            const progress =
+                window.SLOrders
+                    ?.getOrderProgress(
+                        status
+                    ) || 0;
+
+
+            return `
+
+                <div
+                    class="history-progress"
+                    aria-label="Order progress"
+                >
+
+                    <div
+                        class="history-progress-line"
+                        aria-hidden="true"
+                    >
+
+                        <div
+                            class="history-progress-fill"
+                            style="width:${progress}%"
+                        ></div>
+
+                    </div>
+
+
+                    ${stages.map(
+                        (
+                            stage,
+                            index
+                        ) => {
+
+                            const done =
+                                index <=
+                                currentIndex;
+
+
+                            return `
+
+                                <div
+                                    class="history-progress-stage ${
+                                        done
+                                            ? "history-progress-stage--done"
+                                            : ""
+                                    }"
+                                >
+
+                                    <span
+                                        class="history-progress-dot"
+                                        aria-hidden="true"
+                                    ></span>
+
+                                    <span
+                                        class="history-progress-label"
+                                    >
+                                        ${escapeHtml(
+                                            stage.shortLabel ||
+                                            stage.label
+                                        )}
+                                    </span>
+
+                                </div>
+
+                            `;
+
+                        }
+                    ).join("")}
+
+                </div>
+
+            `;
+
+        }
+
+
+        /* =====================================================
+           FULL TIMELINE
            ===================================================== */
 
         function renderTimeline(
@@ -1643,11 +2495,13 @@
                 window.SLOrders
                     ?.ORDER_STAGES || [];
 
+
             const progress =
                 window.SLOrders
                     ?.getOrderProgress(
                         status
                     ) || 0;
+
 
             const currentIndex =
                 window.SLOrders
@@ -1655,82 +2509,334 @@
                         status
                     ) ?? -1;
 
+
             return `
 
-                <div class="track-timeline">
+                <div class="inline-track-timeline">
 
-                    <div
-                        class="track-timeline-line"
-                        aria-hidden="true"
+                    <h3
+                        class="inline-timeline-title"
                     >
+                        Delivery Progress
+                    </h3>
+
+
+                    <div class="track-timeline">
+
                         <div
-                            class="track-timeline-progress"
-                            style="width:${progress}%"
-                        ></div>
+                            class="track-timeline-line"
+                            aria-hidden="true"
+                        >
+
+                            <div
+                                class="track-timeline-progress"
+                                style="width:${progress}%"
+                            ></div>
+
+                        </div>
+
+
+                        <ol class="track-steps">
+
+                            ${stages.map(
+                                (
+                                    stage,
+                                    index
+                                ) => {
+
+                                    const isDone =
+                                        index <=
+                                        currentIndex;
+
+
+                                    const isCurrent =
+                                        index ===
+                                        currentIndex;
+
+
+                                    const classes = [
+                                        "track-step",
+                                        isDone
+                                            ? "track-step--done"
+                                            : "",
+                                        isCurrent
+                                            ? "track-step--current"
+                                            : "",
+                                    ]
+                                        .filter(
+                                            Boolean
+                                        )
+                                        .join(" ");
+
+
+                                    return `
+
+                                        <li
+                                            class="${classes}"
+                                            ${
+                                                isCurrent
+                                                    ? 'aria-current="step"'
+                                                    : ""
+                                            }
+                                        >
+
+                                            <span
+                                                class="track-step-icon"
+                                            >
+
+                                                <i
+                                                    class="fas ${escapeHtml(
+                                                        stage.icon
+                                                    )}"
+                                                    aria-hidden="true"
+                                                ></i>
+
+                                            </span>
+
+
+                                            <span
+                                                class="track-step-label"
+                                            >
+                                                ${escapeHtml(
+                                                    stage.label
+                                                )}
+                                            </span>
+
+                                        </li>
+
+                                    `;
+
+                                }
+                            ).join("")}
+
+                        </ol>
+
                     </div>
 
-                    <ol class="track-steps">
-
-                        ${stages.map(
-                            (
-                                stage,
-                                index
-                            ) => {
-
-                                const isDone =
-                                    index <=
-                                    currentIndex;
-
-                                const isCurrent =
-                                    index ===
-                                    currentIndex;
-
-                                const classes = [
-                                    "track-step",
-                                    isDone
-                                        ? "track-step--done"
-                                        : "",
-                                    isCurrent
-                                        ? "track-step--current"
-                                        : "",
-                                ]
-                                    .filter(Boolean)
-                                    .join(" ");
-
-                                return `
-                                    <li
-                                        class="${classes}"
-                                        ${isCurrent
-                                            ? 'aria-current="step"'
-                                            : ""}
-                                    >
-
-                                        <span
-                                            class="track-step-icon"
-                                        >
-
-                                            <i
-                                                class="fas ${escapeHtml(stage.icon)}"
-                                                aria-hidden="true"
-                                            ></i>
-
-                                        </span>
-
-                                        <span
-                                            class="track-step-label"
-                                        >
-                                            ${escapeHtml(stage.label)}
-                                        </span>
-
-                                    </li>
-                                `;
-                            }
-                        ).join("")}
-
-                    </ol>
-
                 </div>
+
             `;
+
+        }
+
+
+        /* =====================================================
+           CURRENT CUSTOMER DETAILS
+           ===================================================== */
+
+        function renderCurrentCustomer() {
+
+            const name =
+                getCurrentCustomerValue(
+                    "displayName",
+                    "Customer"
+                );
+
+
+            const email =
+                getCurrentCustomerValue(
+                    "email",
+                    "Not provided"
+                );
+
+
+            const phone =
+                getCurrentCustomerValue(
+                    "phone",
+                    "Not provided"
+                );
+
+
+            const address =
+                getCurrentCustomerValue(
+                    "address",
+                    "Not provided"
+                );
+
+
+            const city =
+                getCurrentCustomerValue(
+                    "city",
+                    "Not provided"
+                );
+
+
+            const postalCode =
+                getCurrentCustomerValue(
+                    "postalCode",
+                    "Not provided"
+                );
+
+
+            const country =
+                getCurrentCustomerValue(
+                    "country",
+                    "Not provided"
+                );
+
+
+            return `
+
+                <section
+                    class="current-customer-card"
+                >
+
+                    <h3
+                        class="current-customer-heading"
+                    >
+
+                        <i
+                            class="fas fa-user"
+                            aria-hidden="true"
+                        ></i>
+
+                        Current Customer Details
+
+                    </h3>
+
+
+                    <div
+                        class="customer-current-grid"
+                    >
+
+                        <div
+                            class="customer-current-field"
+                        >
+
+                            <span
+                                class="customer-current-label"
+                            >
+                                Full Name
+                            </span>
+
+                            <span
+                                class="customer-current-value"
+                            >
+                                ${escapeHtml(name)}
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            class="customer-current-field"
+                        >
+
+                            <span
+                                class="customer-current-label"
+                            >
+                                Email
+                            </span>
+
+                            <span
+                                class="customer-current-value"
+                            >
+                                ${escapeHtml(email)}
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            class="customer-current-field"
+                        >
+
+                            <span
+                                class="customer-current-label"
+                            >
+                                Phone
+                            </span>
+
+                            <span
+                                class="customer-current-value"
+                            >
+                                ${escapeHtml(phone)}
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            class="customer-current-field"
+                        >
+
+                            <span
+                                class="customer-current-label"
+                            >
+                                City
+                            </span>
+
+                            <span
+                                class="customer-current-value"
+                            >
+                                ${escapeHtml(city)}
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            class="customer-current-field"
+                        >
+
+                            <span
+                                class="customer-current-label"
+                            >
+                                Country
+                            </span>
+
+                            <span
+                                class="customer-current-value"
+                            >
+                                ${escapeHtml(country)}
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            class="customer-current-field"
+                        >
+
+                            <span
+                                class="customer-current-label"
+                            >
+                                Postal Code
+                            </span>
+
+                            <span
+                                class="customer-current-value"
+                            >
+                                ${escapeHtml(postalCode)}
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            class="customer-current-field customer-current-field--full"
+                        >
+
+                            <span
+                                class="customer-current-label"
+                            >
+                                Current Delivery Address
+                            </span>
+
+                            <span
+                                class="customer-current-value"
+                            >
+                                ${escapeHtml(address)}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            `;
+
         }
 
 
@@ -1746,16 +2852,22 @@
                 !Array.isArray(items) ||
                 !items.length
             ) {
+
                 return "";
+
             }
+
 
             return `
 
                 <section class="track-items">
 
-                    <h3 class="track-section-title">
+                    <h3
+                        class="track-section-title"
+                    >
                         Items in this order
                     </h3>
+
 
                     ${items.map(
                         item => {
@@ -1767,6 +2879,7 @@
                                     1
                                 );
 
+
                             const safeQuantity =
                                 Number.isFinite(
                                     quantity
@@ -1774,25 +2887,34 @@
                                     ? quantity
                                     : 1;
 
+
                             const price =
                                 Number(
                                     item.price ||
                                     0
                                 );
 
+
+                            const image =
+                                item.img ||
+                                item.image ||
+                                "";
+
+
                             return `
+
                                 <div class="track-item">
 
-                                    <div class="track-item-image">
+                                    <div
+                                        class="track-item-image"
+                                    >
 
                                         ${
-                                            item.img ||
-                                            item.image
+                                            image
                                                 ? `
                                                     <img
                                                         src="${escapeHtml(
-                                                            item.img ||
-                                                            item.image
+                                                            image
                                                         )}"
                                                         alt="${escapeHtml(
                                                             item.name ||
@@ -1811,59 +2933,80 @@
 
                                     </div>
 
-                                    <div class="track-item-info">
 
-                                        <p class="track-item-name">
+                                    <div
+                                        class="track-item-info"
+                                    >
+
+                                        <p
+                                            class="track-item-name"
+                                        >
                                             ${escapeHtml(
                                                 item.name ||
                                                 "Sneaker"
                                             )}
                                         </p>
 
-                                        <p class="track-item-meta">
+
+                                        <p
+                                            class="track-item-meta"
+                                        >
+
                                             Qty:
                                             ${safeQuantity}
+
                                             ${
                                                 item.size
-                                                    ? ` · Size: ${escapeHtml(item.size)}`
+                                                    ? ` · Size: ${escapeHtml(
+                                                        item.size
+                                                    )}`
                                                     : ""
                                             }
+
                                         </p>
 
                                     </div>
 
-                                    <div class="track-item-price">
+
+                                    <div
+                                        class="track-item-price"
+                                    >
+
                                         ${formatMoney(
                                             price *
                                             safeQuantity
                                         )}
+
                                     </div>
 
                                 </div>
+
                             `;
+
                         }
                     ).join("")}
 
                 </section>
+
             `;
+
         }
 
 
         /* =====================================================
-           ORDER CARD
+           INLINE ORDER DETAILS
            ===================================================== */
 
-        function renderOrder(
+        function renderOrderDetails(
             order
         ) {
 
             if (!order) {
 
-                result.innerHTML =
-                    "";
+                return "";
 
-                return;
             }
+
 
             const status =
                 String(
@@ -1873,47 +3016,57 @@
                     .trim()
                     .toLowerCase();
 
-            const stage =
-                window.SLOrders
-                    ?.getOrderStage(
-                        status
-                    );
 
             const statusLabel =
-                stage?.label ||
-                "Order Processing";
+                getStatusLabel(
+                    status
+                );
 
-            result.innerHTML = `
 
-                <article
-                    class="track-card"
-                    data-order-id="${escapeHtml(order.id)}"
+            return `
+
+                <div
+                    class="history-order-details is-open"
+                    data-order-details="${escapeHtml(
+                        order.id
+                    )}"
                 >
 
-                    <header
-                        class="track-card-head"
+                    <div
+                        class="history-details-inner"
                     >
 
-                        <div>
+                        <header
+                            class="inline-details-head"
+                        >
 
-                            <h2
-                                class="track-order-id"
-                            >
-                                ${escapeHtml(order.id)}
-                            </h2>
+                            <div>
 
-                            <p
-                                class="track-order-date"
-                            >
-                                Placed
-                                ${formatDate(
-                                    order.placedAt
-                                )}
-                            </p>
+                                <h3
+                                    class="inline-details-order-id"
+                                >
+                                    ${escapeHtml(
+                                        order.id
+                                    )}
+                                </h3>
+
+
+                                <p
+                                    class="inline-details-date"
+                                >
+                                    Placed
+                                    ${formatDate(
+                                        order.placedAt
+                                    )}
+                                </p>
+
+                            </div>
+
 
                             <span
-                                class="track-current-status"
+                                class="inline-details-status"
                             >
+
                                 <i
                                     class="fas fa-circle"
                                     aria-hidden="true"
@@ -1922,204 +3075,1118 @@
                                 ${escapeHtml(
                                     statusLabel
                                 )}
+
                             </span>
 
-                        </div>
+                        </header>
+
+
+                        <!-- CURRENT CUSTOMER PROFILE -->
+
+                        ${renderCurrentCustomer()}
+
+
+                        <!-- DELIVERY TIMELINE -->
+
+                        ${renderTimeline(
+                            status
+                        )}
+
+
+                        <!-- ORDER INFORMATION -->
 
                         <div
-                            class="track-order-total"
+                            class="track-details"
                         >
-                            ${formatMoney(
-                                order.total
-                            )}
-                        </div>
 
-                    </header>
+                            <div class="track-detail">
 
+                                <span
+                                    class="track-detail-label"
+                                >
+                                    Order Status
+                                </span>
 
-                    ${renderTimeline(status)}
+                                <span
+                                    class="track-detail-value"
+                                >
+                                    ${escapeHtml(
+                                        statusLabel
+                                    )}
+                                </span>
 
-
-                    <div class="track-details">
-
-                        <div class="track-detail">
-
-                            <span
-                                class="track-detail-label"
-                            >
-                                Customer
-                            </span>
-
-                            <span
-                                class="track-detail-value"
-                            >
-                                ${escapeHtml(
-                                    order.customerName ||
-                                    "Customer"
-                                )}
-                            </span>
-
-                        </div>
+                            </div>
 
 
-                        <div class="track-detail">
+                            <div class="track-detail">
 
-                            <span
-                                class="track-detail-label"
-                            >
-                                Order Status
-                            </span>
+                                <span
+                                    class="track-detail-label"
+                                >
+                                    Order Total
+                                </span>
 
-                            <span
-                                class="track-detail-value"
-                            >
-                                ${escapeHtml(
-                                    statusLabel
-                                )}
-                            </span>
+                                <span
+                                    class="track-detail-value"
+                                >
+                                    ${formatMoney(
+                                        order.total
+                                    )}
+                                </span>
 
-                        </div>
-
-
-                        <div class="track-detail">
-
-                            <span
-                                class="track-detail-label"
-                            >
-                                Phone
-                            </span>
-
-                            <span
-                                class="track-detail-value"
-                            >
-                                ${escapeHtml(
-                                    order.customerPhone ||
-                                    "Not provided"
-                                )}
-                            </span>
-
-                        </div>
+                            </div>
 
 
-                        <div class="track-detail">
+                            <div class="track-detail">
 
-                            <span
-                                class="track-detail-label"
-                            >
-                                City
-                            </span>
+                                <span
+                                    class="track-detail-label"
+                                >
+                                    Subtotal
+                                </span>
 
-                            <span
-                                class="track-detail-value"
-                            >
-                                ${escapeHtml(
-                                    order.city ||
-                                    "Not provided"
-                                )}
-                            </span>
+                                <span
+                                    class="track-detail-value"
+                                >
+                                    ${formatMoney(
+                                        order.subtotal
+                                    )}
+                                </span>
+
+                            </div>
+
+
+                            <div class="track-detail">
+
+                                <span
+                                    class="track-detail-label"
+                                >
+                                    Discount
+                                </span>
+
+                                <span
+                                    class="track-detail-value"
+                                >
+                                    ${formatMoney(
+                                        order.discount
+                                    )}
+                                </span>
+
+                            </div>
 
                         </div>
+
+
+                        ${renderItems(
+                            order.items
+                        )}
 
 
                         <div
-                            class="track-detail track-detail--full"
+                            class="inline-order-total"
                         >
 
                             <span
-                                class="track-detail-label"
+                                class="inline-order-total-label"
                             >
-                                Delivery Address
+                                Order Total
                             </span>
 
-                            <span
-                                class="track-detail-value"
+                            <strong
+                                class="inline-order-total-value"
                             >
-                                ${escapeHtml(
-                                    order.deliveryAddress ||
-                                    "Not provided"
+                                ${formatMoney(
+                                    order.total
                                 )}
-                            </span>
+                            </strong>
 
                         </div>
 
                     </div>
 
+                </div>
 
-                    ${renderItems(
-                        order.items
-                    )}
-
-                </article>
             `;
 
-            saveRecentOrder(
-                order.id
-            );
-
-            renderRecentOrders();
         }
 
 
         /* =====================================================
-           AUTH UI
+           UPDATE HISTORY ACTIVE STATE
            ===================================================== */
 
-        function updateAuthUI(
-            user
-        ) {
+        function updateHistoryActiveState() {
 
-            if (!user) {
+            historyList
+                .querySelectorAll(
+                    ".history-order"
+                )
+                .forEach(
+                    card => {
 
-                authNotice.style.display =
-                    "block";
+                        const id =
+                            card.dataset
+                                .historyOrder;
 
-                authNotice.innerHTML = `
-                    Please
-                    <a href="login.html?mode=login">
-                        sign in
-                    </a>
-                    to securely track your orders.
-                `;
 
-                form.style.opacity =
-                    "0.55";
+                        const active =
+                            id ===
+                            openOrderId;
 
-                input.disabled =
-                    true;
 
-                submitButton.disabled =
-                    true;
+                        card.classList.toggle(
+                            "history-order--active",
+                            active
+                        );
 
-                result.innerHTML =
-                    "";
 
-                if (
-                    unsubscribeOrder
-                ) {
-                    unsubscribeOrder();
-                    unsubscribeOrder =
-                        null;
-                }
+                        const button =
+                            card.querySelector(
+                                "[data-history-toggle]"
+                            );
 
-                return;
-            }
 
-            authNotice.style.display =
-                "none";
+                        if (!button) {
 
-            form.style.opacity =
-                "1";
+                            return;
 
-            input.disabled =
-                false;
+                        }
 
-            submitButton.disabled =
-                false;
+
+                        button.setAttribute(
+                            "aria-expanded",
+                            active
+                                ? "true"
+                                : "false"
+                        );
+
+
+                        button.setAttribute(
+                            "aria-label",
+                            active
+                                ? `Close details for ${id}`
+                                : `View details for ${id}`
+                        );
+
+
+                        button.title =
+                            active
+                                ? "Close order details"
+                                : "View order details";
+
+
+                        const icon =
+                            button.querySelector(
+                                "i"
+                            );
+
+
+                        if (icon) {
+
+                            /*
+                             * CLOSED:
+                             * >
+                             *
+                             * OPEN:
+                             * <
+                             */
+
+                            icon.className =
+                                active
+                                    ? "fas fa-chevron-left"
+                                    : "fas fa-chevron-right";
+
+                        }
+
+                    }
+                );
+
         }
 
 
         /* =====================================================
-           TRACK ORDER
+           CLOSE OPEN ORDER
+           ===================================================== */
+
+        function closeOpenOrder() {
+
+            if (!openOrderId) {
+
+                return;
+
+            }
+
+
+            const card =
+                historyList.querySelector(
+                    `[data-history-order="${CSS.escape(
+                        openOrderId
+                    )}"]`
+                );
+
+
+            if (card) {
+
+                const details =
+                    card.querySelector(
+                        ".history-order-details"
+                    );
+
+
+                if (details) {
+
+                    details.remove();
+
+                }
+
+            }
+
+
+            openOrderId =
+                null;
+
+
+            updateHistoryActiveState();
+
+
+            if (
+                unsubscribeOrder
+            ) {
+
+                unsubscribeOrder();
+
+                unsubscribeOrder =
+                    null;
+
+            }
+
+
+            /*
+             * Remove order parameter from URL
+             * when the inline panel is closed.
+             */
+
+            window.history.replaceState(
+                {},
+                "",
+                window.location.pathname
+            );
+
+        }
+
+
+        /* =====================================================
+           OPEN ORDER INLINE
+           ===================================================== */
+
+        async function openOrderInline(
+            orderId,
+            options = {}
+        ) {
+
+            const cleanId =
+                cleanOrderId(
+                    orderId
+                );
+
+
+            if (!cleanId) {
+
+                return;
+
+            }
+
+
+            /*
+             * Clicking the same open order closes it.
+             */
+
+            if (
+                openOrderId ===
+                cleanId &&
+                !options.force
+            ) {
+
+                closeOpenOrder();
+
+                return;
+
+            }
+
+
+            /*
+             * Close another open order first.
+             */
+
+            if (
+                openOrderId &&
+                openOrderId !== cleanId
+            ) {
+
+                closeOpenOrder();
+
+            }
+
+
+            const card =
+                historyList.querySelector(
+                    `[data-history-order="${CSS.escape(
+                        cleanId
+                    )}"]`
+                );
+
+
+            if (!card) {
+
+                /*
+                 * The order may have been entered manually
+                 * rather than selected from the history.
+                 *
+                 * Find it from the current history list.
+                 */
+
+                const matchingOrder =
+                    customerOrders.find(
+                        order =>
+                            cleanOrderId(
+                                order.id
+                            ) ===
+                            cleanId
+                    );
+
+
+                if (!matchingOrder) {
+
+                    return;
+
+                }
+
+
+                await showOrderInsideHistory(
+                    matchingOrder,
+                    null,
+                    options
+                );
+
+
+                return;
+
+            }
+
+
+            const order =
+                customerOrders.find(
+                    item =>
+                        cleanOrderId(
+                            item.id
+                        ) ===
+                        cleanId
+                );
+
+
+            if (!order) {
+
+                return;
+
+            }
+
+
+            await showOrderInsideHistory(
+                order,
+                card,
+                options
+            );
+
+        }
+
+
+        /* =====================================================
+           SHOW ORDER INSIDE HISTORY CARD
+           ===================================================== */
+
+        async function showOrderInsideHistory(
+            initialOrder,
+            card,
+            options = {}
+        ) {
+
+            let order =
+                initialOrder;
+
+
+            /*
+             * Fetch the latest order from Firebase before
+             * opening it so the status/details are current.
+             */
+
+            try {
+
+                const latestOrder =
+                    await window.SLOrders
+                        ?.getCustomerOrder(
+                            cleanOrderId(
+                                initialOrder.id
+                            )
+                        );
+
+
+                if (latestOrder) {
+
+                    order =
+                        latestOrder;
+
+                }
+
+            } catch (error) {
+
+                console.warn(
+                    "Could not refresh order before opening:",
+                    error
+                );
+
+            }
+
+
+            const orderId =
+                cleanOrderId(
+                    order.id
+                );
+
+
+            /*
+             * Refresh current customer information before
+             * rendering the details.
+             */
+
+            await loadCurrentCustomerProfile();
+
+
+            /*
+             * If the card exists, insert the details directly
+             * below its summary.
+             */
+
+            if (card) {
+
+                const oldDetails =
+                    card.querySelector(
+                        ".history-order-details"
+                    );
+
+
+                if (oldDetails) {
+
+                    oldDetails.remove();
+
+                }
+
+
+                const detailsHTML =
+                    renderOrderDetails(
+                        order
+                    );
+
+
+                card.insertAdjacentHTML(
+                    "beforeend",
+                    detailsHTML
+                );
+
+            }
+
+
+            openOrderId =
+                orderId;
+
+
+            updateHistoryActiveState();
+
+
+            input.value =
+                orderId;
+
+
+            /*
+             * Live updates for this specific order.
+             */
+
+            if (
+                unsubscribeOrder
+            ) {
+
+                unsubscribeOrder();
+
+                unsubscribeOrder =
+                    null;
+
+            }
+
+
+            try {
+
+                unsubscribeOrder =
+                    window.SLOrders
+                        ?.subscribeCustomerOrder(
+
+                            orderId,
+
+                            async updatedOrder => {
+
+                                if (
+                                    !updatedOrder
+                                ) {
+
+                                    return;
+
+                                }
+
+
+                                /*
+                                 * Keep the customer profile
+                                 * current as well.
+                                 */
+
+                                await loadCurrentCustomerProfile();
+
+
+                                const activeCard =
+                                    historyList.querySelector(
+                                        `[data-history-order="${CSS.escape(
+                                            orderId
+                                        )}"]`
+                                    );
+
+
+                                if (!activeCard) {
+
+                                    return;
+
+                                }
+
+
+                                const currentDetails =
+                                    activeCard.querySelector(
+                                        ".history-order-details"
+                                    );
+
+
+                                if (
+                                    currentDetails
+                                ) {
+
+                                    currentDetails.outerHTML =
+                                        renderOrderDetails(
+                                            updatedOrder
+                                        );
+
+                                }
+
+
+                                /*
+                                 * Update the summary progress/status
+                                 * without rebuilding the entire list.
+                                 */
+
+                                const status =
+                                    String(
+                                        updatedOrder.status ||
+                                        "placed"
+                                    )
+                                        .trim()
+                                        .toLowerCase();
+
+
+                                const statusLabel =
+                                    getStatusLabel(
+                                        status
+                                    );
+
+
+                                const statusElement =
+                                    activeCard.querySelector(
+                                        ".history-status"
+                                    );
+
+
+                                if (
+                                    statusElement
+                                ) {
+
+                                    statusElement.innerHTML = `
+
+                                        <span
+                                            class="history-status-dot"
+                                            aria-hidden="true"
+                                        ></span>
+
+                                        ${escapeHtml(
+                                            statusLabel
+                                        )}
+
+                                    `;
+
+                                }
+
+
+                                const progressElement =
+                                    activeCard.querySelector(
+                                        ".history-progress"
+                                    );
+
+
+                                if (
+                                    progressElement
+                                ) {
+
+                                    progressElement.outerHTML =
+                                        renderHistoryProgress(
+                                            status
+                                        );
+
+                                }
+
+
+                                const totalElement =
+                                    activeCard.querySelector(
+                                        ".history-total"
+                                    );
+
+
+                                if (
+                                    totalElement
+                                ) {
+
+                                    totalElement.textContent =
+                                        formatMoney(
+                                            updatedOrder.total
+                                        );
+
+                                }
+
+                            },
+
+                            error => {
+
+                                console.error(
+                                    "Live order tracking error:",
+                                    error
+                                );
+
+                            }
+                        );
+
+            } catch (error) {
+
+                console.error(
+                    "Could not subscribe to order:",
+                    error
+                );
+
+            }
+
+
+            /*
+             * Update URL.
+             */
+
+            const newUrl =
+                `${window.location.pathname}?order=${encodeURIComponent(
+                    orderId
+                )}`;
+
+
+            window.history.replaceState(
+                {
+                    orderId
+                },
+                "",
+                newUrl
+            );
+
+
+            /*
+             * Scroll the selected order into view,
+             * not the bottom of the page.
+             */
+
+            if (
+                card &&
+                !options.skipScroll
+            ) {
+
+                requestAnimationFrame(
+                    () => {
+
+                        const rect =
+                            card.getBoundingClientRect();
+
+
+                        const absoluteTop =
+                            window.scrollY +
+                            rect.top -
+                            105;
+
+
+                        window.scrollTo(
+                            {
+                                top:
+                                    Math.max(
+                                        0,
+                                        absoluteTop
+                                    ),
+                                behavior:
+                                    "smooth",
+                            }
+                        );
+
+                    }
+                );
+
+            }
+
+        }
+
+
+        /* =====================================================
+           RENDER CUSTOMER HISTORY
+           ===================================================== */
+
+        function renderOrderHistory(
+            orders
+        ) {
+
+            customerOrders =
+                Array.isArray(orders)
+                    ? orders
+                    : [];
+
+
+            /*
+             * Preserve currently opened order.
+             */
+
+            const previouslyOpen =
+                openOrderId;
+
+
+            if (
+                !customerOrders.length
+            ) {
+
+                openOrderId =
+                    null;
+
+
+                orderHistory.hidden =
+                    false;
+
+
+                historyCount.textContent =
+                    "0 orders";
+
+
+                historyList.innerHTML = `
+
+                    <div class="history-empty">
+
+                        <i
+                            class="fas fa-box-open"
+                            aria-hidden="true"
+                        ></i>
+
+                        <br><br>
+
+                        You don't have any orders yet.
+
+                    </div>
+
+                `;
+
+
+                return;
+
+            }
+
+
+            orderHistory.hidden =
+                false;
+
+
+            historyCount.textContent =
+                `${customerOrders.length} ${
+                    customerOrders.length === 1
+                        ? "order"
+                        : "orders"
+                }`;
+
+
+            historyList.innerHTML =
+                customerOrders
+                    .map(
+                        order => {
+
+                            const status =
+                                String(
+                                    order.status ||
+                                    "placed"
+                                )
+                                    .trim()
+                                    .toLowerCase();
+
+
+                            const statusLabel =
+                                getStatusLabel(
+                                    status
+                                );
+
+
+                            const orderId =
+                                cleanOrderId(
+                                    order.id
+                                );
+
+
+                            return `
+
+                                <article
+                                    class="history-order ${
+                                        previouslyOpen ===
+                                        orderId
+                                            ? "history-order--active"
+                                            : ""
+                                    }"
+                                    data-history-order="${escapeHtml(
+                                        orderId
+                                    )}"
+                                >
+
+                                    <div
+                                        class="history-order-summary"
+                                    >
+
+                                        <div
+                                            class="history-main"
+                                        >
+
+                                            <div
+                                                class="history-top"
+                                            >
+
+                                                <h3
+                                                    class="history-order-id"
+                                                >
+                                                    ${escapeHtml(
+                                                        order.id
+                                                    )}
+                                                </h3>
+
+
+                                                <span
+                                                    class="history-total"
+                                                >
+                                                    ${formatMoney(
+                                                        order.total
+                                                    )}
+                                                </span>
+
+                                            </div>
+
+
+                                            <p
+                                                class="history-date"
+                                            >
+                                                ${formatDate(
+                                                    order.placedAt
+                                                )}
+                                            </p>
+
+
+                                            <div
+                                                class="history-status"
+                                            >
+
+                                                <span
+                                                    class="history-status-dot"
+                                                    aria-hidden="true"
+                                                ></span>
+
+                                                ${escapeHtml(
+                                                    statusLabel
+                                                )}
+
+                                            </div>
+
+
+                                            ${renderHistoryProgress(
+                                                status
+                                            )}
+
+                                        </div>
+
+
+                                        <button
+                                            type="button"
+                                            class="history-arrow"
+                                            data-history-toggle="${escapeHtml(
+                                                orderId
+                                            )}"
+                                            aria-expanded="${
+                                                previouslyOpen ===
+                                                orderId
+                                                    ? "true"
+                                                    : "false"
+                                            }"
+                                            aria-label="${
+                                                previouslyOpen ===
+                                                orderId
+                                                    ? `Close details for ${escapeHtml(
+                                                        orderId
+                                                    )}`
+                                                    : `View details for ${escapeHtml(
+                                                        orderId
+                                                    )}`
+                                            }"
+                                            title="${
+                                                previouslyOpen ===
+                                                orderId
+                                                    ? "Close order details"
+                                                    : "View order details"
+                                            }"
+                                        >
+
+                                            <i
+                                                class="fas ${
+                                                    previouslyOpen ===
+                                                    orderId
+                                                        ? "fa-chevron-left"
+                                                        : "fa-chevron-right"
+                                                }"
+                                                aria-hidden="true"
+                                            ></i>
+
+                                        </button>
+
+                                    </div>
+
+                                    ${
+                                        previouslyOpen ===
+                                        orderId
+                                            ? renderOrderDetails(
+                                                order
+                                            )
+                                            : ""
+                                    }
+
+                                </article>
+
+                            `;
+
+                        }
+                    )
+                    .join("");
+
+
+            /*
+             * Attach the inline open/close controls.
+             */
+
+            historyList
+                .querySelectorAll(
+                    "[data-history-toggle]"
+                )
+                .forEach(
+                    button => {
+
+                        button.addEventListener(
+                            "click",
+                            async event => {
+
+                                event.preventDefault();
+
+                                event.stopPropagation();
+
+
+                                const orderId =
+                                    button.dataset
+                                        .historyToggle;
+
+
+                                await openOrderInline(
+                                    orderId
+                                );
+
+                            }
+                        );
+
+                    }
+                );
+
+
+            /*
+             * Restore active visual state.
+             */
+
+            updateHistoryActiveState();
+
+        }
+
+
+        /* =====================================================
+           HISTORY FALLBACK
+           ===================================================== */
+
+        async function loadOrderHistoryFallback() {
+
+            try {
+
+                const orders =
+                    await window.SLOrders
+                        .getCustomerOrders();
+
+
+                renderOrderHistory(
+                    orders
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Could not load order history:",
+                    error
+                );
+
+
+                orderHistory.hidden =
+                    false;
+
+
+                historyCount.textContent =
+                    "Unavailable";
+
+
+                historyList.innerHTML = `
+
+                    <div class="history-empty">
+
+                        We couldn't load your
+                        order history right now.
+
+                        <br><br>
+
+                        Please refresh the page
+                        and try again.
+
+                    </div>
+
+                `;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           MANUAL TRACKING
            ===================================================== */
 
         async function trackOrder(
@@ -2128,20 +4195,31 @@
 
             clearMessage();
 
-            result.innerHTML =
-                "";
 
-            if (
-                unsubscribeOrder
-            ) {
-                unsubscribeOrder();
-                unsubscribeOrder =
-                    null;
+            const cleanId =
+                cleanOrderId(
+                    orderId
+                );
+
+
+            if (!cleanId) {
+
+                setMessage(
+                    "Please enter your order number."
+                );
+
+
+                input.focus();
+
+                return;
+
             }
 
+
             const user =
-                window.SLAuth
-                    ?.getUser();
+                window.SLOrders
+                    ?.getCurrentUser();
+
 
             if (!user) {
 
@@ -2155,44 +4233,27 @@
                     `
                 );
 
-                return;
-            }
-
-            const cleanId =
-                String(
-                    orderId || ""
-                )
-                    .trim()
-                    .toUpperCase()
-                    .replace(
-                        /\s+/g,
-                        ""
-                    );
-
-            if (!cleanId) {
-
-                setMessage(
-                    "Please enter your order number."
-                );
-
-                input.focus();
 
                 return;
+
             }
+
 
             setLoading(true);
+
 
             try {
 
                 /*
-                 * First verify the order exists and belongs
-                 * to the signed-in customer.
+                 * Get latest order.
                  */
+
                 const order =
                     await window.SLOrders
                         .getCustomerOrder(
                             cleanId
                         );
+
 
                 if (!order) {
 
@@ -2205,62 +4266,87 @@
                         `
                     );
 
+
                     setLoading(false);
 
                     return;
+
                 }
 
-                renderOrder(order);
-
-                saveRecentOrder(
-                    cleanId
-                );
-
-                renderRecentOrders();
 
                 /*
-                 * Subscribe to live status changes.
+                 * Make sure the current customer profile
+                 * is loaded before displaying details.
                  */
-                unsubscribeOrder =
-                    window.SLOrders
-                        .subscribeCustomerOrder(
-                            cleanId,
 
-                            updatedOrder => {
+                await loadCurrentCustomerProfile();
 
-                                if (
-                                    updatedOrder
-                                ) {
 
-                                    renderOrder(
-                                        updatedOrder
-                                    );
+                /*
+                 * If the order exists in history,
+                 * open it directly inside that history row.
+                 */
 
-                                } else {
+                const card =
+                    historyList.querySelector(
+                        `[data-history-order="${CSS.escape(
+                            cleanId
+                        )}"]`
+                    );
 
-                                    result.innerHTML =
-                                        "";
 
-                                    setMessage(
-                                        "This order is no longer available."
-                                    );
-                                }
-                            },
+                if (card) {
 
-                            error => {
+                    await showOrderInsideHistory(
+                        order,
+                        card
+                    );
 
-                                console.error(
-                                    "Live order tracking error:",
-                                    error
-                                );
+                } else {
 
-                                /*
-                                 * Keep the last valid order
-                                 * displayed even if the realtime
-                                 * connection temporarily fails.
-                                 */
-                            }
+                    /*
+                     * If history has not rendered the order yet,
+                     * refresh history and then open it.
+                     */
+
+                    await loadOrderHistoryFallback();
+
+
+                    const refreshedCard =
+                        historyList.querySelector(
+                            `[data-history-order="${CSS.escape(
+                                cleanId
+                            )}"]`
                         );
+
+
+                    if (
+                        refreshedCard
+                    ) {
+
+                        await showOrderInsideHistory(
+                            order,
+                            refreshedCard
+                        );
+
+                    } else {
+
+                        setMessage(
+                            `
+                                Order
+                                <strong>${escapeHtml(
+                                    cleanId
+                                )}</strong>
+                                was found, but it is not available
+                                in your customer order history.
+                            `,
+                            "info"
+                        );
+
+                    }
+
+                }
+
 
                 setLoading(false);
 
@@ -2271,7 +4357,9 @@
                     error
                 );
 
+
                 setLoading(false);
+
 
                 if (
                     error?.code ===
@@ -2295,8 +4383,287 @@
                             "Unable to track this order right now. Please try again."
                         )
                     );
+
                 }
+
             }
+
+        }
+
+
+        /* =====================================================
+           URL ORDER
+           ===================================================== */
+
+        function getOrderFromUrl() {
+
+            try {
+
+                const params =
+                    new URLSearchParams(
+                        window.location.search
+                    );
+
+
+                return cleanOrderId(
+                    params.get(
+                        "order"
+                    )
+                );
+
+            } catch {
+
+                return "";
+
+            }
+
+        }
+
+
+        /* =====================================================
+           CUSTOMER ORDER HISTORY
+           ===================================================== */
+
+        function startOrderHistory(
+            user
+        ) {
+
+            if (
+                unsubscribeHistory
+            ) {
+
+                unsubscribeHistory();
+
+                unsubscribeHistory =
+                    null;
+
+            }
+
+
+            if (!user) {
+
+                orderHistory.hidden =
+                    true;
+
+
+                historyList.innerHTML =
+                    "";
+
+
+                return;
+
+            }
+
+
+            try {
+
+                unsubscribeHistory =
+                    window.SLOrders
+                        .subscribeCustomerOrders(
+
+                            orders => {
+
+                                renderOrderHistory(
+                                    orders
+                                );
+
+
+                                /*
+                                 * If a URL order exists, open it
+                                 * after the history has rendered.
+                                 */
+
+                                const urlOrder =
+                                    getOrderFromUrl();
+
+
+                                if (
+                                    urlOrder &&
+                                    openOrderId !==
+                                    urlOrder
+                                ) {
+
+                                    const card =
+                                        historyList.querySelector(
+                                            `[data-history-order="${CSS.escape(
+                                                urlOrder
+                                            )}"]`
+                                        );
+
+
+                                    if (card) {
+
+                                        showOrderInsideHistory(
+                                            customerOrders.find(
+                                                order =>
+                                                    cleanOrderId(
+                                                        order.id
+                                                    ) ===
+                                                    urlOrder
+                                            ),
+                                            card,
+                                            {
+                                                skipScroll:
+                                                    true
+                                            }
+                                        );
+
+                                    }
+
+                                }
+
+                            },
+
+                            error => {
+
+                                console.error(
+                                    "Order history error:",
+                                    error
+                                );
+
+
+                                loadOrderHistoryFallback();
+
+                            }
+
+                        );
+
+            } catch (error) {
+
+                console.error(
+                    "Could not subscribe to order history:",
+                    error
+                );
+
+
+                loadOrderHistoryFallback();
+
+            }
+
+        }
+
+
+        /* =====================================================
+           AUTH STATE
+           ===================================================== */
+
+        function initialiseTracker() {
+
+            if (
+                !window.SLOrders
+            ) {
+
+                setTimeout(
+                    initialiseTracker,
+                    100
+                );
+
+
+                return;
+
+            }
+
+
+            window.SLOrders
+                .onCustomerAuthChange(
+                    async user => {
+
+                        if (!user) {
+
+                            authNotice.style.display =
+                                "block";
+
+
+                            authNotice.innerHTML = `
+                                Please
+                                <a href="login.html?mode=login">
+                                    sign in
+                                </a>
+                                to securely track your
+                                orders and view your order history.
+                            `;
+
+
+                            form.style.opacity =
+                                "0.55";
+
+
+                            input.disabled =
+                                true;
+
+
+                            submitButton.disabled =
+                                true;
+
+
+                            orderHistory.hidden =
+                                true;
+
+
+                            if (
+                                unsubscribeOrder
+                            ) {
+
+                                unsubscribeOrder();
+
+                                unsubscribeOrder =
+                                    null;
+
+                            }
+
+
+                            if (
+                                unsubscribeHistory
+                            ) {
+
+                                unsubscribeHistory();
+
+                                unsubscribeHistory =
+                                    null;
+
+                            }
+
+
+                            return;
+
+                        }
+
+
+                        authNotice.style.display =
+                            "none";
+
+
+                        form.style.opacity =
+                            "1";
+
+
+                        input.disabled =
+                            false;
+
+
+                        submitButton.disabled =
+                            false;
+
+
+                        /*
+                         * Load the latest customer profile
+                         * every time authentication is confirmed.
+                         */
+
+                        await loadCurrentCustomerProfile();
+
+
+                        /*
+                         * Load historical orders.
+                         */
+
+                        startOrderHistory(
+                            user
+                        );
+
+                    }
+                );
+
         }
 
 
@@ -2310,67 +4677,23 @@
 
                 event.preventDefault();
 
+
                 trackOrder(
                     input.value
                 );
+
             }
         );
 
 
         /* =====================================================
-           AUTH STATE
+           INITIALISE
            ===================================================== */
-
-        function initialiseTracker() {
-
-            if (
-                !window.SLAuth ||
-                !window.SLOrders
-            ) {
-                setTimeout(
-                    initialiseTracker,
-                    100
-                );
-
-                return;
-            }
-
-            window.SLAuth
-                .onAuthStateChanged(
-                    user => {
-
-                        updateAuthUI(
-                            user
-                        );
-
-                        renderRecentOrders();
-
-                        if (!user) {
-                            return;
-                        }
-
-                        /*
-                         * Automatically restore the last tracked
-                         * order only when it exists in this browser.
-                         */
-                        const recent =
-                            getRecentOrders();
-
-                        if (
-                            recent.length === 1 &&
-                            !input.value
-                        ) {
-                            input.value =
-                                recent[0];
-                        }
-                    }
-                );
-        }
-
 
         initialiseTracker();
 
     </script>
 
 </body>
+
 </html>

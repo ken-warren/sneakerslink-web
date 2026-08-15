@@ -3,50 +3,55 @@
    ---------------------------------------------------------
    Handles:
    - Order creation
-   - Order lookup
+   - Customer order lookup
+   - Customer order history
+   - Customer order tracking
    - Real-time order tracking
-   - Order status management
-   - Admin order subscription
-   - Customer authentication helpers
-   - Order validation / sanitisation
-   - Firebase-safe initialisation
+   - Admin order listing
+   - Admin status updates
+   - Order status helpers
+   - Firebase Authentication helpers
    ========================================================= */
 
 import { firebaseConfig } from "./firebase-config.js";
 
 import {
-  getApps,
-  getApp,
-  initializeApp,
+    getApps,
+    getApp,
+    initializeApp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-  onSnapshot,
-  collection,
-  query,
-  orderBy,
-  limit,
-  serverTimestamp,
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    updateDoc,
+    onSnapshot,
+    collection,
+    query,
+    where,
+    orderBy,
+    limit,
+    getDocs,
+    serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
-  getAuth,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
+    getAuth,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 
 /* =========================================================
    FIREBASE INITIALISATION
    ========================================================= */
 
 const isConfigured = Boolean(
-  firebaseConfig?.apiKey && !String(firebaseConfig.apiKey).startsWith("YOUR_"),
+    firebaseConfig?.apiKey &&
+    !String(firebaseConfig.apiKey).startsWith("YOUR_")
 );
 
 let app = null;
@@ -54,789 +59,1546 @@ let db = null;
 let auth = null;
 
 if (isConfigured) {
-  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    app = getApps().length
+        ? getApp()
+        : initializeApp(firebaseConfig);
 
-  db = getFirestore(app);
-  auth = getAuth(app);
+    db = getFirestore(app);
+    auth = getAuth(app);
 }
 
+
 /* =========================================================
-   ORDER STATUS DEFINITIONS
+   ORDER STATUSES
    ========================================================= */
 
 export const ORDER_STAGES = [
-  {
-    key: "placed",
-    label: "Order Placed",
-    icon: "fa-receipt",
-  },
-
-  {
-    key: "confirmed",
-    label: "Confirmed",
-    icon: "fa-check-circle",
-  },
-
-  {
-    key: "packed",
-    label: "Packed",
-    icon: "fa-box",
-  },
-
-  {
-    key: "out",
-    label: "Out for Delivery",
-    icon: "fa-truck",
-  },
-
-  {
-    key: "delivered",
-    label: "Delivered",
-    icon: "fa-home",
-  },
+    {
+        key: "placed",
+        label: "Order Placed",
+        shortLabel: "Placed",
+        icon: "fa-receipt",
+    },
+    {
+        key: "confirmed",
+        label: "Confirmed",
+        shortLabel: "Confirmed",
+        icon: "fa-check-circle",
+    },
+    {
+        key: "packed",
+        label: "Packed",
+        shortLabel: "Packed",
+        icon: "fa-box",
+    },
+    {
+        key: "out",
+        label: "Out for Delivery",
+        shortLabel: "Out for Delivery",
+        icon: "fa-truck",
+    },
+    {
+        key: "delivered",
+        label: "Delivered",
+        shortLabel: "Delivered",
+        icon: "fa-home",
+    },
 ];
 
-const VALID_STATUSES = new Set(ORDER_STAGES.map((stage) => stage.key));
+const VALID_STATUSES = new Set(
+    ORDER_STAGES.map(stage => stage.key)
+);
+
 
 /* =========================================================
    FIREBASE REQUIREMENTS
    ========================================================= */
 
 function requireDb() {
-  if (!isConfigured || !db) {
-    throw new Error(
-      "Firebase is not configured. Please check firebase-config.js.",
-    );
-  }
+
+    if (!isConfigured || !db) {
+        throw new Error(
+            "Firebase is not configured. Add your Firebase project settings to firebase-config.js."
+        );
+    }
 }
+
 
 function requireAuth() {
-  requireDb();
 
-  if (!auth) {
-    throw new Error("Firebase Authentication is unavailable.");
-  }
+    requireDb();
+
+    if (!auth) {
+        throw new Error(
+            "Firebase Authentication is unavailable."
+        );
+    }
 }
+
 
 /* =========================================================
    GENERAL HELPERS
    ========================================================= */
 
 function cleanOrderId(value) {
-  return String(value || "")
-    .trim()
-    .toUpperCase()
-    .replace(/\s+/g, "");
+
+    return String(value || "")
+        .trim()
+        .toUpperCase()
+        .replace(/\s+/g, "");
 }
+
 
 function cleanEmail(value) {
-  return String(value || "")
-    .trim()
-    .toLowerCase();
+
+    return String(value || "")
+        .trim()
+        .toLowerCase();
 }
+
 
 function cleanText(value, maxLength = 500) {
-  return String(value ?? "")
-    .trim()
-    .slice(0, maxLength);
+
+    return String(value ?? "")
+        .trim()
+        .slice(0, maxLength);
 }
+
 
 function toSafeNumber(value, fallback = 0) {
-  const number = Number(value);
 
-  return Number.isFinite(number) ? number : fallback;
+    const number = Number(value);
+
+    return Number.isFinite(number)
+        ? number
+        : fallback;
 }
+
 
 function toSafeQuantity(value) {
-  const quantity = Math.floor(toSafeNumber(value, 1));
 
-  return Math.min(99, Math.max(1, quantity));
+    const quantity = Math.floor(
+        toSafeNumber(value, 1)
+    );
+
+    return Math.min(
+        99,
+        Math.max(1, quantity)
+    );
 }
+
+
+/* =========================================================
+   TIMESTAMP HELPER
+   ========================================================= */
+
+function normaliseTimestamp(value) {
+
+    if (!value) {
+        return null;
+    }
+
+    if (
+        typeof value.toDate ===
+        "function"
+    ) {
+        return value.toDate();
+    }
+
+    if (value instanceof Date) {
+        return value;
+    }
+
+    if (typeof value === "number") {
+
+        const date =
+            new Date(value);
+
+        return Number.isNaN(
+            date.getTime()
+        )
+            ? null
+            : date;
+    }
+
+    if (typeof value === "string") {
+
+        const date =
+            new Date(value);
+
+        return Number.isNaN(
+            date.getTime()
+        )
+            ? null
+            : date;
+    }
+
+    return null;
+}
+
 
 /* =========================================================
    ORDER ID GENERATOR
    ========================================================= */
 
 function generateOrderId() {
-  if (
-    globalThis.crypto &&
-    typeof globalThis.crypto.getRandomValues === "function"
-  ) {
-    const bytes = new Uint8Array(8);
 
-    globalThis.crypto.getRandomValues(bytes);
+    if (
+        globalThis.crypto &&
+        typeof globalThis.crypto.getRandomValues ===
+            "function"
+    ) {
 
-    const randomPart = [...bytes]
-      .map((byte) => byte.toString(36).padStart(2, "0"))
-      .join("")
-      .slice(0, 12)
-      .toUpperCase();
+        const bytes =
+            new Uint8Array(8);
 
-    return `SL-${randomPart}`;
-  }
+        globalThis.crypto.getRandomValues(
+            bytes
+        );
 
-  return (
-    `SL-${Date.now().toString(36)}` + Math.random().toString(36).slice(2, 8)
-  ).toUpperCase();
+        const randomPart =
+            [...bytes]
+                .map(
+                    byte =>
+                        byte
+                            .toString(36)
+                            .padStart(2, "0")
+                )
+                .join("")
+                .slice(0, 12)
+                .toUpperCase();
+
+        return `SL-${randomPart}`;
+    }
+
+    return (
+        `SL-${Date.now().toString(36)}` +
+        Math.random()
+            .toString(36)
+            .slice(2, 8)
+    ).toUpperCase();
 }
 
+
 /* =========================================================
-   AUTHENTICATION HELPERS
+   AUTH HELPERS
    ========================================================= */
 
 function getCurrentUser() {
-  return auth?.currentUser || null;
+
+    return auth?.currentUser || null;
 }
+
 
 function getCurrentCustomer() {
-  const user = getCurrentUser();
 
-  if (!user) {
-    return null;
-  }
+    const user =
+        getCurrentUser();
 
-  return {
-    uid: user.uid,
-
-    email: user.email || "",
-
-    displayName: user.displayName || "",
-
-    photoURL: user.photoURL || "",
-
-    emailVerified: Boolean(user.emailVerified),
-  };
-}
-
-function onCustomerAuthChange(callback) {
-  if (typeof callback !== "function") {
-    throw new TypeError("Authentication callback must be a function.");
-  }
-
-  if (!auth) {
-    callback(null);
-
-    return () => {};
-  }
-
-  return onAuthStateChanged(auth, callback);
-}
-
-async function customerSignIn(email, password) {
-  requireAuth();
-
-  const cleanEmailAddress = cleanEmail(email);
-
-  if (!cleanEmailAddress) {
-    throw new Error("Please enter your email address.");
-  }
-
-  if (!password) {
-    throw new Error("Please enter your password.");
-  }
-
-  const credential = await signInWithEmailAndPassword(
-    auth,
-    cleanEmailAddress,
-    password,
-  );
-
-  return credential.user;
-}
-
-async function customerSignOut() {
-  requireAuth();
-
-  await signOut(auth);
-}
-
-/* =========================================================
-   ORDER ITEM SANITISATION
-   ========================================================= */
-
-function sanitiseItems(items) {
-  if (!Array.isArray(items) || items.length === 0) {
-    throw new Error("Your order contains no products.");
-  }
-
-  if (items.length > 100) {
-    throw new Error("Your order contains too many items.");
-  }
-
-  return items.map((item, index) => {
-    if (!item || typeof item !== "object") {
-      throw new Error(`Invalid order item at position ${index + 1}.`);
-    }
-
-    const name = cleanText(item.name || item.productName || "Sneaker", 160);
-
-    const size = cleanText(item.size || "", 20);
-
-    const price = Math.max(0, toSafeNumber(item.price, 0));
-
-    const qty = toSafeQuantity(item.qty ?? item.quantity ?? 1);
-
-    const img = cleanText(item.img || item.image || "", 500);
-
-    const productId = cleanText(item.productId || item.id || "", 100);
-
-    if (!name) {
-      throw new Error(`Invalid product name at item ${index + 1}.`);
+    if (!user) {
+        return null;
     }
 
     return {
-      productId,
-      name,
-      size,
-      qty,
-      price,
-      img,
+        uid: user.uid,
+        email: user.email || "",
+        displayName: user.displayName || "",
+        photoURL: user.photoURL || "",
+        emailVerified:
+            Boolean(user.emailVerified),
     };
-  });
 }
+
+
+function onCustomerAuthChange(
+    callback
+) {
+
+    if (
+        typeof callback !==
+        "function"
+    ) {
+        throw new TypeError(
+            "Authentication callback must be a function."
+        );
+    }
+
+    if (!auth) {
+
+        callback(null);
+
+        return () => {};
+    }
+
+    return onAuthStateChanged(
+        auth,
+        callback
+    );
+}
+
+
+async function customerSignIn(
+    email,
+    password
+) {
+
+    requireAuth();
+
+    const cleanEmailAddress =
+        cleanEmail(email);
+
+    if (!cleanEmailAddress) {
+        throw new Error(
+            "Please enter your email address."
+        );
+    }
+
+    if (!password) {
+        throw new Error(
+            "Please enter your password."
+        );
+    }
+
+    const credential =
+        await signInWithEmailAndPassword(
+            auth,
+            cleanEmailAddress,
+            password
+        );
+
+    return credential.user;
+}
+
+
+async function customerSignOut() {
+
+    requireAuth();
+
+    await signOut(auth);
+}
+
 
 /* =========================================================
-   ORDER METADATA SANITISATION
+   ORDER ITEM VALIDATION
    ========================================================= */
 
-function sanitiseMetadata(metadata = {}) {
-  if (!metadata || typeof metadata !== "object") {
-    metadata = {};
-  }
+function sanitiseItems(items) {
 
-  const subtotal = Math.max(0, toSafeNumber(metadata.subtotal, 0));
+    if (
+        !Array.isArray(items) ||
+        items.length === 0
+    ) {
+        throw new Error(
+            "Your order contains no products."
+        );
+    }
 
-  const discount = Math.min(
-    subtotal,
-    Math.max(0, toSafeNumber(metadata.discount, 0)),
-  );
+    if (items.length > 100) {
+        throw new Error(
+            "Your order contains too many items."
+        );
+    }
 
-  return {
-    subtotal,
+    return items.map(
+        (item, index) => {
 
-    discount,
+            if (
+                !item ||
+                typeof item !==
+                    "object"
+            ) {
+                throw new Error(
+                    `Invalid order item at position ${index + 1}.`
+                );
+            }
 
-    coupon: cleanText(metadata.coupon || "", 40),
+            const name =
+                cleanText(
+                    item.name ||
+                    "Sneaker",
+                    160
+                );
 
-    customerName: cleanText(metadata.customerName || metadata.name || "", 120),
+            const size =
+                cleanText(
+                    item.size || "",
+                    20
+                );
 
-    customerEmail: cleanEmail(metadata.customerEmail || metadata.email || ""),
+            const price =
+                Math.max(
+                    0,
+                    toSafeNumber(
+                        item.price,
+                        0
+                    )
+                );
 
-    customerPhone: cleanText(
-      metadata.customerPhone || metadata.phone || "",
-      40,
-    ),
+            const qty =
+                toSafeQuantity(
+                    item.qty ??
+                    item.quantity
+                );
 
-    deliveryAddress: cleanText(
-      metadata.deliveryAddress || metadata.address || "",
-      500,
-    ),
+            const img =
+                cleanText(
+                    item.img ||
+                    item.image ||
+                    "",
+                    500
+                );
 
-    city: cleanText(metadata.city || "", 100),
-
-    postalCode: cleanText(metadata.postalCode || "", 30),
-
-    country: cleanText(metadata.country || "Kenya", 100),
-
-    paymentMethod: cleanText(metadata.paymentMethod || "", 50),
-  };
+            return {
+                name,
+                size,
+                qty,
+                price,
+                img,
+            };
+        }
+    );
 }
+
+
+/* =========================================================
+   ORDER METADATA
+   ========================================================= */
+
+function sanitiseMetadata(
+    metadata = {}
+) {
+
+    if (
+        !metadata ||
+        typeof metadata !==
+            "object"
+    ) {
+        metadata = {};
+    }
+
+    const subtotal =
+        Math.max(
+            0,
+            toSafeNumber(
+                metadata.subtotal,
+                0
+            )
+        );
+
+    const discount =
+        Math.min(
+            subtotal,
+            Math.max(
+                0,
+                toSafeNumber(
+                    metadata.discount,
+                    0
+                )
+            )
+        );
+
+    return {
+
+        subtotal,
+
+        discount,
+
+        coupon:
+            cleanText(
+                metadata.coupon ||
+                "",
+                40
+            ),
+
+        customerName:
+            cleanText(
+                metadata.customerName ||
+                metadata.name ||
+                "",
+                120
+            ),
+
+        customerEmail:
+            cleanEmail(
+                metadata.customerEmail ||
+                metadata.email ||
+                ""
+            ),
+
+        customerPhone:
+            cleanText(
+                metadata.customerPhone ||
+                metadata.phone ||
+                "",
+                40
+            ),
+
+        deliveryAddress:
+            cleanText(
+                metadata.deliveryAddress ||
+                metadata.address ||
+                "",
+                500
+            ),
+
+        city:
+            cleanText(
+                metadata.city ||
+                "",
+                100
+            ),
+
+        customerUid:
+            cleanText(
+                metadata.customerUid ||
+                metadata.uid ||
+                "",
+                150
+            ),
+    };
+}
+
 
 /* =========================================================
    CREATE ORDER
    ========================================================= */
 
-/**
- * Creates:
- *
- * orders/{orderId}
- *
- * Orders are associated with the currently authenticated
- * customer whenever a Firebase user exists.
- *
- * Initial status:
- *
- * placed
- */
+async function createOrder(
+    items,
+    total,
+    metadata = {}
+) {
 
-async function createOrder(items, total, metadata = {}) {
-  requireDb();
+    requireDb();
 
-  const cleanItems = sanitiseItems(items);
+    const cleanItems =
+        sanitiseItems(items);
 
-  const cleanMetadata = sanitiseMetadata(metadata);
+    const cleanMetadata =
+        sanitiseMetadata(metadata);
 
-  const user = getCurrentUser();
+    const currentUser =
+        getCurrentUser();
 
-  const cleanTotal = Math.max(0, toSafeNumber(total, 0));
+    if (
+        currentUser &&
+        !cleanMetadata.customerUid
+    ) {
+        cleanMetadata.customerUid =
+            currentUser.uid;
+    }
 
-  const expectedTotal = Math.max(
-    0,
-    cleanMetadata.subtotal - cleanMetadata.discount,
-  );
+    if (currentUser?.email) {
 
-  /*
-   * The checkout page normally supplies the final total.
-   *
-   * If no usable total is supplied, use:
-   *
-   * subtotal - discount
-   */
-  const finalTotal = Number.isFinite(Number(total))
-    ? cleanTotal
-    : expectedTotal;
+        cleanMetadata.customerEmail =
+            cleanEmail(
+                currentUser.email
+            );
+    }
 
-  const id = generateOrderId();
+    const cleanTotal =
+        Math.max(
+            0,
+            toSafeNumber(
+                total,
+                0
+            )
+        );
 
-  const customerUid = user?.uid || "";
+    const expectedTotal =
+        Math.max(
+            0,
+            cleanMetadata.subtotal -
+                cleanMetadata.discount
+        );
 
-  const customerEmail = cleanMetadata.customerEmail || user?.email || "";
+    const finalTotal =
+        Number.isFinite(
+            Number(total)
+        )
+            ? cleanTotal
+            : expectedTotal;
 
-  const customerName = cleanMetadata.customerName || user?.displayName || "";
+    const id =
+        generateOrderId();
 
-  const order = {
-    id,
+    const order = {
 
-    customerUid,
+        id,
 
-    customerId: customerUid,
+        customerUid:
+            cleanMetadata.customerUid,
 
-    customerEmail: cleanEmail(customerEmail),
+        customerEmail:
+            cleanMetadata.customerEmail,
 
-    customerName: cleanText(customerName, 120),
+        customerName:
+            cleanMetadata.customerName,
 
-    items: cleanItems,
+        customerPhone:
+            cleanMetadata.customerPhone,
 
-    total: finalTotal,
+        deliveryAddress:
+            cleanMetadata.deliveryAddress,
 
-    subtotal: cleanMetadata.subtotal,
+        city:
+            cleanMetadata.city,
 
-    discount: cleanMetadata.discount,
+        items:
+            cleanItems,
 
-    coupon: cleanMetadata.coupon,
+        subtotal:
+            cleanMetadata.subtotal,
 
-    customerPhone: cleanMetadata.customerPhone,
+        discount:
+            cleanMetadata.discount,
 
-    deliveryAddress: cleanMetadata.deliveryAddress,
+        coupon:
+            cleanMetadata.coupon,
 
-    city: cleanMetadata.city,
+        total:
+            finalTotal,
 
-    postalCode: cleanMetadata.postalCode,
+        status:
+            "placed",
 
-    country: cleanMetadata.country,
+        placedAt:
+            serverTimestamp(),
 
-    paymentMethod: cleanMetadata.paymentMethod,
+        updatedAt:
+            serverTimestamp(),
+    };
 
-    status: "placed",
+    await setDoc(
+        doc(
+            db,
+            "orders",
+            id
+        ),
+        order
+    );
 
-    placedAt: serverTimestamp(),
+    const now =
+        Date.now();
 
-    updatedAt: serverTimestamp(),
-  };
+    return {
+        ...order,
 
-  await setDoc(doc(db, "orders", id), order);
+        placedAt: now,
 
-  /*
-   * Return a client-safe immediate representation.
-   */
-  const now = Date.now();
-
-  return {
-    ...order,
-
-    placedAt: now,
-
-    updatedAt: now,
-  };
+        updatedAt: now,
+    };
 }
+
 
 /* =========================================================
    GET SINGLE ORDER
    ========================================================= */
 
-/**
- * Retrieves one order by order number.
- *
- * Firestore security rules remain responsible for deciding
- * whether the current user is allowed to read the order.
- */
-
 async function getOrder(id) {
-  requireDb();
 
-  const cleanId = cleanOrderId(id);
+    requireDb();
 
-  if (!cleanId) {
-    return null;
-  }
+    const cleanId =
+        cleanOrderId(id);
 
-  const snapshot = await getDoc(doc(db, "orders", cleanId));
+    if (!cleanId) {
+        return null;
+    }
 
-  if (!snapshot.exists()) {
-    return null;
-  }
+    const snapshot =
+        await getDoc(
+            doc(
+                db,
+                "orders",
+                cleanId
+            )
+        );
 
-  return {
-    ...snapshot.data(),
+    if (!snapshot.exists()) {
+        return null;
+    }
 
-    id: snapshot.id,
-  };
-}
-
-/* =========================================================
-   REAL-TIME ORDER TRACKING
-   ========================================================= */
-
-/**
- * Subscribe to one order.
- *
- * Returns Firestore's unsubscribe function.
- */
-
-function subscribeOrder(id, onChange, onError) {
-  requireDb();
-
-  if (typeof onChange !== "function") {
-    throw new TypeError("onChange must be a function.");
-  }
-
-  const cleanId = cleanOrderId(id);
-
-  if (!cleanId) {
-    throw new Error("An order reference is required.");
-  }
-
-  return onSnapshot(
-    doc(db, "orders", cleanId),
-
-    (snapshot) => {
-      if (!snapshot.exists()) {
-        onChange(null);
-
-        return;
-      }
-
-      onChange({
+    return {
         ...snapshot.data(),
-
         id: snapshot.id,
-      });
-    },
-
-    (error) => {
-      if (typeof onError === "function") {
-        onError(error);
-
-        return;
-      }
-
-      console.error("[SneakersLink] Order tracking error:", error);
-    },
-  );
+    };
 }
+
 
 /* =========================================================
-   ADMIN — SUBSCRIBE TO ALL ORDERS
+   CUSTOMER OWNERSHIP
    ========================================================= */
 
-/**
- * IMPORTANT:
- *
- * This function does NOT itself grant admin access.
- *
- * Firestore security rules MUST restrict the orders
- * collection query to authorised administrators.
- */
+function orderBelongsToUser(
+    order,
+    user
+) {
 
-function subscribeAllOrders(onChange, onError, max = 50) {
-  requireDb();
+    if (!order || !user) {
+        return false;
+    }
 
-  if (typeof onChange !== "function") {
-    throw new TypeError("onChange must be a function.");
-  }
+    /*
+     * Preferred method:
+     * Firebase UID.
+     */
+    if (
+        order.customerUid &&
+        order.customerUid ===
+            user.uid
+    ) {
+        return true;
+    }
 
-  const safeLimit = Math.min(
-    100,
-    Math.max(1, Math.floor(toSafeNumber(max, 50))),
-  );
+    /*
+     * Backward compatibility:
+     * older orders may not contain UID.
+     */
+    if (
+        !order.customerUid &&
+        order.customerEmail &&
+        user.email &&
+        cleanEmail(
+            order.customerEmail
+        ) ===
+            cleanEmail(
+                user.email
+            )
+    ) {
+        return true;
+    }
 
-  const ordersQuery = query(
-    collection(db, "orders"),
-
-    orderBy("placedAt", "desc"),
-
-    limit(safeLimit),
-  );
-
-  return onSnapshot(
-    ordersQuery,
-
-    (snapshot) => {
-      const orders = snapshot.docs.map((orderDoc) => ({
-        ...orderDoc.data(),
-
-        id: orderDoc.id,
-      }));
-
-      onChange(orders);
-    },
-
-    (error) => {
-      if (typeof onError === "function") {
-        onError(error);
-
-        return;
-      }
-
-      console.error("[SneakersLink] Admin order subscription error:", error);
-    },
-  );
+    return false;
 }
+
 
 /* =========================================================
-   UPDATE ORDER STATUS
+   GET CUSTOMER ORDER
+   ---------------------------------------------------------
+   Used by track-order.html.
    ========================================================= */
 
-/**
- * Admin should use this function to change status.
- *
- * Firestore rules MUST verify admin privileges.
- */
+async function getCustomerOrder(
+    id
+) {
 
-async function updateOrderStatus(id, status) {
-  requireDb();
+    requireAuth();
 
-  const cleanId = cleanOrderId(id);
+    const user =
+        getCurrentUser();
 
-  if (!cleanId) {
-    throw new Error("An order reference is required.");
-  }
+    if (!user) {
+        throw new Error(
+            "Please sign in to track your order."
+        );
+    }
 
-  const cleanStatus = cleanText(status, 30).toLowerCase();
+    const cleanId =
+        cleanOrderId(id);
 
-  if (!VALID_STATUSES.has(cleanStatus)) {
-    throw new Error("Invalid order status.");
-  }
+    if (!cleanId) {
+        return null;
+    }
 
-  const orderRef = doc(db, "orders", cleanId);
+    const order =
+        await getOrder(cleanId);
 
-  const snapshot = await getDoc(orderRef);
+    if (!order) {
+        return null;
+    }
 
-  if (!snapshot.exists()) {
-    throw new Error("Order not found.");
-  }
+    if (
+        !orderBelongsToUser(
+            order,
+            user
+        )
+    ) {
+        return null;
+    }
 
-  await updateDoc(orderRef, {
-    status: cleanStatus,
-
-    updatedAt: serverTimestamp(),
-  });
-
-  return {
-    id: cleanId,
-
-    status: cleanStatus,
-  };
+    return order;
 }
+
 
 /* =========================================================
-   ADMIN AUTHENTICATION
+   GET ALL CUSTOMER ORDERS
+   ---------------------------------------------------------
+   Returns the customer's complete order history.
    ========================================================= */
 
-async function adminSignIn(email, password) {
-  requireAuth();
+async function getCustomerOrders(
+    maxOrders = 100
+) {
 
-  const cleanEmailAddress = cleanEmail(email);
+    requireAuth();
 
-  if (!cleanEmailAddress) {
-    throw new Error("Please enter the administrator email.");
-  }
+    const user =
+        getCurrentUser();
 
-  if (!password) {
-    throw new Error("Please enter the administrator password.");
-  }
+    if (!user) {
+        throw new Error(
+            "Please sign in to view your orders."
+        );
+    }
 
-  const credential = await signInWithEmailAndPassword(
-    auth,
-    cleanEmailAddress,
-    password,
-  );
+    const safeLimit =
+        Math.min(
+            100,
+            Math.max(
+                1,
+                Math.floor(
+                    toSafeNumber(
+                        maxOrders,
+                        100
+                    )
+                )
+            )
+        );
 
-  return credential.user;
+    const ordersRef =
+        collection(
+            db,
+            "orders"
+        );
+
+    /*
+     * First attempt:
+     * UID-based lookup.
+     */
+    let uidOrders = [];
+
+    try {
+
+        const uidQuery =
+            query(
+                ordersRef,
+                where(
+                    "customerUid",
+                    "==",
+                    user.uid
+                ),
+                limit(safeLimit)
+            );
+
+        const snapshot =
+            await getDocs(
+                uidQuery
+            );
+
+        uidOrders =
+            snapshot.docs.map(
+                orderDoc => ({
+                    ...orderDoc.data(),
+                    id: orderDoc.id,
+                })
+            );
+
+    } catch (error) {
+
+        console.warn(
+            "UID order history lookup failed:",
+            error
+        );
+    }
+
+
+    /*
+     * Second lookup:
+     * email-based lookup.
+     *
+     * This supports older orders created
+     * before customerUid was introduced.
+     */
+    let emailOrders = [];
+
+    if (user.email) {
+
+        try {
+
+            const emailQuery =
+                query(
+                    ordersRef,
+                    where(
+                        "customerEmail",
+                        "==",
+                        cleanEmail(
+                            user.email
+                        )
+                    ),
+                    limit(safeLimit)
+                );
+
+            const snapshot =
+                await getDocs(
+                    emailQuery
+                );
+
+            emailOrders =
+                snapshot.docs.map(
+                    orderDoc => ({
+                        ...orderDoc.data(),
+                        id: orderDoc.id,
+                    })
+                );
+
+        } catch (error) {
+
+            console.warn(
+                "Email order history lookup failed:",
+                error
+            );
+        }
+    }
+
+
+    /*
+     * Merge and remove duplicates.
+     */
+    const orderMap =
+        new Map();
+
+    [
+        ...uidOrders,
+        ...emailOrders,
+    ].forEach(order => {
+
+        if (
+            order &&
+            order.id
+        ) {
+            orderMap.set(
+                order.id,
+                order
+            );
+        }
+    });
+
+
+    /*
+     * Final client-side ownership check.
+     */
+    const orders =
+        [...orderMap.values()]
+            .filter(
+                order =>
+                    orderBelongsToUser(
+                        order,
+                        user
+                    )
+            )
+            .sort(
+                (
+                    a,
+                    b
+                ) => {
+
+                    const dateA =
+                        normaliseTimestamp(
+                            a.placedAt
+                        );
+
+                    const dateB =
+                        normaliseTimestamp(
+                            b.placedAt
+                        );
+
+                    return (
+                        (dateB?.getTime() || 0) -
+                        (dateA?.getTime() || 0)
+                    );
+                }
+            )
+            .slice(
+                0,
+                safeLimit
+            );
+
+    return orders;
 }
+
+
+/* =========================================================
+   SUBSCRIBE TO CUSTOMER ORDER
+   ========================================================= */
+
+function subscribeCustomerOrder(
+    id,
+    onChange,
+    onError
+) {
+
+    requireAuth();
+
+    if (
+        typeof onChange !==
+        "function"
+    ) {
+        throw new TypeError(
+            "onChange must be a function."
+        );
+    }
+
+    const cleanId =
+        cleanOrderId(id);
+
+    if (!cleanId) {
+        throw new Error(
+            "An order reference is required."
+        );
+    }
+
+    const user =
+        getCurrentUser();
+
+    if (!user) {
+        throw new Error(
+            "Please sign in to track your order."
+        );
+    }
+
+    return onSnapshot(
+
+        doc(
+            db,
+            "orders",
+            cleanId
+        ),
+
+        snapshot => {
+
+            if (!snapshot.exists()) {
+
+                onChange(null);
+
+                return;
+            }
+
+            const order = {
+                ...snapshot.data(),
+                id: snapshot.id,
+            };
+
+            if (
+                !orderBelongsToUser(
+                    order,
+                    user
+                )
+            ) {
+
+                onChange(null);
+
+                return;
+            }
+
+            onChange(order);
+        },
+
+        error => {
+
+            if (
+                typeof onError ===
+                "function"
+            ) {
+
+                onError(error);
+
+                return;
+            }
+
+            console.error(
+                "Customer order tracking error:",
+                error
+            );
+        }
+    );
+}
+
+
+/* =========================================================
+   GENERAL REAL-TIME ORDER
+   ========================================================= */
+
+function subscribeOrder(
+    id,
+    onChange,
+    onError
+) {
+
+    requireDb();
+
+    if (
+        typeof onChange !==
+        "function"
+    ) {
+        throw new TypeError(
+            "onChange must be a function."
+        );
+    }
+
+    const cleanId =
+        cleanOrderId(id);
+
+    if (!cleanId) {
+        throw new Error(
+            "An order reference is required."
+        );
+    }
+
+    return onSnapshot(
+
+        doc(
+            db,
+            "orders",
+            cleanId
+        ),
+
+        snapshot => {
+
+            if (!snapshot.exists()) {
+
+                onChange(null);
+
+                return;
+            }
+
+            onChange({
+                ...snapshot.data(),
+                id: snapshot.id,
+            });
+        },
+
+        error => {
+
+            if (
+                typeof onError ===
+                "function"
+            ) {
+
+                onError(error);
+
+                return;
+            }
+
+            console.error(
+                "Order tracking error:",
+                error
+            );
+        }
+    );
+}
+
+
+/* =========================================================
+   ADMIN — ALL ORDERS
+   ========================================================= */
+
+function subscribeAllOrders(
+    onChange,
+    onError,
+    max = 50
+) {
+
+    requireDb();
+
+    if (
+        typeof onChange !==
+        "function"
+    ) {
+        throw new TypeError(
+            "onChange must be a function."
+        );
+    }
+
+    const safeLimit =
+        Math.min(
+            100,
+            Math.max(
+                1,
+                Math.floor(
+                    toSafeNumber(
+                        max,
+                        50
+                    )
+                )
+            )
+        );
+
+    const ordersQuery =
+        query(
+            collection(
+                db,
+                "orders"
+            ),
+            orderBy(
+                "placedAt",
+                "desc"
+            ),
+            limit(
+                safeLimit
+            )
+        );
+
+    return onSnapshot(
+
+        ordersQuery,
+
+        snapshot => {
+
+            const orders =
+                snapshot.docs.map(
+                    orderDoc => ({
+                        ...orderDoc.data(),
+                        id: orderDoc.id,
+                    })
+                );
+
+            onChange(orders);
+        },
+
+        error => {
+
+            if (
+                typeof onError ===
+                "function"
+            ) {
+
+                onError(error);
+
+                return;
+            }
+
+            console.error(
+                "Admin order subscription error:",
+                error
+            );
+        }
+    );
+}
+
+
+/* =========================================================
+   ADMIN — UPDATE STATUS
+   ========================================================= */
+
+async function updateOrderStatus(
+    id,
+    status
+) {
+
+    requireDb();
+
+    const cleanId =
+        cleanOrderId(id);
+
+    if (!cleanId) {
+        throw new Error(
+            "An order reference is required."
+        );
+    }
+
+    const cleanStatus =
+        cleanText(
+            status,
+            30
+        ).toLowerCase();
+
+    if (
+        !VALID_STATUSES.has(
+            cleanStatus
+        )
+    ) {
+        throw new Error(
+            "Invalid order status."
+        );
+    }
+
+    const orderRef =
+        doc(
+            db,
+            "orders",
+            cleanId
+        );
+
+    const snapshot =
+        await getDoc(
+            orderRef
+        );
+
+    if (!snapshot.exists()) {
+        throw new Error(
+            "Order not found."
+        );
+    }
+
+    await updateDoc(
+        orderRef,
+        {
+            status:
+                cleanStatus,
+
+            updatedAt:
+                serverTimestamp(),
+        }
+    );
+
+    return {
+        id: cleanId,
+        status: cleanStatus,
+    };
+}
+
+
+/* =========================================================
+   ADMIN AUTH
+   ========================================================= */
+
+async function adminSignIn(
+    email,
+    password
+) {
+
+    requireAuth();
+
+    const cleanEmailAddress =
+        cleanEmail(email);
+
+    if (!cleanEmailAddress) {
+        throw new Error(
+            "Please enter the administrator email."
+        );
+    }
+
+    if (!password) {
+        throw new Error(
+            "Please enter the administrator password."
+        );
+    }
+
+    const credential =
+        await signInWithEmailAndPassword(
+            auth,
+            cleanEmailAddress,
+            password
+        );
+
+    return credential.user;
+}
+
 
 async function adminSignOut() {
-  requireAuth();
 
-  await signOut(auth);
+    requireAuth();
+
+    await signOut(auth);
 }
 
-function onAdminAuthChange(callback) {
-  if (typeof callback !== "function") {
-    throw new TypeError("Authentication callback must be a function.");
-  }
 
-  if (!auth) {
-    callback(null);
+function onAdminAuthChange(
+    callback
+) {
 
-    return () => {};
-  }
+    if (
+        typeof callback !==
+        "function"
+    ) {
+        throw new TypeError(
+            "Authentication callback must be a function."
+        );
+    }
 
-  return onAuthStateChanged(auth, callback);
+    if (!auth) {
+
+        callback(null);
+
+        return () => {};
+    }
+
+    return onAuthStateChanged(
+        auth,
+        callback
+    );
 }
+
 
 /* =========================================================
-   ORDER STATUS HELPERS
+   STATUS HELPERS
    ========================================================= */
 
-function getOrderStage(status) {
-  const cleanStatus = cleanText(status, 30).toLowerCase();
+function getOrderStage(
+    status
+) {
 
-  return ORDER_STAGES.find((stage) => stage.key === cleanStatus) || null;
+    const cleanStatus =
+        cleanText(
+            status,
+            30
+        ).toLowerCase();
+
+    return (
+        ORDER_STAGES.find(
+            stage =>
+                stage.key ===
+                cleanStatus
+        ) || null
+    );
 }
 
-function getOrderStageIndex(status) {
-  const cleanStatus = cleanText(status, 30).toLowerCase();
 
-  return ORDER_STAGES.findIndex((stage) => stage.key === cleanStatus);
+function getOrderStageIndex(
+    status
+) {
+
+    const cleanStatus =
+        cleanText(
+            status,
+            30
+        ).toLowerCase();
+
+    return ORDER_STAGES.findIndex(
+        stage =>
+            stage.key ===
+            cleanStatus
+    );
 }
 
-function getOrderProgress(status) {
-  const index = getOrderStageIndex(status);
 
-  if (index < 0) {
-    return 0;
-  }
+function getOrderProgress(
+    status
+) {
 
-  if (ORDER_STAGES.length <= 1) {
-    return 100;
-  }
+    const index =
+        getOrderStageIndex(
+            status
+        );
 
-  return Math.round((index / (ORDER_STAGES.length - 1)) * 100);
+    if (index < 0) {
+        return 0;
+    }
+
+    if (
+        ORDER_STAGES.length <=
+        1
+    ) {
+        return 100;
+    }
+
+    return Math.round(
+        (
+            index /
+            (ORDER_STAGES.length - 1)
+        ) * 100
+    );
 }
+
+
+function getOrderStatusLabel(
+    status
+) {
+
+    const stage =
+        getOrderStage(
+            status
+        );
+
+    return stage
+        ? stage.label
+        : "Order Status";
+}
+
 
 /* =========================================================
-   ORDER STATUS VALIDATION
+   DISPLAY HELPERS
    ========================================================= */
 
-function isValidOrderStatus(status) {
-  const cleanStatus = cleanText(status, 30).toLowerCase();
+function formatOrderDate(
+    value
+) {
 
-  return VALID_STATUSES.has(cleanStatus);
+    const date =
+        normaliseTimestamp(
+            value
+        );
+
+    if (!date) {
+        return "";
+    }
+
+    return new Intl.DateTimeFormat(
+        "en-KE",
+        {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        }
+    ).format(date);
 }
 
-/* =========================================================
-   FORMAT FIRESTORE TIMESTAMP
-   ========================================================= */
-
-function timestampToMillis(value) {
-  if (!value) {
-    return null;
-  }
-
-  if (typeof value.toMillis === "function") {
-    return value.toMillis();
-  }
-
-  if (value instanceof Date) {
-    return value.getTime();
-  }
-
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return value;
-  }
-
-  if (typeof value === "string") {
-    const time = Date.parse(value);
-
-    return Number.isNaN(time) ? null : time;
-  }
-
-  return null;
-}
-
-/* =========================================================
-   GET ORDER DATE
-   ========================================================= */
-
-function getOrderDate(order) {
-  if (!order) {
-    return null;
-  }
-
-  return timestampToMillis(order.placedAt);
-}
-
-/* =========================================================
-   GET ORDER UPDATED DATE
-   ========================================================= */
-
-function getOrderUpdatedDate(order) {
-  if (!order) {
-    return null;
-  }
-
-  return timestampToMillis(order.updatedAt);
-}
 
 /* =========================================================
    PUBLIC API
    ========================================================= */
 
 window.SLOrders = {
-  isConfigured,
 
-  ORDER_STAGES,
+    isConfigured,
 
-  VALID_STATUSES,
+    ORDER_STAGES,
 
-  createOrder,
+    VALID_STATUSES,
 
-  getOrder,
+    createOrder,
 
-  subscribeOrder,
+    getOrder,
 
-  subscribeAllOrders,
+    getCustomerOrder,
 
-  updateOrderStatus,
+    getCustomerOrders,
 
-  getOrderStage,
+    subscribeOrder,
 
-  getOrderStageIndex,
+    subscribeCustomerOrder,
 
-  getOrderProgress,
+    subscribeAllOrders,
 
-  isValidOrderStatus,
+    updateOrderStatus,
 
-  getOrderDate,
+    getOrderStage,
 
-  getOrderUpdatedDate,
+    getOrderStageIndex,
 
-  getCurrentUser,
+    getOrderProgress,
 
-  getCurrentCustomer,
+    getOrderStatusLabel,
 
-  customerSignIn,
+    formatOrderDate,
 
-  customerSignOut,
+    getCurrentUser,
 
-  onCustomerAuthChange,
+    getCurrentCustomer,
 
-  adminSignIn,
+    customerSignIn,
 
-  adminSignOut,
+    customerSignOut,
 
-  onAdminAuthChange,
+    onCustomerAuthChange,
+
+    adminSignIn,
+
+    adminSignOut,
+
+    onAdminAuthChange,
 };
 
-/* =========================================================
-   BACKWARD-COMPATIBILITY ALIAS
-   ========================================================= */
-
-window.SneakersLinkOrders = window.SLOrders;
 
 /* =========================================================
    READY EVENT
    ========================================================= */
 
-window.dispatchEvent(new CustomEvent("slorders:ready"));
+window.dispatchEvent(
+    new CustomEvent(
+        "slorders:ready"
+    )
+);
