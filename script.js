@@ -1,6 +1,7 @@
 /* =========================================================
    SneakersLink — production storefront interactions
    ========================================================= */
+
 (() => {
   "use strict";
 
@@ -65,9 +66,11 @@
   const safeStorageGet = (key, fallback = null) => {
     try {
       const value = localStorage.getItem(key);
+
       return value === null ? fallback : value;
     } catch (error) {
       console.warn(`[SneakersLink] Storage read failed: ${key}`, error);
+
       return fallback;
     }
   };
@@ -75,9 +78,11 @@
   const safeStorageSet = (key, value) => {
     try {
       localStorage.setItem(key, value);
+
       return true;
     } catch (error) {
       console.warn(`[SneakersLink] Storage write failed: ${key}`, error);
+
       return false;
     }
   };
@@ -146,13 +151,16 @@
 
       if (!Array.isArray(parsed)) {
         safeStorageRemove(STORAGE_KEY);
+
         return [];
       }
 
       return parsed.map(normaliseCartItem).filter(Boolean);
     } catch (error) {
       console.warn("[SneakersLink] Invalid cart data:", error);
+
       safeStorageRemove(STORAGE_KEY);
+
       return [];
     }
   }
@@ -177,7 +185,9 @@
       : [];
 
     safeStorageSet(STORAGE_KEY, JSON.stringify(clean));
+
     updateCartBadge();
+
     emitCartUpdate(clean);
   }
 
@@ -213,13 +223,16 @@
       return null;
     } catch (error) {
       safeStorageRemove(COUPON_KEY);
+
       return null;
     }
   }
 
   function getTotals() {
     const subtotal = getCartSubtotal();
+
     const coupon = getCoupon();
+
     const discount = Math.min(subtotal, coupon?.discount || 0);
 
     return {
@@ -245,7 +258,9 @@
 
       if (bump) {
         badge.classList.remove("cart-count--bump");
+
         void badge.offsetWidth;
+
         badge.classList.add("cart-count--bump");
 
         window.setTimeout(() => {
@@ -303,6 +318,7 @@
 
     if (!cleanProduct) {
       showToast("This product could not be added to your cart.", "warn");
+
       return;
     }
 
@@ -322,11 +338,14 @@
     }
 
     saveCart(cart);
+
     updateCartBadge(true);
 
     if (sourceElement) {
       sourceElement.classList.remove("add-cart-btn--pop");
+
       void sourceElement.offsetWidth;
+
       sourceElement.classList.add("add-cart-btn--pop");
 
       window.setTimeout(() => {
@@ -356,6 +375,7 @@
     }
 
     const imageRect = image.getBoundingClientRect();
+
     const cartRect = cartIcon.getBoundingClientRect();
 
     if (
@@ -368,6 +388,7 @@
     }
 
     const clone = image.cloneNode(true);
+
     clone.className = "fly-clone";
 
     Object.assign(clone.style, {
@@ -415,6 +436,7 @@
 
         addButton.addEventListener("click", (event) => {
           event.preventDefault();
+
           event.stopPropagation();
 
           addToCart(getProductFromCard(card), addButton);
@@ -450,6 +472,7 @@
             !event.target.closest("button,a,input,select,textarea")
           ) {
             event.preventDefault();
+
             window.location.href = href;
           }
         });
@@ -499,6 +522,7 @@
       tbody.appendChild(row);
 
       updateCartTotals();
+
       return;
     }
 
@@ -512,6 +536,7 @@
       const row = document.createElement("tr");
 
       row.dataset.cartId = item.id;
+
       row.dataset.cartSize = item.size;
 
       row.innerHTML = `
@@ -680,6 +705,7 @@
     }
 
     saveCart(cart);
+
     renderCartPage();
   }
 
@@ -709,6 +735,7 @@
       );
 
       saveCart(filtered);
+
       renderCartPage();
 
       showToast(`${item.name} removed from your cart.`, "warn");
@@ -784,6 +811,7 @@
       showToast("Enter a coupon code.", "warn");
 
       input.focus();
+
       return;
     }
 
@@ -848,6 +876,7 @@
       input.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
           event.preventDefault();
+
           applyCoupon();
         }
       });
@@ -1024,11 +1053,13 @@
     function setLoggedInView(user) {
       if (guestLinks) {
         guestLinks.hidden = true;
+
         guestLinks.style.display = "none";
       }
 
       if (menu) {
         menu.hidden = false;
+
         menu.style.display = "";
       }
 
@@ -1060,11 +1091,13 @@
     function setLoggedOutView() {
       if (guestLinks) {
         guestLinks.hidden = false;
+
         guestLinks.style.display = "";
       }
 
       if (menu) {
         menu.hidden = true;
+
         menu.style.display = "none";
       }
 
@@ -1158,7 +1191,9 @@
         const next = current === "dark" ? "light" : "dark";
 
         applyTheme(next);
+
         syncThemeLabel();
+
         closeDropdown();
       });
     }
@@ -1216,6 +1251,7 @@
 
   function initMobileNavigation() {
     const check = $("#check");
+
     const navbar = $("#navbar");
 
     if (!check || !navbar) {
@@ -1566,6 +1602,7 @@
       thumbnail.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
+
           change();
         }
       });
@@ -1809,15 +1846,18 @@
       );
     } finally {
       saveLocalOrder(order);
+
       rememberOrder(order.id);
 
       if (button) {
         button.disabled = false;
+
         button.textContent = originalText;
       }
     }
 
     saveCart([]);
+
     safeStorageRemove(COUPON_KEY);
 
     renderCartPage();
@@ -1937,6 +1977,7 @@
       <div class="track-result-card">
 
         <div class="track-result-head">
+
           <div>
             <span class="track-eyebrow">
               Order reference
@@ -1950,6 +1991,7 @@
           <strong>
             ${money(order.total)}
           </strong>
+
         </div>
 
         <ol class="order-timeline">
@@ -2005,7 +2047,9 @@
 
     if (!ids.length) {
       container.hidden = true;
+
       list.innerHTML = "";
+
       return;
     }
 
@@ -2184,6 +2228,7 @@
 
       form.addEventListener("submit", (event) => {
         event.preventDefault();
+
         trackOrder(input.value);
       });
     }
@@ -2197,6 +2242,9 @@
 
   /* =========================================================
      PERSONALIZED HOME WELCOME
+     
+     IMPORTANT:
+     This is the ONLY home welcome implementation.
      ========================================================= */
 
   function initHomeWelcome() {
@@ -2208,21 +2256,140 @@
       return;
     }
 
-    /* =======================================================
-       CUSTOMER NAME
-       ======================================================= */
+    /* -------------------------------------------------------
+       CREATE THE WELCOME MESSAGE
+       ------------------------------------------------------- */
+
+    function showWelcomeMessage(normalMessage, customerName = "") {
+      welcomeText.innerHTML = "";
+
+      /*
+       * Normal text
+       *
+       * Example:
+       * "Welcome back,"
+       */
+      const normalSpan = document.createElement("span");
+
+      normalSpan.className = "welcome-normal";
+
+      normalSpan.textContent = normalMessage;
+
+      welcomeText.appendChild(normalSpan);
+
+      /*
+       * Customer name
+       *
+       * Space is deliberately included before the name:
+       * "Welcome back, Ken"
+       */
+      if (customerName) {
+        const nameSpan = document.createElement("span");
+
+        nameSpan.className = "welcome-name";
+
+        nameSpan.textContent = ` ${customerName}`;
+
+        welcomeText.appendChild(nameSpan);
+      }
+
+      /*
+       * FOOTSTEPS
+       *
+       * Always positioned at the very end.
+       */
+      const footsteps = document.createElement("span");
+
+      footsteps.className = "welcome-footsteps";
+
+      /*
+       * Three individual footsteps.
+       *
+       * They continuously animate one after another.
+       */
+      for (let i = 0; i < 3; i++) {
+        const footstep = document.createElement("span");
+
+        footstep.className = "welcome-footstep";
+
+        footstep.textContent = "👣";
+
+        footstep.style.setProperty("--footstep", i);
+
+        footsteps.appendChild(footstep);
+      }
+
+      welcomeText.appendChild(footsteps);
+
+      /*
+       * Show welcome immediately.
+       */
+      welcome.hidden = false;
+
+      welcome.classList.add("is-visible", "home-welcome-visible");
+    }
+
+    /* -------------------------------------------------------
+       GET CUSTOMER NAME
+       ------------------------------------------------------- */
+
+    function getStoredCustomerName() {
+      try {
+        const storedUser =
+          localStorage.getItem("sl_user") ||
+          localStorage.getItem("currentUser") ||
+          localStorage.getItem("user");
+
+        if (!storedUser) {
+          return "";
+        }
+
+        const user = JSON.parse(storedUser);
+
+        return String(
+          user.displayName ||
+            user.name ||
+            user.firstName ||
+            user.fullName ||
+            user.nickname ||
+            user.nickName ||
+            "",
+        ).trim();
+      } catch (error) {
+        console.warn(
+          "[SneakersLink] Could not read stored customer information.",
+          error,
+        );
+
+        return "";
+      }
+    }
+
+    /* -------------------------------------------------------
+       CUSTOMER NAME FROM AUTH USER
+       ------------------------------------------------------- */
 
     function getCustomerName(user) {
       if (!user) {
         return "";
       }
 
-      const name = user.displayName || user.nickname || user.nickName || "";
+      const name =
+        user.displayName ||
+        user.nickname ||
+        user.nickName ||
+        user.name ||
+        user.firstName ||
+        user.fullName ||
+        "";
 
       if (String(name).trim()) {
         return String(name).trim();
       }
 
+      /*
+       * Use email username as a fallback.
+       */
       if (user.email) {
         return user.email.split("@")[0].trim();
       }
@@ -2230,71 +2397,50 @@
       return "";
     }
 
-    /* =======================================================
-       SHOW WELCOME
-       ======================================================= */
+    /* -------------------------------------------------------
+       INITIAL MESSAGE
+       
+       This happens immediately.
+       It does NOT wait for Firebase.
+       ------------------------------------------------------- */
 
-    function showWelcomeMessage(html) {
-      welcomeText.innerHTML = html;
+    const storedName = getStoredCustomerName();
 
-      /*
-       * IMPORTANT:
-       * The welcome is shown immediately.
-       * It does not wait for Firebase or images.
-       */
-      welcome.hidden = false;
-
-      /*
-       * Force the browser to render the
-       * welcome independently of image loading.
-       */
-      requestAnimationFrame(() => {
-        welcome.classList.add("is-visible");
-      });
+    if (storedName) {
+      showWelcomeMessage("Welcome back,", storedName);
+    } else {
+      showWelcomeMessage("Welcome to SneakersLink!", "");
     }
 
-    /* =======================================================
-       IMMEDIATE INITIAL MESSAGE
-       ======================================================= */
-
-    /*
-     * This runs immediately when init() executes.
-     *
-     * Result:
-     * The customer sees the welcome message
-     * while the hero/product images are still
-     * loading.
-     */
-    showWelcomeMessage(`
-      Welcome to
-      <span>SneakersLink</span>
-    `);
-
-    /* =======================================================
-       UPDATE WITH CUSTOMER NAME
-       ======================================================= */
+    /* -------------------------------------------------------
+       UPDATE WHEN AUTH USER IS AVAILABLE
+       ------------------------------------------------------- */
 
     function updateForUser(user) {
+      /*
+       * Logged out / guest.
+       */
       if (!user) {
-        showWelcomeMessage(`
-          Welcome to
-          <span>SneakersLink</span>
-        `);
+        showWelcomeMessage("Welcome to SneakersLink!", "");
 
         return;
       }
 
       const nickname = getCustomerName(user);
 
+      /*
+       * Firebase user has no usable name.
+       */
       if (!nickname) {
-        showWelcomeMessage(`
-          Welcome to
-          <span>SneakersLink</span>
-        `);
+        showWelcomeMessage("Welcome to SneakersLink!", "");
 
         return;
       }
 
+      /*
+       * Check if this is a newly
+       * registered customer.
+       */
       let isNewSignup = false;
 
       try {
@@ -2305,21 +2451,15 @@
       }
 
       if (isNewSignup) {
-        showWelcomeMessage(`
-          Welcome!
-          <span>
-            ${escapeHtml(nickname)}
-          </span>
-        `);
+        showWelcomeMessage("Welcome!", nickname);
       } else {
-        showWelcomeMessage(`
-          Welcome back,
-          <span>
-            ${escapeHtml(nickname)}
-          </span>
-        `);
+        showWelcomeMessage("Welcome back,", nickname);
       }
 
+      /*
+       * Clear new-signup flag after
+       * the welcome has been displayed.
+       */
       if (isNewSignup) {
         window.setTimeout(() => {
           try {
@@ -2329,9 +2469,9 @@
       }
     }
 
-    /* =======================================================
+    /* -------------------------------------------------------
        AUTH STATE
-       ======================================================= */
+       ------------------------------------------------------- */
 
     let authStateWired = false;
 
@@ -2376,17 +2516,21 @@
     }
 
     /*
-     * Connect immediately if the auth engine
-     * has already loaded.
+     * If auth is already loaded,
+     * connect immediately.
      */
     if (!connectAuth()) {
       /*
        * Otherwise wait for the existing
        * SneakersLink auth events.
        */
-      window.addEventListener("slauth:ready", connectAuth, { once: true });
+      window.addEventListener("slauth:ready", connectAuth, {
+        once: true,
+      });
 
-      window.addEventListener("slprofile:ready", connectAuth, { once: true });
+      window.addEventListener("slprofile:ready", connectAuth, {
+        once: true,
+      });
     }
   }
 
@@ -2404,6 +2548,7 @@
     window.addEventListener("storage", (event) => {
       if (event.key === STORAGE_KEY) {
         updateCartBadge();
+
         renderCartPage();
       }
 
@@ -2439,6 +2584,7 @@
 
     clear: () => {
       saveCart([]);
+
       renderCartPage();
     },
   };
@@ -2455,28 +2601,46 @@
     appInitialised = true;
 
     initTheme();
+
     initAccountMenu();
+
     updateCartBadge();
+
     initMobileNavigation();
+
     initActiveNavigation();
+
     initNavbarScroll();
+
     initProductCards();
+
     initCartEvents();
+
     renderCartPage();
+
     initCoupon();
+
     initScrollReveal();
+
     initBackToTop();
+
     initNewsletter();
+
     initProductPage();
+
     initCheckout();
+
     initTrackOrder();
+
     initStorageSync();
 
     /*
-     * IMPORTANT:
-     * Home welcome is initialised as part of the
-     * normal DOM-ready sequence, but its first
-     * message does NOT wait for Firebase.
+     * Home welcome is now initialized
+     * exactly once.
+     *
+     * It displays immediately and then
+     * updates when Firebase auth becomes
+     * available.
      */
     initHomeWelcome();
   }
