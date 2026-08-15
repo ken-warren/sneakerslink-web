@@ -240,6 +240,7 @@
 
     $$("[data-cart-count], .cart-count").forEach((badge) => {
       badge.textContent = count > 99 ? "99+" : String(count);
+
       badge.classList.toggle("cart-count--visible", count > 0);
 
       if (bump) {
@@ -415,6 +416,7 @@
         addButton.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
+
           addToCart(getProductFromCard(card), addButton);
         });
       }
@@ -438,6 +440,7 @@
           if (event.target.closest("button,a,input,select,textarea")) {
             return;
           }
+
           window.location.href = href;
         });
 
@@ -460,6 +463,7 @@
 
   function renderCartPage() {
     const table = $("#cart table") || $("#cartTable");
+
     const tbody = $("#cart tbody") || $("#cart table tbody");
 
     if (!table || !tbody) {
@@ -467,6 +471,7 @@
     }
 
     const cart = getCart();
+
     tbody.innerHTML = "";
 
     const emptyMessage = $("#emptyCartMsg");
@@ -479,6 +484,7 @@
       }
 
       const row = document.createElement("tr");
+
       row.innerHTML = `
         <td colspan="6">
           <div class="empty-cart-msg">
@@ -491,6 +497,7 @@
       `;
 
       tbody.appendChild(row);
+
       updateCartTotals();
       return;
     }
@@ -703,6 +710,7 @@
 
       saveCart(filtered);
       renderCartPage();
+
       showToast(`${item.name} removed from your cart.`, "warn");
     };
 
@@ -710,6 +718,7 @@
 
     if (row) {
       row.classList.add("row-removing");
+
       window.setTimeout(remove, 220);
     } else {
       remove();
@@ -773,13 +782,16 @@
 
     if (!code) {
       showToast("Enter a coupon code.", "warn");
+
       input.focus();
       return;
     }
 
     if (code !== "SL500") {
       safeStorageRemove(COUPON_KEY);
+
       updateCouponTotalsAndMessage("That coupon code is not valid.", true);
+
       return;
     }
 
@@ -788,6 +800,7 @@
         "SL500 requires a cart subtotal of at least KES 2,000.",
         "warn",
       );
+
       return;
     }
 
@@ -800,6 +813,7 @@
     );
 
     updateCouponTotalsAndMessage("SL500 applied — KES 500 discount.");
+
     showToast("Coupon applied.");
   }
 
@@ -822,6 +836,7 @@
 
     if (button && !button.dataset.couponBound) {
       button.dataset.couponBound = "true";
+
       button.addEventListener("click", applyCoupon);
     }
 
@@ -918,46 +933,48 @@
      ACCOUNT / AUTH
      ========================================================= */
 
-  /* =========================================================
-   ACCOUNT / AUTH
-   ========================================================= */
-
   function initAccountMenu() {
     const guestLinks = $("#accountGuestLinks");
+
     const menu = $("#accountMenu");
+
     const toggleBtn = $("#accountToggle");
+
     const dropdown = $("#accountDropdown");
+
     const avatar = $("#accountAvatar");
+
     const dropdownAvatar = $("#accountDropdownAvatar");
+
     const nameEl = $("#accountDropdownName");
+
     const emailEl = $("#accountDropdownEmail");
+
     const signOutBtn = $("#accountSignOutBtn");
+
     const inlineThemeBtn = $("#accountThemeToggle");
+
     const inlineThemeLabel = $("#accountThemeLabel");
 
     if (!guestLinks && !menu) {
       return;
     }
 
-    /* =======================================================
-     DROPDOWN
-     ======================================================= */
-
     function closeDropdown() {
       dropdown?.classList.remove("is-open");
+
       toggleBtn?.classList.remove("is-open");
+
       toggleBtn?.setAttribute("aria-expanded", "false");
     }
 
     function openDropdown() {
       dropdown?.classList.add("is-open");
+
       toggleBtn?.classList.add("is-open");
+
       toggleBtn?.setAttribute("aria-expanded", "true");
     }
-
-    /* =======================================================
-     CUSTOMER NAME
-     ======================================================= */
 
     function getCustomerName(user) {
       if (!user) {
@@ -977,10 +994,6 @@
       return "Profile";
     }
 
-    /* =======================================================
-     AVATAR
-     ======================================================= */
-
     function updateAvatar(user, element) {
       if (!element) {
         return;
@@ -990,40 +1003,30 @@
 
       if (user?.photoURL) {
         element.innerHTML = `
-        <img
-          src="${escapeHtml(user.photoURL)}"
-          alt="${escapeHtml(name)}"
-        >
-      `;
+          <img
+            src="${escapeHtml(user.photoURL)}"
+            alt="${escapeHtml(name)}"
+          >
+        `;
+
         return;
       }
 
       const initial = name.charAt(0).toUpperCase();
 
       element.innerHTML = `
-      <span class="account-avatar-initial">
-        ${escapeHtml(initial || "U")}
-      </span>
-    `;
+        <span class="account-avatar-initial">
+          ${escapeHtml(initial || "U")}
+        </span>
+      `;
     }
 
-    /* =======================================================
-     LOGGED-IN VIEW
-     ======================================================= */
-
     function setLoggedInView(user) {
-      /*
-       * IMPORTANT:
-       * Hide Sign in / Sign up completely.
-       */
       if (guestLinks) {
         guestLinks.hidden = true;
         guestLinks.style.display = "none";
       }
 
-      /*
-       * Show customer account menu.
-       */
       if (menu) {
         menu.hidden = false;
         menu.style.display = "";
@@ -1054,22 +1057,12 @@
       document.body.classList.remove("sl-user-logged-out");
     }
 
-    /* =======================================================
-     LOGGED-OUT VIEW
-     ======================================================= */
-
     function setLoggedOutView() {
-      /*
-       * Restore Sign in / Sign up.
-       */
       if (guestLinks) {
         guestLinks.hidden = false;
         guestLinks.style.display = "";
       }
 
-      /*
-       * Hide customer account menu.
-       */
       if (menu) {
         menu.hidden = true;
         menu.style.display = "none";
@@ -1081,10 +1074,6 @@
 
       document.body.classList.add("sl-user-logged-out");
     }
-
-    /* =======================================================
-     ACCOUNT BUTTON
-     ======================================================= */
 
     if (toggleBtn && !toggleBtn.dataset.accountBound) {
       toggleBtn.dataset.accountBound = "true";
@@ -1100,10 +1089,6 @@
       });
     }
 
-    /* =======================================================
-     CLICK OUTSIDE
-     ======================================================= */
-
     if (!document.body.dataset.accountOutsideBound) {
       document.body.dataset.accountOutsideBound = "true";
 
@@ -1114,10 +1099,6 @@
       });
     }
 
-    /* =======================================================
-     ESCAPE
-     ======================================================= */
-
     if (!document.body.dataset.accountEscapeBound) {
       document.body.dataset.accountEscapeBound = "true";
 
@@ -1127,10 +1108,6 @@
         }
       });
     }
-
-    /* =======================================================
-     SIGN OUT
-     ======================================================= */
 
     if (signOutBtn && !signOutBtn.dataset.signoutBound) {
       signOutBtn.dataset.signoutBound = "true";
@@ -1161,10 +1138,6 @@
       });
     }
 
-    /* =======================================================
-     ACCOUNT THEME TOGGLE
-     ======================================================= */
-
     if (inlineThemeBtn && !inlineThemeBtn.dataset.themeBound) {
       inlineThemeBtn.dataset.themeBound = "true";
 
@@ -1190,10 +1163,6 @@
       });
     }
 
-    /* =======================================================
-     FIREBASE AUTH STATE
-     ======================================================= */
-
     let authStateWired = false;
 
     function handleAuthUser(user) {
@@ -1209,9 +1178,6 @@
         return true;
       }
 
-      /*
-       * Preferred existing SneakersLink auth engine.
-       */
       if (
         window.SLAuth &&
         typeof window.SLAuth.onAuthStateChanged === "function"
@@ -1223,13 +1189,6 @@
         return true;
       }
 
-      /*
-       * Fallback to the Firebase Profile Engine.
-       *
-       * firebase-profile.js exposes:
-       *
-       * window.SLProfile.onProfileAuthChange()
-       */
       if (
         window.SLProfile &&
         typeof window.SLProfile.onProfileAuthChange === "function"
@@ -1244,18 +1203,9 @@
       return false;
     }
 
-    /*
-     * Try immediately.
-     */
     if (!wireAuthState()) {
-      /*
-       * Existing authentication engine.
-       */
       window.addEventListener("slauth:ready", wireAuthState);
 
-      /*
-       * Firebase profile engine.
-       */
       window.addEventListener("slprofile:ready", wireAuthState);
     }
   }
@@ -1273,7 +1223,9 @@
     }
 
     const button = $(".navbutton");
+
     button?.setAttribute("aria-controls", "navbar");
+
     button?.setAttribute("aria-expanded", String(Boolean(check.checked)));
 
     $$("#navbar a").forEach((link) => {
@@ -1285,6 +1237,7 @@
 
       link.addEventListener("click", () => {
         check.checked = false;
+
         button?.setAttribute("aria-expanded", "false");
       });
     });
@@ -1303,6 +1256,7 @@
       document.addEventListener("click", (event) => {
         if (check.checked && !event.target.closest("nav")) {
           check.checked = false;
+
           button?.setAttribute("aria-expanded", "false");
         }
       });
@@ -1320,6 +1274,7 @@
 
     $$("#navbar a").forEach((link) => {
       const href = link.getAttribute("href") || "";
+
       const page = href.split("#")[0].split("/").pop().toLowerCase();
 
       link.classList.toggle("active", page === current);
@@ -1376,6 +1331,7 @@
       elements.forEach((element) => {
         element.classList.add("reveal--in");
       });
+
       return;
     }
 
@@ -1387,6 +1343,7 @@
           }
 
           entry.target.classList.add("reveal--in");
+
           obs.unobserve(entry.target);
         });
       },
@@ -1413,11 +1370,15 @@
     }
 
     root = document.createElement("div");
+
     root.className = "toast-root";
+
     root.setAttribute("aria-live", "polite");
+
     root.setAttribute("aria-atomic", "true");
 
     document.body.appendChild(root);
+
     return root;
   }
 
@@ -1427,6 +1388,7 @@
     }
 
     const root = ensureToastRoot();
+
     const toast = document.createElement("div");
 
     toast.className = `toast${type === "warn" ? " toast--warn" : ""}`;
@@ -1512,6 +1474,7 @@
 
       if (!input || !input.checkValidity()) {
         input?.classList.add("field-error");
+
         showToast("Please enter a valid email address.", "warn");
 
         window.setTimeout(() => {
@@ -1522,7 +1485,9 @@
       }
 
       safeStorageSet("sl_newsletter_email", input.value.trim().toLowerCase());
+
       input.value = "";
+
       showToast("Thanks! You are subscribed to SneakersLink updates.");
     });
   }
@@ -1551,6 +1516,7 @@
       parsePrice($("h2", details)?.textContent);
 
     const image = $("#mainImg")?.getAttribute("src") || "";
+
     const brand = details.dataset.brand || document.body.dataset.brand || "";
 
     const id =
@@ -1569,6 +1535,7 @@
 
   function initProductPage() {
     const mainImage = $("#mainImg");
+
     const details = $(".single-pro-details");
 
     if (!mainImage || !details) {
@@ -1589,6 +1556,7 @@
 
         if (src) {
           mainImage.src = src;
+
           mainImage.alt = thumbnail.alt || mainImage.alt;
         }
       };
@@ -1613,13 +1581,16 @@
 
     button.addEventListener("click", () => {
       const sizeSelect = $("#sizeSelect", details);
+
       const quantityInput = $("#qtyInput", details);
 
       const size = sizeSelect?.value?.trim() || "";
 
       if (sizeSelect && (!size || size.toLowerCase().includes("select"))) {
         showToast("Please select a size before adding this product.", "warn");
+
         sizeSelect.focus();
+
         return;
       }
 
@@ -1635,6 +1606,7 @@
 
       if (!product) {
         showToast("Product information is unavailable.", "warn");
+
         return;
       }
 
@@ -1656,6 +1628,7 @@
   function getRecentOrderIds() {
     try {
       const ids = JSON.parse(safeStorageGet(RECENT_ORDERS_KEY, "[]"));
+
       return Array.isArray(ids) ? ids.filter(Boolean).slice(0, 10) : [];
     } catch {
       return [];
@@ -1678,6 +1651,7 @@
   function getLocalOrders() {
     try {
       const orders = JSON.parse(safeStorageGet(LOCAL_ORDERS_KEY, "[]"));
+
       return Array.isArray(orders) ? orders : [];
     } catch {
       return [];
@@ -1699,7 +1673,9 @@
 
   function generateLocalOrderId() {
     const time = Date.now().toString(36).toUpperCase().slice(-6);
+
     const random = Math.random().toString(36).slice(2, 7).toUpperCase();
+
     return `SL-${time}${random}`;
   }
 
@@ -1715,9 +1691,9 @@
 
       ...order.items.map(
         (item) =>
-          `• ${item.name}${item.size ? ` (Size ${item.size})` : ""} × ${
-            item.qty
-          } — ${money(item.price * item.qty)}`,
+          `• ${item.name}${
+            item.size ? ` (Size ${item.size})` : ""
+          } × ${item.qty} — ${money(item.price * item.qty)}`,
       ),
 
       "",
@@ -1726,7 +1702,9 @@
       ...(order.discount ? [`Discount: −${money(order.discount)}`] : []),
 
       `Total: ${money(order.total)}`,
+
       "",
+
       "Please confirm availability, delivery details and payment instructions.",
     ];
 
@@ -1742,6 +1720,7 @@
 
     if (!cart.length) {
       showToast("Your cart is empty.", "warn");
+
       return;
     }
 
@@ -1762,13 +1741,17 @@
     }
 
     const button = $("#checkoutBtn");
+
     let originalText = "Checkout via WhatsApp";
 
     if (button) {
       button.disabled = true;
+
       originalText =
         button.dataset.originalText || button.textContent || originalText;
+
       button.dataset.originalText = originalText;
+
       button.textContent = "Creating order…";
     }
 
@@ -1793,6 +1776,7 @@
 
     try {
       const ordersConfigured = Boolean(window.SLOrders?.isConfigured);
+
       const canCreateOrder = typeof window.SLOrders?.createOrder === "function";
 
       if (ordersConfigured && canCreateOrder) {
@@ -1816,7 +1800,9 @@
       saveLocalOrder(order);
     } catch (error) {
       console.error("[SneakersLink] Order creation failed:", error);
+
       saveLocalOrder(order);
+
       showToast(
         "Cloud order tracking is unavailable, but your WhatsApp order can still continue.",
         "warn",
@@ -1831,12 +1817,13 @@
       }
     }
 
-    // Clear cart & apply state after processing checkout
     saveCart([]);
     safeStorageRemove(COUPON_KEY);
+
     renderCartPage();
 
     const message = encodeURIComponent(buildWhatsAppMessage(order));
+
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
 
     if (whatsappWindow && !whatsappWindow.closed) {
@@ -1860,6 +1847,7 @@
     }
 
     button.dataset.checkoutBound = "true";
+
     button.addEventListener("click", checkoutViaWhatsApp);
   }
 
@@ -1892,6 +1880,7 @@
 
   function renderTrackResult(order) {
     const result = $("#trackResult");
+
     const notFound = $("#trackNotFound");
 
     if (!result) {
@@ -2005,6 +1994,7 @@
 
   function renderRecentOrders() {
     const container = $("#recentOrders");
+
     const list = container ? $("ul", container) : null;
 
     if (!container || !list) {
@@ -2067,6 +2057,7 @@
 
     if (!cleanId) {
       showToast("Enter your order reference.", "warn");
+
       return;
     }
 
@@ -2079,6 +2070,7 @@
     activeTrackUnsubscribe = null;
 
     const result = $("#trackResult");
+
     const notFound = $("#trackNotFound");
 
     if (notFound) {
@@ -2087,6 +2079,7 @@
 
     if (result) {
       result.hidden = false;
+
       result.innerHTML = `
         <div class="track-loading">
           Looking up ${escapeHtml(cleanId)}…
@@ -2096,6 +2089,7 @@
 
     try {
       const configured = Boolean(window.SLOrders?.isConfigured);
+
       const canSubscribe =
         typeof window.SLOrders?.subscribeOrder === "function";
 
@@ -2178,6 +2172,7 @@
 
   function initTrackOrder() {
     const form = $("#trackForm") || $(".track-form");
+
     const input = $("#trackOrderId") || $("input", form || document);
 
     if (!form || !input) {
@@ -2206,11 +2201,16 @@
 
   function initHomeWelcome() {
     const welcome = document.getElementById("homeWelcome");
+
     const welcomeText = document.getElementById("homeWelcomeText");
 
     if (!welcome || !welcomeText) {
       return;
     }
+
+    /* =======================================================
+       CUSTOMER NAME
+       ======================================================= */
 
     function getCustomerName(user) {
       if (!user) {
@@ -2230,18 +2230,68 @@
       return "";
     }
 
-    function showWelcome(user) {
+    /* =======================================================
+       SHOW WELCOME
+       ======================================================= */
+
+    function showWelcomeMessage(html) {
+      welcomeText.innerHTML = html;
+
+      /*
+       * IMPORTANT:
+       * The welcome is shown immediately.
+       * It does not wait for Firebase or images.
+       */
+      welcome.hidden = false;
+
+      /*
+       * Force the browser to render the
+       * welcome independently of image loading.
+       */
+      requestAnimationFrame(() => {
+        welcome.classList.add("is-visible");
+      });
+    }
+
+    /* =======================================================
+       IMMEDIATE INITIAL MESSAGE
+       ======================================================= */
+
+    /*
+     * This runs immediately when init() executes.
+     *
+     * Result:
+     * The customer sees the welcome message
+     * while the hero/product images are still
+     * loading.
+     */
+    showWelcomeMessage(`
+      Welcome to
+      <span>SneakersLink</span>
+    `);
+
+    /* =======================================================
+       UPDATE WITH CUSTOMER NAME
+       ======================================================= */
+
+    function updateForUser(user) {
       if (!user) {
-        welcome.hidden = true;
-        welcome.classList.remove("is-visible");
+        showWelcomeMessage(`
+          Welcome to
+          <span>SneakersLink</span>
+        `);
+
         return;
       }
 
       const nickname = getCustomerName(user);
 
       if (!nickname) {
-        welcome.hidden = true;
-        welcome.classList.remove("is-visible");
+        showWelcomeMessage(`
+          Welcome to
+          <span>SneakersLink</span>
+        `);
+
         return;
       }
 
@@ -2255,28 +2305,20 @@
       }
 
       if (isNewSignup) {
-        welcomeText.innerHTML = `
+        showWelcomeMessage(`
           Welcome!
           <span>
             ${escapeHtml(nickname)}
           </span>
-        `;
+        `);
       } else {
-        welcomeText.innerHTML = `
+        showWelcomeMessage(`
           Welcome back,
           <span>
             ${escapeHtml(nickname)}
           </span>
-        `;
+        `);
       }
-
-      welcome.hidden = false;
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          welcome.classList.add("is-visible");
-        });
-      });
 
       if (isNewSignup) {
         window.setTimeout(() => {
@@ -2287,6 +2329,10 @@
       }
     }
 
+    /* =======================================================
+       AUTH STATE
+       ======================================================= */
+
     let authStateWired = false;
 
     function connectAuth() {
@@ -2294,26 +2340,53 @@
         return true;
       }
 
+      /*
+       * Primary SneakersLink auth engine.
+       */
       if (
-        !window.SLAuth ||
-        typeof window.SLAuth.onAuthStateChanged !== "function"
+        window.SLAuth &&
+        typeof window.SLAuth.onAuthStateChanged === "function"
       ) {
-        return false;
+        authStateWired = true;
+
+        window.SLAuth.onAuthStateChanged((user) => {
+          updateForUser(user);
+        });
+
+        return true;
       }
 
-      authStateWired = true;
+      /*
+       * Firebase profile fallback.
+       */
+      if (
+        window.SLProfile &&
+        typeof window.SLProfile.onProfileAuthChange === "function"
+      ) {
+        authStateWired = true;
 
-      window.SLAuth.onAuthStateChanged((user) => {
-        showWelcome(user);
-      });
+        window.SLProfile.onProfileAuthChange((user) => {
+          updateForUser(user);
+        });
 
-      return true;
+        return true;
+      }
+
+      return false;
     }
 
+    /*
+     * Connect immediately if the auth engine
+     * has already loaded.
+     */
     if (!connectAuth()) {
-      window.addEventListener("slauth:ready", connectAuth, {
-        once: true,
-      });
+      /*
+       * Otherwise wait for the existing
+       * SneakersLink auth events.
+       */
+      window.addEventListener("slauth:ready", connectAuth, { once: true });
+
+      window.addEventListener("slprofile:ready", connectAuth, { once: true });
     }
   }
 
@@ -2350,13 +2423,20 @@
 
   window.SneakersLinkCart = {
     get: getCart,
+
     count: getCartCount,
+
     subtotal: getCartSubtotal,
+
     totals: getTotals,
+
     add: addToCart,
+
     remove: (id, size = "") => removeCartItem(id, size),
+
     updateQuantity: (id, size, quantity) =>
       updateCartQuantity(id, size, quantity),
+
     clear: () => {
       saveCart([]);
       renderCartPage();
@@ -2391,6 +2471,13 @@
     initCheckout();
     initTrackOrder();
     initStorageSync();
+
+    /*
+     * IMPORTANT:
+     * Home welcome is initialised as part of the
+     * normal DOM-ready sequence, but its first
+     * message does NOT wait for Firebase.
+     */
     initHomeWelcome();
   }
 

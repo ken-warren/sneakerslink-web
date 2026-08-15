@@ -98,7 +98,7 @@ nav {
   border-top: 1px solid transparent;
   left: 0;
   top: 0;
-  padding: 0px 60px;
+  padding: 0 60px;
 }
 
 label.logo,
@@ -4555,7 +4555,6 @@ footer .col img.logo:hover {
 
 .home-welcome {
     max-width: 1200px;
-
     margin: 0 auto;
     padding: 16px 20px 0;
 
@@ -4567,7 +4566,7 @@ footer .col img.logo:hover {
         transform 0.45s ease;
 }
 
-.home-welcome.visible {
+.home-welcome.is-visible {
     opacity: 1;
     transform: translateY(0);
 }
@@ -4594,14 +4593,14 @@ footer .col img.logo:hover {
 .home-welcome-text {
     margin: 0;
 
-    color: var(--ink);
+    color: var(--text);
     font-size: 17px;
     font-weight: 600;
 }
 
 .home-welcome-text span {
-    color: var(--brand);
-    font-weight: 800;
+    color: #088178;
+    font-weight: 700;
 }
 
 .home-welcome-subtext {
@@ -4609,6 +4608,31 @@ footer .col img.logo:hover {
 
     color: var(--text-muted);
     font-size: 12px;
+}
+
+
+/* ---------------------------------------------------------
+   MOBILE
+   --------------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+    .home-welcome {
+        padding: 12px 15px 0;
+    }
+
+    .home-welcome-inner {
+        padding: 13px 15px;
+        border-radius: 12px;
+    }
+
+    .home-welcome-text {
+        font-size: 15px;
+    }
+
+    .home-welcome-subtext {
+        font-size: 11px;
+    }
 }
 
 
@@ -5298,5 +5322,153 @@ footer .col img.logo:hover {
   .account-dropdown::before {
     right: 17px;
   }
+
+}
+
+/* =========================================================
+   HOME PERSONALIZED WELCOME
+   Appears immediately below the navbar
+   ========================================================= */
+
+.home-welcome {
+  position: relative;
+
+  /* Push welcome below the fixed navbar */
+  margin-top: 80px;
+
+  width: 100%;
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 14px 20px;
+
+  background: var(--welcome-bg);
+  color: var(--welcome-text);
+
+  border-bottom: 1px solid var(--welcome-border);
+
+  z-index: 10;
+
+  box-sizing: border-box;
+
+  animation: homeWelcomeSlideDown 0.45s ease-out;
+}
+
+
+/* Welcome inner container */
+
+.home-welcome-inner {
+  width: 100%;
+  max-width: 1200px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+
+/* Welcome content */
+
+.home-welcome-content {
+  width: 100%;
+}
+
+
+/* Main welcome message */
+
+.home-welcome-text {
+  margin: 0;
+
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+
+  color: var(--welcome-text);
+}
+
+
+/* Small message underneath */
+
+.home-welcome-subtext {
+  margin: 3px 0 0;
+
+  font-size: 13px;
+  font-weight: 400;
+
+  color: var(--welcome-subtext);
+}
+
+
+/* =========================================================
+   LIGHT MODE
+   ========================================================= */
+
+html[data-theme="light"] .home-welcome {
+    --welcome-bg: #f8f8f8;
+    --welcome-text: #111111;
+
+    background: #f8f8f8;
+    color: #111111;
+
+    border-bottom: 1px solid #e5e5e5;
+}
+
+
+/* =========================================================
+   DARK MODE
+   ========================================================= */
+
+html[data-theme="dark"] .home-welcome {
+    --welcome-bg: #111111;
+    --welcome-text: #ffffff;
+
+    background: #111111;
+    color: #ffffff;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+/* =========================================================
+   ANIMATION
+   ========================================================= */
+
+@keyframes homeWelcomeSlideDown {
+
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .home-welcome {
+        padding: 13px 16px;
+    }
+
+    .home-welcome-text {
+        font-size: 17px;
+    }
+
+    .home-welcome-subtext {
+        font-size: 12px;
+    }
 
 }
