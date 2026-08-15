@@ -1,29 +1,14 @@
 /* =========================================================
    FIREBASE CUSTOMER PROFILE ENGINE
    ---------------------------------------------------------
-   Customer profile data lives in:
-
-       Firestore
+   Firestore:
        users/{uid}
 
-   Profile images live in:
-
-       Firebase Storage
+   Firebase Storage:
        profile-images/{uid}/avatar
 
-   This file is loaded as a <script type="module"> and exposes
-   a plain-object API through window.SLProfile so existing
-   classic scripts do not need to become modules.
-
-   IMPORTANT
-   ---------------------------------------------------------
-   This module does NOT handle:
-   - cart functionality
-   - order creation
-   - order tracking
-   - admin functionality
-
-   Those remain in firebase-orders.js.
+   Public API:
+       window.SLProfile
    ========================================================= */
 
 import { firebaseConfig } from "./firebase-config.js";
@@ -39,7 +24,6 @@ import {
   doc,
   getDoc,
   setDoc,
-  updateDoc,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -85,7 +69,7 @@ if (isConfigured) {
 
 function requireFirebase() {
   if (!isConfigured) {
-    throw new Error("Firebase isn't configured yet. Check firebase-config.js.");
+    throw new Error("Firebase isn't configured. Check firebase-config.js.");
   }
 }
 
@@ -120,21 +104,20 @@ function requireUser() {
 /* =========================================================
    PROFILE REFERENCE
    ---------------------------------------------------------
-   IMPORTANT:
-   This MUST match Firestore rules:
+   MUST MATCH FIRESTORE RULES:
 
        match /users/{userId}
 
-   Therefore every profile is stored at:
+   Therefore:
 
-       users/{authenticated-user-uid}
+       users/{uid}
    ========================================================= */
 
 function getProfileRef(uid) {
   requireFirebase();
 
   if (!uid) {
-    throw new Error("A Firebase Authentication UID is required.");
+    throw new Error("Firebase Authentication UID is required.");
   }
 
   return doc(db, "users", uid);
@@ -204,15 +187,6 @@ function normaliseProfile(data, user) {
    GET PROFILE
    ========================================================= */
 
-/**
- * Load the currently authenticated customer's profile.
- *
- * Profile location:
- *
- *     users/{uid}
- *
- * If the document does not exist, it is created automatically.
- */
 async function getProfile() {
   const user = requireUser();
 
@@ -244,11 +218,6 @@ async function getProfile() {
    UPDATE PROFILE
    ========================================================= */
 
-/**
- * Update customer profile fields.
- *
- * Only approved fields are accepted.
- */
 async function updateProfile(fields = {}) {
   const user = requireUser();
 
@@ -274,8 +243,7 @@ async function updateProfile(fields = {}) {
   }
 
   /* -------------------------------------------------------
-     Keep Firebase Authentication displayName synchronized
-     with the Firestore profile.
+     Synchronise Firebase Auth display name
      ------------------------------------------------------- */
 
   if (Object.prototype.hasOwnProperty.call(updates, "displayName")) {
@@ -308,11 +276,6 @@ function validateAvatar(file) {
     throw new Error("Please select a valid image file.");
   }
 
-  /*
-   * Maximum profile image size:
-   * 5 MB
-   */
-
   const maxSize = 5 * 1024 * 1024;
 
   if (file.size > maxSize) {
@@ -324,16 +287,6 @@ function validateAvatar(file) {
    UPLOAD AVATAR
    ========================================================= */
 
-/**
- * Upload/replace customer's profile avatar.
- *
- * Storage path:
- *
- *     profile-images/{uid}/avatar
- *
- * The same path is reused so the new image replaces
- * the previous image.
- */
 async function uploadAvatar(file) {
   const user = requireUser();
 
@@ -343,22 +296,38 @@ async function uploadAvatar(file) {
     throw new Error("Firebase Storage is not available.");
   }
 
+  /* -------------------------------------------------------
+     Storage location
+     ------------------------------------------------------- */
+
   const avatarRef = ref(storage, `profile-images/${user.uid}/avatar`);
+
+  /* -------------------------------------------------------
+     Upload
+     ------------------------------------------------------- */
 
   const snapshot = await uploadBytes(avatarRef, file, {
     contentType: file.type,
+    cacheControl: "public,max-age=3600",
   });
+
+  /* -------------------------------------------------------
+     Get public download URL
+     ------------------------------------------------------- */
 
   const downloadURL = await getDownloadURL(snapshot.ref);
 
-  /*
-   * Update Firebase Authentication profile
-   * as well as Firestore.
-   */
+  /* -------------------------------------------------------
+     Update Firebase Authentication
+     ------------------------------------------------------- */
 
   await updateAuthProfile(user, {
     photoURL: downloadURL,
   });
+
+  /* -------------------------------------------------------
+     Update Firestore
+     ------------------------------------------------------- */
 
   const profileRef = getProfileRef(user.uid);
 
@@ -373,6 +342,13 @@ async function uploadAvatar(file) {
       merge: true,
     },
   );
+
+  /*
+   * Return the actual URL.
+   *
+   * profile.html should use this URL immediately
+   * instead of waiting for another profile reload.
+   */
 
   return downloadURL;
 }
@@ -393,27 +369,22 @@ async function deleteAvatar() {
   try {
     await deleteObject(avatarRef);
   } catch (error) {
-    /*
-     * If the image does not exist,
-     * continue with clearing the profile URL.
-     */
-
     if (error?.code !== "storage/object-not-found") {
       throw error;
     }
   }
 
-  /*
-   * Clear Firebase Authentication photo.
-   */
+  /* -------------------------------------------------------
+     Clear Firebase Auth photo
+     ------------------------------------------------------- */
 
   await updateAuthProfile(user, {
     photoURL: null,
   });
 
-  /*
-   * Clear Firestore photo URL.
-   */
+  /* -------------------------------------------------------
+     Clear Firestore photo
+     ------------------------------------------------------- */
 
   const profileRef = getProfileRef(user.uid);
 
@@ -436,13 +407,6 @@ async function deleteAvatar() {
    AUTH STATE
    ========================================================= */
 
-/**
- * Subscribe to Firebase Authentication changes.
- *
- * This is especially important on profile.html because
- * Firebase may still be restoring the user's session when
- * the page initially loads.
- */
 function onProfileAuthChange(callback) {
   if (!isConfigured || !auth) {
     callback(null);

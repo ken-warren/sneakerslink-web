@@ -1,3216 +1,2152 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
 
-<head>
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>My Profile — SneakersLink</title>
 
     <meta
-        name="description"
-        content="Manage your SneakersLink customer profile."
-    >
+      name="description"
+      content="Manage your SneakersLink customer profile."
+    />
 
     <!-- =========================================================
          FONT AWESOME
          ========================================================= -->
 
     <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    >
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
 
     <!-- =========================================================
          GOOGLE FONT
          ========================================================= -->
 
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
     <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
-
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- =========================================================
          PREVENT THEME FLASH
+         ---------------------------------------------------------
+         Supports both:
+             sl-theme
+             sl_theme
+
+         sl-theme is preferred because it matches the newer
+         SneakersLink theme convention.
          ========================================================= -->
 
     <script>
-        (function () {
-            try {
+      (function () {
+        try {
+          const themeKeys = ["sl-theme", "sl_theme"];
 
-                const savedTheme =
-                    localStorage.getItem("sl_theme");
+          let savedTheme = null;
 
-                if (
-                    savedTheme === "dark" ||
-                    savedTheme === "light"
-                ) {
-                    document.documentElement.setAttribute(
-                        "data-theme",
-                        savedTheme
-                    );
-                } else {
+          for (const key of themeKeys) {
+            const value = localStorage.getItem(key);
 
-                    const prefersDark =
-                        window.matchMedia &&
-                        window.matchMedia(
-                            "(prefers-color-scheme: dark)"
-                        ).matches;
-
-                    document.documentElement.setAttribute(
-                        "data-theme",
-                        prefersDark ? "dark" : "light"
-                    );
-                }
-
-            } catch (error) {
-                document.documentElement.setAttribute(
-                    "data-theme",
-                    "light"
-                );
+            if (value === "dark" || value === "light") {
+              savedTheme = value;
+              break;
             }
-        })();
-    </script>
+          }
 
+          if (savedTheme) {
+            document.documentElement.setAttribute("data-theme", savedTheme);
+
+            return;
+          }
+
+          const prefersDark =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+          document.documentElement.setAttribute(
+            "data-theme",
+            prefersDark ? "dark" : "light",
+          );
+        } catch (error) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
 
     <!-- =========================================================
          PAGE STYLES
          ========================================================= -->
 
     <style>
-
-        /* =====================================================
+      /* =====================================================
            VARIABLES
            ===================================================== */
 
-        :root {
+      :root {
+        --sl-bg: #f7f7f8;
 
-            --sl-bg: #f7f7f8;
+        --sl-surface: #ffffff;
 
-            --sl-surface: #ffffff;
+        --sl-surface-soft: #f3f4f6;
 
-            --sl-surface-soft: #f3f4f6;
+        --sl-text: #111111;
 
-            --sl-text: #111111;
+        --sl-text-secondary: #6b7280;
 
-            --sl-text-secondary: #6b7280;
+        --sl-border: #e5e7eb;
 
-            --sl-border: #e5e7eb;
+        --sl-primary: #111111;
 
-            --sl-primary: #111111;
+        --sl-primary-text: #ffffff;
 
-            --sl-primary-text: #ffffff;
+        --sl-danger: #dc2626;
 
-            --sl-danger: #dc2626;
+        --sl-success: #16a34a;
 
-            --sl-success: #16a34a;
+        --sl-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
 
-            --sl-shadow:
-                0 15px 45px rgba(
-                    0,
-                    0,
-                    0,
-                    0.08
-                );
+        --sl-radius: 20px;
 
-            --sl-radius: 20px;
+        --sl-transition: 0.25s ease;
+      }
 
-            --sl-transition:
-                0.25s ease;
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            DARK THEME
            ===================================================== */
 
-        html[data-theme="dark"] {
+      html[data-theme="dark"] {
+        --sl-bg: #0d0f12;
 
-            --sl-bg: #0d0f12;
+        --sl-surface: #15181d;
 
-            --sl-surface: #15181d;
+        --sl-surface-soft: #1d2128;
 
-            --sl-surface-soft: #1d2128;
+        --sl-text: #f5f5f5;
 
-            --sl-text: #f5f5f5;
+        --sl-text-secondary: #a5abb5;
 
-            --sl-text-secondary: #a5abb5;
+        --sl-border: #2a2f38;
 
-            --sl-border: #2a2f38;
+        --sl-primary: #ffffff;
 
-            --sl-primary: #ffffff;
+        --sl-primary-text: #111111;
 
-            --sl-primary-text: #111111;
+        --sl-shadow: 0 15px 45px rgba(0, 0, 0, 0.35);
+      }
 
-            --sl-shadow:
-                0 15px 45px rgba(
-                    0,
-                    0,
-                    0,
-                    0.35
-                );
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            RESET
            ===================================================== */
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
+      html {
+        scroll-behavior: smooth;
+      }
 
-        html {
-            scroll-behavior: smooth;
-        }
+      body {
+        min-height: 100vh;
 
+        background: var(--sl-bg);
 
-        body {
+        color: var(--sl-text);
 
-            min-height: 100vh;
+        font-family:
+          "Poppins",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
 
-            background:
-                var(--sl-bg);
+        transition:
+          background var(--sl-transition),
+          color var(--sl-transition);
+      }
 
-            color:
-                var(--sl-text);
+      button,
+      input {
+        font: inherit;
+      }
 
-            font-family:
-                "Poppins",
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                sans-serif;
+      button {
+        cursor: pointer;
+      }
 
-            transition:
-                background var(--sl-transition),
-                color var(--sl-transition);
-        }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
 
-
-        button,
-        input {
-
-            font: inherit;
-        }
-
-
-        button {
-
-            cursor: pointer;
-        }
-
-
-        a {
-
-            color: inherit;
-
-            text-decoration: none;
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            PAGE HEADER
            ===================================================== */
 
-        .profile-header {
+      .profile-header {
+        width: 100%;
 
-            width: 100%;
+        height: 76px;
 
-            height: 76px;
+        display: flex;
 
-            display: flex;
+        align-items: center;
 
-            align-items: center;
+        justify-content: space-between;
 
-            justify-content: space-between;
+        padding: 0 32px;
 
-            padding:
-                0 32px;
+        background: var(--sl-surface);
 
-            background:
-                var(--sl-surface);
+        border-bottom: 1px solid var(--sl-border);
 
-            border-bottom:
-                1px solid var(--sl-border);
+        position: sticky;
 
-            position: sticky;
+        top: 0;
 
-            top: 0;
+        z-index: 100;
 
-            z-index: 100;
+        transition:
+          background var(--sl-transition),
+          border-color var(--sl-transition);
+      }
 
-            transition:
-                background var(--sl-transition),
-                border-color var(--sl-transition);
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            BACK BUTTON
            ===================================================== */
 
-        .profile-back {
+      .profile-back {
+        display: inline-flex;
 
-            display: inline-flex;
+        align-items: center;
 
-            align-items: center;
+        gap: 9px;
 
-            gap: 9px;
+        padding: 10px 15px;
 
-            padding:
-                10px 15px;
+        border: 1px solid var(--sl-border);
 
-            border:
-                1px solid var(--sl-border);
+        border-radius: 12px;
 
-            border-radius:
-                12px;
+        background: var(--sl-surface);
 
-            background:
-                var(--sl-surface);
+        color: var(--sl-text);
 
-            color:
-                var(--sl-text);
+        font-size: 14px;
 
-            font-size:
-                14px;
+        font-weight: 500;
 
-            font-weight:
-                500;
+        transition: all var(--sl-transition);
+      }
 
-            transition:
-                all var(--sl-transition);
-        }
+      .profile-back:hover {
+        background: var(--sl-surface-soft);
 
+        transform: translateX(-2px);
+      }
 
-        .profile-back:hover {
+      .profile-back i {
+        font-size: 13px;
+      }
 
-            background:
-                var(--sl-surface-soft);
-
-            transform:
-                translateX(-2px);
-        }
-
-
-        .profile-back i {
-
-            font-size:
-                13px;
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            HEADER PROFILE ICON
            ===================================================== */
 
-        .header-profile-button {
+      .header-profile-button {
+        width: 44px;
 
-            width: 44px;
+        height: 44px;
 
-            height: 44px;
+        border: 1px solid var(--sl-border);
 
-            border:
-                1px solid var(--sl-border);
+        border-radius: 50%;
 
-            border-radius:
-                50%;
+        background: var(--sl-surface-soft);
 
-            background:
-                var(--sl-surface-soft);
+        color: var(--sl-text);
 
-            color:
-                var(--sl-text);
+        display: flex;
 
-            display: flex;
+        align-items: center;
 
-            align-items: center;
+        justify-content: center;
 
-            justify-content: center;
+        overflow: hidden;
 
-            overflow: hidden;
+        transition: all var(--sl-transition);
+      }
 
-            transition:
-                all var(--sl-transition);
-        }
+      .header-profile-button:hover {
+        transform: translateY(-1px);
 
+        border-color: var(--sl-text);
+      }
 
-        .header-profile-button:hover {
+      .header-profile-button img {
+        width: 100%;
 
-            transform:
-                translateY(-1px);
+        height: 100%;
 
-            border-color:
-                var(--sl-text);
-        }
+        object-fit: cover;
 
+        display: none;
+      }
 
-        .header-profile-button img {
+      .header-profile-button.has-image img {
+        display: block;
+      }
 
-            width: 100%;
+      .header-profile-button.has-image i {
+        display: none;
+      }
 
-            height: 100%;
-
-            object-fit: cover;
-
-            display: none;
-        }
-
-
-        .header-profile-button.has-image img {
-
-            display: block;
-        }
-
-
-        .header-profile-button.has-image i {
-
-            display: none;
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            MAIN
            ===================================================== */
 
-        .profile-page {
+      .profile-page {
+        width: 100%;
 
-            width: 100%;
+        max-width: 1080px;
 
-            max-width: 1080px;
+        margin: 0 auto;
 
-            margin:
-                0 auto;
+        padding: 45px 24px 70px;
+      }
 
-            padding:
-                45px 24px 70px;
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            PAGE INTRO
            ===================================================== */
 
-        .profile-intro {
+      .profile-intro {
+        margin-bottom: 30px;
+      }
 
-            margin-bottom:
-                30px;
-        }
+      .profile-intro h1 {
+        font-size: clamp(28px, 4vw, 38px);
 
+        line-height: 1.15;
 
-        .profile-intro h1 {
+        font-weight: 700;
 
-            font-size:
-                clamp(
-                    28px,
-                    4vw,
-                    38px
-                );
+        letter-spacing: -0.8px;
 
-            line-height:
-                1.15;
+        margin-bottom: 8px;
+      }
 
-            font-weight:
-                700;
+      .profile-intro p {
+        color: var(--sl-text-secondary);
 
-            letter-spacing:
-                -0.8px;
+        font-size: 14px;
 
-            margin-bottom:
-                8px;
-        }
+        line-height: 1.6;
+      }
 
-
-        .profile-intro p {
-
-            color:
-                var(--sl-text-secondary);
-
-            font-size:
-                14px;
-
-            line-height:
-                1.6;
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            PROFILE CARD
            ===================================================== */
 
-        .profile-card {
+      .profile-card {
+        background: var(--sl-surface);
 
-            background:
-                var(--sl-surface);
+        border: 1px solid var(--sl-border);
 
-            border:
-                1px solid var(--sl-border);
+        border-radius: var(--sl-radius);
 
-            border-radius:
-                var(--sl-radius);
+        box-shadow: var(--sl-shadow);
 
-            box-shadow:
-                var(--sl-shadow);
+        overflow: hidden;
 
-            overflow:
-                hidden;
+        transition:
+          background var(--sl-transition),
+          border-color var(--sl-transition);
+      }
 
-            transition:
-                background var(--sl-transition),
-                border-color var(--sl-transition);
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            PROFILE HERO
            ===================================================== */
 
-        .profile-hero {
+      .profile-hero {
+        padding: 32px;
 
-            padding:
-                32px;
+        display: flex;
 
-            display:
-                flex;
+        align-items: center;
 
-            align-items:
-                center;
+        gap: 24px;
 
-            gap:
-                24px;
+        border-bottom: 1px solid var(--sl-border);
+      }
 
-            border-bottom:
-                1px solid var(--sl-border);
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            AVATAR
            ===================================================== */
 
-        .profile-avatar-wrapper {
+      .profile-avatar-wrapper {
+        position: relative;
 
-            position:
-                relative;
+        flex: 0 0 auto;
+      }
 
-            flex:
-                0 0 auto;
-        }
+      .profile-avatar {
+        width: 112px;
 
+        height: 112px;
 
-        .profile-avatar {
+        border-radius: 50%;
 
-            width:
-                112px;
+        background: var(--sl-surface-soft);
 
-            height:
-                112px;
+        border: 1px solid var(--sl-border);
 
-            border-radius:
-                50%;
+        display: flex;
 
-            background:
-                var(--sl-surface-soft);
+        align-items: center;
 
-            border:
-                1px solid var(--sl-border);
+        justify-content: center;
 
-            display:
-                flex;
+        overflow: hidden;
 
-            align-items:
-                center;
+        color: var(--sl-text-secondary);
 
-            justify-content:
-                center;
+        font-size: 38px;
+      }
 
-            overflow:
-                hidden;
+      .profile-avatar img {
+        width: 100%;
 
-            color:
-                var(--sl-text-secondary);
+        height: 100%;
 
-            font-size:
-                38px;
-        }
+        object-fit: cover;
 
+        display: none;
+      }
 
-        .profile-avatar img {
+      .profile-avatar.has-image img {
+        display: block;
+      }
 
-            width:
-                100%;
+      .profile-avatar.has-image i {
+        display: none;
+      }
 
-            height:
-                100%;
-
-            object-fit:
-                cover;
-
-            display:
-                none;
-        }
-
-
-        .profile-avatar.has-image img {
-
-            display:
-                block;
-        }
-
-
-        .profile-avatar.has-image i {
-
-            display:
-                none;
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            AVATAR EDIT BUTTON
            ===================================================== */
 
-        .avatar-edit-button {
+      .avatar-edit-button {
+        position: absolute;
 
-            position:
-                absolute;
+        right: 2px;
 
-            right:
-                2px;
+        bottom: 2px;
 
-            bottom:
-                2px;
+        width: 34px;
 
-            width:
-                34px;
+        height: 34px;
 
-            height:
-                34px;
+        border: 3px solid var(--sl-surface);
 
-            border:
-                3px solid var(--sl-surface);
+        border-radius: 50%;
 
-            border-radius:
-                50%;
+        background: var(--sl-primary);
 
-            background:
-                var(--sl-primary);
+        color: var(--sl-primary-text);
 
-            color:
-                var(--sl-primary-text);
+        display: flex;
 
-            display:
-                flex;
+        align-items: center;
 
-            align-items:
-                center;
+        justify-content: center;
 
-            justify-content:
-                center;
+        transition: transform var(--sl-transition);
+      }
 
-            transition:
-                transform var(--sl-transition);
-        }
+      .avatar-edit-button:hover {
+        transform: scale(1.08);
+      }
 
+      .avatar-edit-button i {
+        font-size: 13px;
+      }
 
-        .avatar-edit-button:hover {
-
-            transform:
-                scale(1.08);
-        }
-
-
-        .avatar-edit-button i {
-
-            font-size:
-                13px;
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            PROFILE SUMMARY
            ===================================================== */
 
-        .profile-summary {
+      .profile-summary {
+        min-width: 0;
+      }
 
-            min-width:
-                0;
-        }
+      .profile-summary h2 {
+        font-size: 24px;
 
+        font-weight: 700;
 
-        .profile-summary h2 {
+        line-height: 1.3;
 
-            font-size:
-                24px;
+        margin-bottom: 4px;
 
-            font-weight:
-                700;
+        word-break: break-word;
+      }
 
-            line-height:
-                1.3;
+      .profile-summary p {
+        color: var(--sl-text-secondary);
 
-            margin-bottom:
-                4px;
+        font-size: 13px;
 
-            word-break:
-                break-word;
-        }
+        line-height: 1.5;
 
+        word-break: break-word;
+      }
 
-        .profile-summary p {
+      .profile-summary .profile-status {
+        display: inline-flex;
 
-            color:
-                var(--sl-text-secondary);
+        align-items: center;
 
-            font-size:
-                13px;
+        gap: 6px;
 
-            line-height:
-                1.5;
+        margin-top: 10px;
 
-            word-break:
-                break-word;
-        }
+        padding: 5px 10px;
 
+        border-radius: 999px;
 
-        .profile-summary .profile-status {
+        background: var(--sl-surface-soft);
 
-            display:
-                inline-flex;
+        color: var(--sl-text-secondary);
 
-            align-items:
-                center;
+        font-size: 11px;
 
-            gap:
-                6px;
+        font-weight: 500;
+      }
 
-            margin-top:
-                10px;
+      .profile-status i {
+        font-size: 7px;
+      }
 
-            padding:
-                5px 10px;
-
-            border-radius:
-                999px;
-
-            background:
-                var(--sl-surface-soft);
-
-            color:
-                var(--sl-text-secondary);
-
-            font-size:
-                11px;
-
-            font-weight:
-                500;
-        }
-
-
-        .profile-status i {
-
-            font-size:
-                7px;
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            FORM AREA
            ===================================================== */
 
-        .profile-form {
+      .profile-form {
+        padding: 32px;
+      }
 
-            padding:
-                32px;
-        }
+      .section-heading {
+        margin-bottom: 22px;
+      }
 
+      .section-heading h3 {
+        font-size: 18px;
 
-        .section-heading {
+        font-weight: 600;
 
-            margin-bottom:
-                22px;
-        }
+        margin-bottom: 4px;
+      }
 
+      .section-heading p {
+        color: var(--sl-text-secondary);
 
-        .section-heading h3 {
+        font-size: 12px;
+      }
 
-            font-size:
-                18px;
-
-            font-weight:
-                600;
-
-            margin-bottom:
-                4px;
-        }
-
-
-        .section-heading p {
-
-            color:
-                var(--sl-text-secondary);
-
-            font-size:
-                12px;
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            FORM GRID
            ===================================================== */
 
-        .form-grid {
+      .form-grid {
+        display: grid;
 
-            display:
-                grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
 
-            grid-template-columns:
-                repeat(
-                    2,
-                    minmax(
-                        0,
-                        1fr
-                    )
-                );
+        gap: 20px;
+      }
 
-            gap:
-                20px;
-        }
+      .form-group {
+        display: flex;
 
+        flex-direction: column;
 
-        .form-group {
+        gap: 7px;
+      }
 
-            display:
-                flex;
+      .form-group.full-width {
+        grid-column: 1 / -1;
+      }
 
-            flex-direction:
-                column;
+      .form-label {
+        font-size: 12px;
 
-            gap:
-                7px;
-        }
+        font-weight: 600;
 
+        color: var(--sl-text);
+      }
 
-        .form-group.full-width {
+      .form-input {
+        width: 100%;
 
-            grid-column:
-                1 / -1;
-        }
+        min-height: 48px;
 
+        padding: 12px 14px;
 
-        .form-label {
+        border: 1px solid var(--sl-border);
 
-            font-size:
-                12px;
+        border-radius: 12px;
 
-            font-weight:
-                600;
+        outline: none;
 
-            color:
-                var(--sl-text);
-        }
+        background: var(--sl-surface);
 
+        color: var(--sl-text);
 
-        .form-input {
+        font-size: 13px;
 
-            width:
-                100%;
+        transition: all var(--sl-transition);
+      }
 
-            min-height:
-                48px;
+      .form-input::placeholder {
+        color: var(--sl-text-secondary);
+      }
 
-            padding:
-                12px 14px;
+      .form-input:focus {
+        border-color: var(--sl-text);
 
-            border:
-                1px solid var(--sl-border);
+        box-shadow: 0 0 0 3px rgba(128, 128, 128, 0.12);
+      }
 
-            border-radius:
-                12px;
+      .form-input:disabled {
+        opacity: 0.65;
 
-            outline:
-                none;
+        cursor: not-allowed;
 
-            background:
-                var(--sl-surface);
+        background: var(--sl-surface-soft);
+      }
 
-            color:
-                var(--sl-text);
-
-            font-size:
-                13px;
-
-            transition:
-                all var(--sl-transition);
-        }
-
-
-        .form-input::placeholder {
-
-            color:
-                var(--sl-text-secondary);
-        }
-
-
-        .form-input:focus {
-
-            border-color:
-                var(--sl-text);
-
-            box-shadow:
-                0 0 0 3px
-                rgba(
-                    128,
-                    128,
-                    128,
-                    0.12
-                );
-        }
-
-
-        .form-input:disabled {
-
-            opacity:
-                0.65;
-
-            cursor:
-                not-allowed;
-
-            background:
-                var(--sl-surface-soft);
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            ACTIONS
            ===================================================== */
 
-        .profile-actions {
+      .profile-actions {
+        margin-top: 30px;
 
-            margin-top:
-                30px;
+        padding-top: 24px;
 
-            padding-top:
-                24px;
+        border-top: 1px solid var(--sl-border);
 
-            border-top:
-                1px solid var(--sl-border);
+        display: flex;
 
-            display:
-                flex;
+        align-items: center;
 
-            align-items:
-                center;
+        justify-content: space-between;
 
-            justify-content:
-                space-between;
+        gap: 15px;
+      }
 
-            gap:
-                15px;
-        }
+      .avatar-actions {
+        display: flex;
 
+        align-items: center;
 
-        .avatar-actions {
+        gap: 8px;
 
-            display:
-                flex;
+        flex-wrap: wrap;
+      }
 
-            align-items:
-                center;
+      .button {
+        min-height: 44px;
 
-            gap:
-                8px;
+        padding: 10px 17px;
 
-            flex-wrap:
-                wrap;
-        }
+        border: 1px solid var(--sl-border);
 
+        border-radius: 11px;
 
-        .button {
+        display: inline-flex;
 
-            min-height:
-                44px;
+        align-items: center;
 
-            padding:
-                10px 17px;
+        justify-content: center;
 
-            border:
-                1px solid var(--sl-border);
+        gap: 8px;
 
-            border-radius:
-                11px;
+        font-size: 12px;
 
-            display:
-                inline-flex;
+        font-weight: 600;
 
-            align-items:
-                center;
+        transition: all var(--sl-transition);
+      }
 
-            justify-content:
-                center;
+      .button-primary {
+        background: var(--sl-primary);
 
-            gap:
-                8px;
+        color: var(--sl-primary-text);
 
-            font-size:
-                12px;
+        border-color: var(--sl-primary);
+      }
 
-            font-weight:
-                600;
+      .button-primary:hover {
+        opacity: 0.88;
 
-            transition:
-                all var(--sl-transition);
-        }
+        transform: translateY(-1px);
+      }
 
+      .button-secondary {
+        background: var(--sl-surface);
 
-        .button-primary {
+        color: var(--sl-text);
+      }
 
-            background:
-                var(--sl-primary);
+      .button-secondary:hover {
+        background: var(--sl-surface-soft);
+      }
 
-            color:
-                var(--sl-primary-text);
+      .button-danger {
+        background: transparent;
 
-            border-color:
-                var(--sl-primary);
-        }
+        color: var(--sl-danger);
 
+        border-color: rgba(220, 38, 38, 0.25);
+      }
 
-        .button-primary:hover {
+      .button-danger:hover {
+        background: rgba(220, 38, 38, 0.08);
+      }
 
-            opacity:
-                0.88;
+      .button:disabled {
+        opacity: 0.55;
 
-            transform:
-                translateY(-1px);
-        }
+        cursor: not-allowed;
 
+        transform: none;
+      }
 
-        .button-secondary {
-
-            background:
-                var(--sl-surface);
-
-            color:
-                var(--sl-text);
-        }
-
-
-        .button-secondary:hover {
-
-            background:
-                var(--sl-surface-soft);
-        }
-
-
-        .button-danger {
-
-            background:
-                transparent;
-
-            color:
-                var(--sl-danger);
-
-            border-color:
-                rgba(
-                    220,
-                    38,
-                    38,
-                    0.25
-                );
-        }
-
-
-        .button-danger:hover {
-
-            background:
-                rgba(
-                    220,
-                    38,
-                    38,
-                    0.08
-                );
-        }
-
-
-        .button:disabled {
-
-            opacity:
-                0.55;
-
-            cursor:
-                not-allowed;
-
-            transform:
-                none;
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            STATUS MESSAGE
            ===================================================== */
 
-        .profile-message {
+      .profile-message {
+        display: none;
 
-            display:
-                none;
+        margin-bottom: 20px;
 
-            margin-bottom:
-                20px;
+        padding: 12px 14px;
 
-            padding:
-                12px 14px;
+        border-radius: 12px;
 
-            border-radius:
-                12px;
+        font-size: 12px;
 
-            font-size:
-                12px;
+        line-height: 1.5;
+      }
 
-            line-height:
-                1.5;
-        }
+      .profile-message.show {
+        display: flex;
 
+        align-items: center;
 
-        .profile-message.show {
+        gap: 9px;
+      }
 
-            display:
-                flex;
+      .profile-message.success {
+        background: rgba(22, 163, 74, 0.1);
 
-            align-items:
-                center;
+        color: var(--sl-success);
+      }
 
-            gap:
-                9px;
-        }
+      .profile-message.error {
+        background: rgba(220, 38, 38, 0.1);
 
+        color: var(--sl-danger);
+      }
 
-        .profile-message.success {
-
-            background:
-                rgba(
-                    22,
-                    163,
-                    74,
-                    0.10
-                );
-
-            color:
-                var(--sl-success);
-        }
-
-
-        .profile-message.error {
-
-            background:
-                rgba(
-                    220,
-                    38,
-                    38,
-                    0.10
-                );
-
-            color:
-                var(--sl-danger);
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            LOADING
            ===================================================== */
 
-        .profile-loading {
+      .profile-loading {
+        min-height: 400px;
 
-            min-height:
-                400px;
+        display: flex;
 
-            display:
-                flex;
+        flex-direction: column;
 
-            flex-direction:
-                column;
+        align-items: center;
 
-            align-items:
-                center;
+        justify-content: center;
 
-            justify-content:
-                center;
+        gap: 14px;
 
-            gap:
-                14px;
+        color: var(--sl-text-secondary);
 
-            color:
-                var(--sl-text-secondary);
+        font-size: 13px;
+      }
 
-            font-size:
-                13px;
+      .loading-spinner {
+        width: 34px;
+
+        height: 34px;
+
+        border: 3px solid var(--sl-border);
+
+        border-top-color: var(--sl-text);
+
+        border-radius: 50%;
+
+        animation: profileSpin 0.8s linear infinite;
+      }
+
+      @keyframes profileSpin {
+        to {
+          transform: rotate(360deg);
         }
+      }
 
-
-        .loading-spinner {
-
-            width:
-                34px;
-
-            height:
-                34px;
-
-            border:
-                3px solid var(--sl-border);
-
-            border-top-color:
-                var(--sl-text);
-
-            border-radius:
-                50%;
-
-            animation:
-                profileSpin
-                0.8s linear infinite;
-        }
-
-
-        @keyframes profileSpin {
-
-            to {
-                transform:
-                    rotate(360deg);
-            }
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            ERROR STATE
            ===================================================== */
 
-        .profile-error {
+      .profile-error {
+        display: none;
 
-            display:
-                none;
+        padding: 40px 25px;
 
-            padding:
-                40px 25px;
+        text-align: center;
+      }
 
-            text-align:
-                center;
-        }
+      .profile-error.show {
+        display: block;
+      }
 
+      .profile-error-icon {
+        width: 58px;
 
-        .profile-error.show {
+        height: 58px;
 
-            display:
-                block;
-        }
+        margin: 0 auto 16px;
 
+        border-radius: 50%;
 
-        .profile-error-icon {
+        background: rgba(220, 38, 38, 0.1);
 
-            width:
-                58px;
+        color: var(--sl-danger);
 
-            height:
-                58px;
+        display: flex;
 
-            margin:
-                0 auto 16px;
+        align-items: center;
 
-            border-radius:
-                50%;
+        justify-content: center;
 
-            background:
-                rgba(
-                    220,
-                    38,
-                    38,
-                    0.10
-                );
+        font-size: 21px;
+      }
 
-            color:
-                var(--sl-danger);
+      .profile-error h2 {
+        font-size: 20px;
 
-            display:
-                flex;
+        margin-bottom: 7px;
+      }
 
-            align-items:
-                center;
+      .profile-error p {
+        max-width: 520px;
 
-            justify-content:
-                center;
+        margin: 0 auto 20px;
 
-            font-size:
-                21px;
-        }
+        color: var(--sl-text-secondary);
 
+        font-size: 13px;
 
-        .profile-error h2 {
+        line-height: 1.6;
+      }
 
-            font-size:
-                20px;
-
-            margin-bottom:
-                7px;
-        }
-
-
-        .profile-error p {
-
-            max-width:
-                520px;
-
-            margin:
-                0 auto 20px;
-
-            color:
-                var(--sl-text-secondary);
-
-            font-size:
-                13px;
-
-            line-height:
-                1.6;
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            HIDDEN FILE INPUT
            ===================================================== */
 
-        #avatarFileInput {
+      #avatarFileInput {
+        display: none;
+      }
 
-            display:
-                none;
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            FOOTER
            ===================================================== */
 
-        .profile-footer {
+      .profile-footer {
+        text-align: center;
 
-            text-align:
-                center;
+        color: var(--sl-text-secondary);
 
-            color:
-                var(--sl-text-secondary);
+        font-size: 11px;
 
-            font-size:
-                11px;
+        padding: 20px;
+      }
 
-            padding:
-                20px;
-        }
-
-
-        /* =====================================================
+      /* =====================================================
            MOBILE
            ===================================================== */
 
-        @media (max-width: 700px) {
+      @media (max-width: 700px) {
+        .profile-header {
+          height: 68px;
 
-            .profile-header {
-
-                height:
-                    68px;
-
-                padding:
-                    0 16px;
-            }
-
-
-            .profile-back {
-
-                padding:
-                    9px 12px;
-
-                font-size:
-                    12px;
-            }
-
-
-            .header-profile-button {
-
-                width:
-                    40px;
-
-                height:
-                    40px;
-            }
-
-
-            .profile-page {
-
-                padding:
-                    28px 14px 50px;
-            }
-
-
-            .profile-intro {
-
-                margin-bottom:
-                    20px;
-            }
-
-
-            .profile-intro h1 {
-
-                font-size:
-                    27px;
-            }
-
-
-            .profile-hero {
-
-                padding:
-                    24px 20px;
-
-                flex-direction:
-                    column;
-
-                text-align:
-                    center;
-            }
-
-
-            .profile-avatar {
-
-                width:
-                    100px;
-
-                height:
-                    100px;
-            }
-
-
-            .profile-summary h2 {
-
-                font-size:
-                    20px;
-            }
-
-
-            .profile-form {
-
-                padding:
-                    24px 20px;
-            }
-
-
-            .form-grid {
-
-                grid-template-columns:
-                    1fr;
-
-                gap:
-                    16px;
-            }
-
-
-            .form-group.full-width {
-
-                grid-column:
-                    auto;
-            }
-
-
-            .profile-actions {
-
-                flex-direction:
-                    column;
-
-                align-items:
-                    stretch;
-            }
-
-
-            .avatar-actions {
-
-                width:
-                    100%;
-            }
-
-
-            .avatar-actions .button {
-
-                flex:
-                    1;
-            }
-
-
-            .save-button {
-
-                width:
-                    100%;
-            }
+          padding: 0 16px;
         }
 
+        .profile-back {
+          padding: 9px 12px;
 
-        /* =====================================================
+          font-size: 12px;
+        }
+
+        .header-profile-button {
+          width: 40px;
+
+          height: 40px;
+        }
+
+        .profile-page {
+          padding: 28px 14px 50px;
+        }
+
+        .profile-intro {
+          margin-bottom: 20px;
+        }
+
+        .profile-intro h1 {
+          font-size: 27px;
+        }
+
+        .profile-hero {
+          padding: 24px 20px;
+
+          flex-direction: column;
+
+          text-align: center;
+        }
+
+        .profile-avatar {
+          width: 100px;
+
+          height: 100px;
+        }
+
+        .profile-summary h2 {
+          font-size: 20px;
+        }
+
+        .profile-form {
+          padding: 24px 20px;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+
+          gap: 16px;
+        }
+
+        .form-group.full-width {
+          grid-column: auto;
+        }
+
+        .profile-actions {
+          flex-direction: column;
+
+          align-items: stretch;
+        }
+
+        .avatar-actions {
+          width: 100%;
+        }
+
+        .avatar-actions .button {
+          flex: 1;
+        }
+
+        .save-button {
+          width: 100%;
+        }
+      }
+
+      /* =====================================================
            SMALL MOBILE
            ===================================================== */
 
-        @media (max-width: 400px) {
+      @media (max-width: 400px) {
+        .profile-page {
+          padding-left: 10px;
 
-            .profile-page {
-
-                padding-left:
-                    10px;
-
-                padding-right:
-                    10px;
-            }
-
-
-            .profile-form {
-
-                padding:
-                    20px 15px;
-            }
-
-
-            .profile-hero {
-
-                padding:
-                    22px 15px;
-            }
-
-
-            .profile-back span {
-
-                display:
-                    none;
-            }
-
-
-            .profile-back {
-
-                width:
-                    40px;
-
-                height:
-                    40px;
-
-                justify-content:
-                    center;
-
-                padding:
-                    0;
-            }
+          padding-right: 10px;
         }
 
+        .profile-form {
+          padding: 20px 15px;
+        }
+
+        .profile-hero {
+          padding: 22px 15px;
+        }
+
+        .profile-back span {
+          display: none;
+        }
+
+        .profile-back {
+          width: 40px;
+
+          height: 40px;
+
+          justify-content: center;
+
+          padding: 0;
+        }
+      }
     </style>
+  </head>
 
-</head>
-
-
-<body>
-
-
+  <body>
     <!-- =========================================================
          HEADER
          ========================================================= -->
 
     <header class="profile-header">
+      <button
+        type="button"
+        class="profile-back"
+        id="backButton"
+        aria-label="Go back"
+      >
+        <i class="fas fa-arrow-left" aria-hidden="true"></i>
 
-        <button
-            type="button"
-            class="profile-back"
-            id="backButton"
-            aria-label="Go back"
-        >
+        <span> Back </span>
+      </button>
 
-            <i
-                class="fas fa-arrow-left"
-                aria-hidden="true"
-            ></i>
+      <button
+        type="button"
+        class="header-profile-button"
+        id="headerProfileButton"
+        aria-label="Profile"
+      >
+        <i class="fas fa-user" aria-hidden="true"></i>
 
-            <span>
-                Back
-            </span>
-
-        </button>
-
-
-        <!-- Profile icon -->
-
-        <button
-            type="button"
-            class="header-profile-button"
-            id="headerProfileButton"
-            aria-label="Profile"
-        >
-
-            <i
-                class="fas fa-user"
-                aria-hidden="true"
-            ></i>
-
-            <img
-                id="headerProfileImage"
-                src=""
-                alt=""
-            >
-
-        </button>
-
+        <img id="headerProfileImage" src="" alt="" />
+      </button>
     </header>
-
 
     <!-- =========================================================
          MAIN
          ========================================================= -->
 
     <main class="profile-page">
+      <div class="profile-intro">
+        <h1>My Profile</h1>
 
+        <p>Manage your personal information and profile photo.</p>
+      </div>
 
-        <!-- =====================================================
-             PAGE INTRO
-             ===================================================== -->
-
-        <div class="profile-intro">
-
-            <h1>
-                My Profile
-            </h1>
-
-            <p>
-                Manage your personal information and profile photo.
-            </p>
-
-        </div>
-
-
-        <!-- =====================================================
-             PROFILE CARD
-             ===================================================== -->
-
-        <section class="profile-card">
-
-
-            <!-- =================================================
+      <section class="profile-card">
+        <!-- =================================================
                  LOADING STATE
                  ================================================= -->
 
-            <div
-                class="profile-loading"
-                id="profileLoading"
-            >
+        <div class="profile-loading" id="profileLoading">
+          <div class="loading-spinner" aria-hidden="true"></div>
 
-                <div
-                    class="loading-spinner"
-                    aria-hidden="true"
-                ></div>
+          <span id="loadingText"> Loading your profile... </span>
+        </div>
 
-                <span>
-                    Loading your profile...
-                </span>
-
-            </div>
-
-
-            <!-- =================================================
+        <!-- =================================================
                  ERROR STATE
                  ================================================= -->
 
-            <div
-                class="profile-error"
-                id="profileError"
-            >
+        <div class="profile-error" id="profileError">
+          <div class="profile-error-icon">
+            <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+          </div>
 
-                <div class="profile-error-icon">
+          <h2>Unable to load profile</h2>
 
-                    <i
-                        class="fas fa-circle-exclamation"
-                        aria-hidden="true"
-                    ></i>
+          <p id="profileErrorText">We couldn't load your profile.</p>
 
-                </div>
+          <a href="login.html?mode=login" class="button button-primary">
+            <i class="fas fa-right-to-bracket" aria-hidden="true"></i>
 
-                <h2>
-                    Unable to load profile
-                </h2>
+            Sign In
+          </a>
+        </div>
 
-                <p id="profileErrorText">
-                    We couldn't load your profile.
-                </p>
-
-                <a
-                    href="login.html?mode=login"
-                    class="button button-primary"
-                >
-
-                    <i
-                        class="fas fa-right-to-bracket"
-                        aria-hidden="true"
-                    ></i>
-
-                    Sign In
-
-                </a>
-
-            </div>
-
-
-            <!-- =================================================
+        <!-- =================================================
                  PROFILE CONTENT
                  ================================================= -->
 
-            <div
-                id="profileContent"
-                hidden
-            >
-
-
-                <!-- =============================================
-                     PROFILE HERO
-                     ============================================= -->
-
-                <div class="profile-hero">
-
-
-                    <!-- Avatar -->
-
-                    <div class="profile-avatar-wrapper">
-
-                        <div
-                            class="profile-avatar"
-                            id="profileAvatar"
-                        >
-
-                            <i
-                                class="fas fa-user"
-                                aria-hidden="true"
-                            ></i>
-
-                            <img
-                                id="profileAvatarImage"
-                                src=""
-                                alt="Profile photo"
-                            >
-
-                        </div>
-
-
-                        <button
-                            type="button"
-                            class="avatar-edit-button"
-                            id="avatarEditButton"
-                            aria-label="Change profile photo"
-                            title="Change profile photo"
-                        >
-
-                            <i
-                                class="fas fa-camera"
-                                aria-hidden="true"
-                            ></i>
-
-                        </button>
-
-                    </div>
-
-
-                    <!-- Summary -->
-
-                    <div class="profile-summary">
-
-                        <h2 id="profileName">
-                            Profile
-                        </h2>
-
-                        <p id="profileEmail">
-                            —
-                        </p>
-
-                        <span
-                            class="profile-status"
-                            id="profileStatus"
-                        >
-
-                            <i
-                                class="fas fa-circle"
-                                aria-hidden="true"
-                            ></i>
-
-                            Account active
-
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <!-- =============================================
-                     FORM
-                     ============================================= -->
-
-                <form
-                    class="profile-form"
-                    id="profileForm"
-                    novalidate
-                >
-
-
-                    <!-- Message -->
-
-                    <div
-                        class="profile-message"
-                        id="profileMessage"
-                        role="status"
-                        aria-live="polite"
-                    >
-
-                        <i
-                            class="fas fa-circle-check"
-                            aria-hidden="true"
-                        ></i>
-
-                        <span id="profileMessageText"></span>
-
-                    </div>
-
-
-                    <!-- Section -->
-
-                    <div class="section-heading">
-
-                        <h3>
-                            Personal Information
-                        </h3>
-
-                        <p>
-                            Keep your customer details up to date.
-                        </p>
-
-                    </div>
-
-
-                    <!-- Form -->
-
-                    <div class="form-grid">
-
-
-                        <!-- Name -->
-
-                        <div class="form-group">
-
-                            <label
-                                class="form-label"
-                                for="displayName"
-                            >
-                                Full Name
-                            </label>
-
-                            <input
-                                type="text"
-                                id="displayName"
-                                name="displayName"
-                                class="form-input"
-                                placeholder="Enter your full name"
-                                autocomplete="name"
-                            >
-
-                        </div>
-
-
-                        <!-- Email -->
-
-                        <div class="form-group">
-
-                            <label
-                                class="form-label"
-                                for="email"
-                            >
-                                Email Address
-                            </label>
-
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                class="form-input"
-                                placeholder="Email address"
-                                autocomplete="email"
-                                disabled
-                            >
-
-                        </div>
-
-
-                        <!-- Phone -->
-
-                        <div class="form-group">
-
-                            <label
-                                class="form-label"
-                                for="phone"
-                            >
-                                Phone Number
-                            </label>
-
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                class="form-input"
-                                placeholder="Enter your phone number"
-                                autocomplete="tel"
-                            >
-
-                        </div>
-
-
-                        <!-- Country -->
-
-                        <div class="form-group">
-
-                            <label
-                                class="form-label"
-                                for="country"
-                            >
-                                Country
-                            </label>
-
-                            <input
-                                type="text"
-                                id="country"
-                                name="country"
-                                class="form-input"
-                                placeholder="Enter your country"
-                                autocomplete="country-name"
-                            >
-
-                        </div>
-
-
-                        <!-- Address -->
-
-                        <div class="form-group full-width">
-
-                            <label
-                                class="form-label"
-                                for="address"
-                            >
-                                Address
-                            </label>
-
-                            <input
-                                type="text"
-                                id="address"
-                                name="address"
-                                class="form-input"
-                                placeholder="Enter your address"
-                                autocomplete="street-address"
-                            >
-
-                        </div>
-
-
-                        <!-- City -->
-
-                        <div class="form-group">
-
-                            <label
-                                class="form-label"
-                                for="city"
-                            >
-                                City
-                            </label>
-
-                            <input
-                                type="text"
-                                id="city"
-                                name="city"
-                                class="form-input"
-                                placeholder="Enter your city"
-                                autocomplete="address-level2"
-                            >
-
-                        </div>
-
-
-                        <!-- Postal Code -->
-
-                        <div class="form-group">
-
-                            <label
-                                class="form-label"
-                                for="postalCode"
-                            >
-                                Postal Code
-                            </label>
-
-                            <input
-                                type="text"
-                                id="postalCode"
-                                name="postalCode"
-                                class="form-input"
-                                placeholder="Enter postal code"
-                                autocomplete="postal-code"
-                            >
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =========================================
-                         ACTIONS
-                         ========================================= -->
-
-                    <div class="profile-actions">
-
-
-                        <!-- Avatar actions -->
-
-                        <div class="avatar-actions">
-
-                            <button
-                                type="button"
-                                class="button button-secondary"
-                                id="changePhotoButton"
-                            >
-
-                                <i
-                                    class="fas fa-camera"
-                                    aria-hidden="true"
-                                ></i>
-
-                                Change Photo
-
-                            </button>
-
-
-                            <button
-                                type="button"
-                                class="button button-danger"
-                                id="removePhotoButton"
-                            >
-
-                                <i
-                                    class="fas fa-trash"
-                                    aria-hidden="true"
-                                ></i>
-
-                                Remove
-
-                            </button>
-
-                        </div>
-
-
-                        <!-- Save -->
-
-                        <button
-                            type="submit"
-                            class="button button-primary save-button"
-                            id="saveProfileButton"
-                        >
-
-                            <i
-                                class="fas fa-check"
-                                aria-hidden="true"
-                            ></i>
-
-                            Save Changes
-
-                        </button>
-
-                    </div>
-
-                </form>
-
+        <div id="profileContent" hidden>
+          <div class="profile-hero">
+            <!-- Avatar -->
+
+            <div class="profile-avatar-wrapper">
+              <div class="profile-avatar" id="profileAvatar">
+                <i class="fas fa-user" aria-hidden="true"></i>
+
+                <img id="profileAvatarImage" src="" alt="Profile photo" />
+              </div>
+
+              <button
+                type="button"
+                class="avatar-edit-button"
+                id="avatarEditButton"
+                aria-label="Change profile photo"
+                title="Change profile photo"
+              >
+                <i class="fas fa-camera" aria-hidden="true"></i>
+              </button>
             </div>
 
-        </section>
+            <!-- Summary -->
 
+            <div class="profile-summary">
+              <h2 id="profileName">Profile</h2>
 
-        <!-- =====================================================
-             FOOTER
-             ===================================================== -->
+              <p id="profileEmail">—</p>
 
-        <div class="profile-footer">
+              <span class="profile-status" id="profileStatus">
+                <i class="fas fa-circle" aria-hidden="true"></i>
 
-            SneakersLink
+                Account active
+              </span>
+            </div>
+          </div>
 
+          <!-- =================================================
+                     FORM
+                     ================================================= -->
+
+          <form class="profile-form" id="profileForm" novalidate>
+            <div
+              class="profile-message"
+              id="profileMessage"
+              role="status"
+              aria-live="polite"
+            >
+              <i class="fas fa-circle-check" aria-hidden="true"></i>
+
+              <span id="profileMessageText"></span>
+            </div>
+
+            <div class="section-heading">
+              <h3>Personal Information</h3>
+
+              <p>Keep your customer details up to date.</p>
+            </div>
+
+            <div class="form-grid">
+              <!-- Name -->
+
+              <div class="form-group">
+                <label class="form-label" for="displayName"> Full Name </label>
+
+                <input
+                  type="text"
+                  id="displayName"
+                  name="displayName"
+                  class="form-input"
+                  placeholder="Enter your full name"
+                  autocomplete="name"
+                />
+              </div>
+
+              <!-- Email -->
+
+              <div class="form-group">
+                <label class="form-label" for="email"> Email Address </label>
+
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="form-input"
+                  placeholder="Email address"
+                  autocomplete="email"
+                  disabled
+                />
+              </div>
+
+              <!-- Phone -->
+
+              <div class="form-group">
+                <label class="form-label" for="phone"> Phone Number </label>
+
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  class="form-input"
+                  placeholder="Enter your phone number"
+                  autocomplete="tel"
+                />
+              </div>
+
+              <!-- Country -->
+
+              <div class="form-group">
+                <label class="form-label" for="country"> Country </label>
+
+                <input
+                  type="text"
+                  id="country"
+                  name="country"
+                  class="form-input"
+                  placeholder="Enter your country"
+                  autocomplete="country-name"
+                />
+              </div>
+
+              <!-- Address -->
+
+              <div class="form-group full-width">
+                <label class="form-label" for="address"> Address </label>
+
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  class="form-input"
+                  placeholder="Enter your address"
+                  autocomplete="street-address"
+                />
+              </div>
+
+              <!-- City -->
+
+              <div class="form-group">
+                <label class="form-label" for="city"> City </label>
+
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  class="form-input"
+                  placeholder="Enter your city"
+                  autocomplete="address-level2"
+                />
+              </div>
+
+              <!-- Postal Code -->
+
+              <div class="form-group">
+                <label class="form-label" for="postalCode"> Postal Code </label>
+
+                <input
+                  type="text"
+                  id="postalCode"
+                  name="postalCode"
+                  class="form-input"
+                  placeholder="Enter postal code"
+                  autocomplete="postal-code"
+                />
+              </div>
+            </div>
+
+            <!-- =================================================
+                         ACTIONS
+                         ================================================= -->
+
+            <div class="profile-actions">
+              <div class="avatar-actions">
+                <button
+                  type="button"
+                  class="button button-secondary"
+                  id="changePhotoButton"
+                >
+                  <i class="fas fa-camera" aria-hidden="true"></i>
+
+                  Change Photo
+                </button>
+
+                <button
+                  type="button"
+                  class="button button-danger"
+                  id="removePhotoButton"
+                  style="display: none"
+                >
+                  <i class="fas fa-trash" aria-hidden="true"></i>
+
+                  Remove
+                </button>
+              </div>
+
+              <button
+                type="submit"
+                class="button button-primary save-button"
+                id="saveProfileButton"
+              >
+                <i class="fas fa-check" aria-hidden="true"></i>
+
+                Save Changes
+              </button>
+            </div>
+          </form>
         </div>
+      </section>
 
+      <div class="profile-footer">SneakersLink</div>
     </main>
-
 
     <!-- =========================================================
          HIDDEN FILE INPUT
          ========================================================= -->
 
     <input
-        type="file"
-        id="avatarFileInput"
-        accept="image/jpeg,image/png,image/webp,image/gif"
-    >
-
+      type="file"
+      id="avatarFileInput"
+      accept="image/jpeg,image/png,image/webp,image/gif"
+    />
 
     <!-- =========================================================
          FIREBASE PROFILE ENGINE
          ========================================================= -->
 
-    <script
-        type="module"
-        src="./firebase-profile.js"
-    ></script>
-
+    <script type="module" src="./firebase-profile.js"></script>
 
     <!-- =========================================================
          PROFILE PAGE ENGINE
          ========================================================= -->
 
     <script>
+      (() => {
+        "use strict";
 
-        (() => {
-
-            "use strict";
-
-
-            /* =================================================
+        /* =================================================
                ELEMENTS
                ================================================= */
 
-            const loading =
-                document.getElementById(
-                    "profileLoading"
-                );
+        const loading = document.getElementById("profileLoading");
 
-            const errorState =
-                document.getElementById(
-                    "profileError"
-                );
+        const loadingText = document.getElementById("loadingText");
 
-            const errorText =
-                document.getElementById(
-                    "profileErrorText"
-                );
+        const errorState = document.getElementById("profileError");
 
-            const content =
-                document.getElementById(
-                    "profileContent"
-                );
+        const errorText = document.getElementById("profileErrorText");
 
+        const content = document.getElementById("profileContent");
 
-            const profileForm =
-                document.getElementById(
-                    "profileForm"
-                );
+        const profileForm = document.getElementById("profileForm");
 
+        const profileName = document.getElementById("profileName");
 
-            const profileName =
-                document.getElementById(
-                    "profileName"
-                );
+        const profileEmail = document.getElementById("profileEmail");
 
-            const profileEmail =
-                document.getElementById(
-                    "profileEmail"
-                );
+        const emailInput = document.getElementById("email");
 
+        const displayNameInput = document.getElementById("displayName");
 
-            const emailInput =
-                document.getElementById(
-                    "email"
-                );
+        const phoneInput = document.getElementById("phone");
 
-            const displayNameInput =
-                document.getElementById(
-                    "displayName"
-                );
+        const addressInput = document.getElementById("address");
 
-            const phoneInput =
-                document.getElementById(
-                    "phone"
-                );
+        const cityInput = document.getElementById("city");
 
-            const addressInput =
-                document.getElementById(
-                    "address"
-                );
+        const postalCodeInput = document.getElementById("postalCode");
 
-            const cityInput =
-                document.getElementById(
-                    "city"
-                );
+        const countryInput = document.getElementById("country");
 
-            const postalCodeInput =
-                document.getElementById(
-                    "postalCode"
-                );
+        const profileAvatar = document.getElementById("profileAvatar");
 
-            const countryInput =
-                document.getElementById(
-                    "country"
-                );
+        const profileAvatarImage =
+          document.getElementById("profileAvatarImage");
 
+        const headerProfileButton = document.getElementById(
+          "headerProfileButton",
+        );
 
-            const profileAvatar =
-                document.getElementById(
-                    "profileAvatar"
-                );
+        const headerProfileImage =
+          document.getElementById("headerProfileImage");
 
-            const profileAvatarImage =
-                document.getElementById(
-                    "profileAvatarImage"
-                );
+        const avatarFileInput = document.getElementById("avatarFileInput");
 
+        const avatarEditButton = document.getElementById("avatarEditButton");
 
-            const headerProfileButton =
-                document.getElementById(
-                    "headerProfileButton"
-                );
+        const changePhotoButton = document.getElementById("changePhotoButton");
 
-            const headerProfileImage =
-                document.getElementById(
-                    "headerProfileImage"
-                );
+        const removePhotoButton = document.getElementById("removePhotoButton");
 
+        const saveButton = document.getElementById("saveProfileButton");
 
-            const avatarFileInput =
-                document.getElementById(
-                    "avatarFileInput"
-                );
+        const message = document.getElementById("profileMessage");
 
-            const avatarEditButton =
-                document.getElementById(
-                    "avatarEditButton"
-                );
+        const messageText = document.getElementById("profileMessageText");
 
-            const changePhotoButton =
-                document.getElementById(
-                    "changePhotoButton"
-                );
+        const backButton = document.getElementById("backButton");
 
-            const removePhotoButton =
-                document.getElementById(
-                    "removePhotoButton"
-                );
-
-
-            const saveButton =
-                document.getElementById(
-                    "saveProfileButton"
-                );
-
-
-            const message =
-                document.getElementById(
-                    "profileMessage"
-                );
-
-            const messageText =
-                document.getElementById(
-                    "profileMessageText"
-                );
-
-
-            const backButton =
-                document.getElementById(
-                    "backButton"
-                );
-
-
-            /* =================================================
-               CURRENT PROFILE
+        /* =================================================
+               STATE
                ================================================= */
 
-            let currentProfile = null;
+        let currentProfile = null;
 
+        let profileLoaded = false;
 
-            /* =================================================
+        let uploadInProgress = false;
+
+        /* =================================================
                THEME
+               -------------------------------------------------
+               Supports BOTH historical SneakersLink keys:
+                   sl-theme
+                   sl_theme
                ================================================= */
 
-            function getTheme() {
+        function getSavedTheme() {
+          try {
+            const preferred = localStorage.getItem("sl-theme");
 
-                try {
-
-                    return localStorage.getItem(
-                        "sl_theme"
-                    );
-
-                } catch (error) {
-
-                    return null;
-                }
+            if (preferred === "dark" || preferred === "light") {
+              return preferred;
             }
 
+            const legacy = localStorage.getItem("sl_theme");
 
-            function applyTheme(theme) {
-
-                if (
-                    theme !== "dark" &&
-                    theme !== "light"
-                ) {
-                    return;
-                }
-
-                document.documentElement.setAttribute(
-                    "data-theme",
-                    theme
-                );
+            if (legacy === "dark" || legacy === "light") {
+              return legacy;
             }
+          } catch (error) {
+            console.warn("Unable to read saved theme.", error);
+          }
 
+          return null;
+        }
 
-            function initialiseTheme() {
+        function applyTheme(theme) {
+          if (theme !== "dark" && theme !== "light") {
+            return;
+          }
 
-                const savedTheme =
-                    getTheme();
+          document.documentElement.setAttribute("data-theme", theme);
+        }
 
-                if (
-                    savedTheme === "dark" ||
-                    savedTheme === "light"
-                ) {
+        function initialiseTheme() {
+          const savedTheme = getSavedTheme();
 
-                    applyTheme(
-                        savedTheme
-                    );
+          if (savedTheme) {
+            applyTheme(savedTheme);
 
-                    return;
-                }
+            return;
+          }
 
+          const prefersDark =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-                const prefersDark =
-                    window.matchMedia &&
-                    window.matchMedia(
-                        "(prefers-color-scheme: dark)"
-                    ).matches;
+          applyTheme(prefersDark ? "dark" : "light");
+        }
 
-                applyTheme(
-                    prefersDark
-                        ? "dark"
-                        : "light"
-                );
-            }
+        initialiseTheme();
 
+        /*
+         * Keep the page synchronized with the rest
+         * of the SneakersLink site.
+         */
 
-            initialiseTheme();
+        window.addEventListener("storage", (event) => {
+          if (event.key === "sl-theme" || event.key === "sl_theme") {
+            applyTheme(event.newValue);
+          }
+        });
 
+        /*
+         * Some site scripts change the theme in the
+         * same browser tab. Storage events do not fire
+         * in the same document, so also listen for the
+         * custom events used by common theme toggles.
+         */
 
-            /* =================================================
-               KEEP THE PROFILE PAGE IN SYNC WITH THE SITE THEME
-               ================================================= */
+        window.addEventListener("sl:themechange", (event) => {
+          const theme = event?.detail?.theme;
 
-            window.addEventListener(
-                "storage",
-                (event) => {
+          if (theme === "dark" || theme === "light") {
+            applyTheme(theme);
+          }
+        });
 
-                    if (
-                        event.key === "sl_theme"
-                    ) {
+        window.addEventListener("themechange", (event) => {
+          const theme = event?.detail?.theme || event?.detail;
 
-                        applyTheme(
-                            event.newValue
-                        );
-                    }
-                }
-            );
+          if (theme === "dark" || theme === "light") {
+            applyTheme(theme);
+          }
+        });
 
-
-            /* =================================================
+        /* =================================================
                HELPERS
                ================================================= */
 
-            function showLoading() {
+        function showLoading(text = "Loading your profile...") {
+          loading.hidden = false;
 
-                loading.hidden = false;
+          loadingText.textContent = text;
 
-                errorState.classList.remove(
-                    "show"
-                );
+          errorState.classList.remove("show");
 
-                content.hidden = true;
+          content.hidden = true;
+        }
+
+        function showContent() {
+          loading.hidden = true;
+
+          errorState.classList.remove("show");
+
+          content.hidden = false;
+
+          profileLoaded = true;
+        }
+
+        function showError(error) {
+          console.error("SneakersLink profile error:", error);
+
+          loading.hidden = true;
+
+          content.hidden = true;
+
+          errorState.classList.add("show");
+
+          let text = "We couldn't load your profile. Please try again.";
+
+          if (error && error.message) {
+            text = error.message;
+          }
+
+          errorText.textContent = text;
+        }
+
+        function showMessage(text, type = "success") {
+          message.className = "profile-message show " + type;
+
+          messageText.textContent = text;
+
+          const icon = message.querySelector("i");
+
+          if (type === "error") {
+            icon.className = "fas fa-circle-exclamation";
+          } else {
+            icon.className = "fas fa-circle-check";
+          }
+
+          clearTimeout(showMessage.timer);
+
+          showMessage.timer = setTimeout(() => {
+            message.className = "profile-message";
+          }, 4500);
+        }
+
+        /*
+         * Promise timeout helper.
+         *
+         * Prevents Firestore or Storage from leaving
+         * the UI in an endless loading state.
+         */
+
+        function withTimeout(promise, milliseconds, timeoutMessage) {
+          return Promise.race([
+            promise,
+
+            new Promise((_, reject) => {
+              setTimeout(() => {
+                reject(new Error(timeoutMessage));
+              }, milliseconds);
+            }),
+          ]);
+        }
+
+        function setButtonLoading(button, loadingState, loadingTextValue) {
+          if (!button) {
+            return;
+          }
+
+          if (loadingState) {
+            if (!button.dataset.originalText) {
+              button.dataset.originalText = button.innerHTML;
             }
 
+            button.disabled = true;
 
-            function showContent() {
-
-                loading.hidden = true;
-
-                errorState.classList.remove(
-                    "show"
-                );
-
-                content.hidden = false;
-            }
-
-
-            function showError(error) {
-
-                console.error(
-                    "SneakersLink profile error:",
-                    error
-                );
-
-                loading.hidden = true;
-
-                content.hidden = true;
-
-                errorState.classList.add(
-                    "show"
-                );
-
-
-                let text =
-                    "We couldn't load your profile. Please try again.";
-
-
-                if (
-                    error &&
-                    error.message
-                ) {
-
-                    text =
-                        error.message;
-                }
-
-
-                errorText.textContent =
-                    text;
-            }
-
-
-            function showMessage(
-                text,
-                type = "success"
-            ) {
-
-                message.className =
-                    "profile-message show " +
-                    type;
-
-                messageText.textContent =
-                    text;
-
-
-                const icon =
-                    message.querySelector(
-                        "i"
-                    );
-
-
-                if (type === "error") {
-
-                    icon.className =
-                        "fas fa-circle-exclamation";
-
-                } else {
-
-                    icon.className =
-                        "fas fa-circle-check";
-                }
-
-
-                clearTimeout(
-                    showMessage.timer
-                );
-
-
-                showMessage.timer =
-                    setTimeout(
-                        () => {
-
-                            message.className =
-                                "profile-message";
-
-                        },
-                        4500
-                    );
-            }
-
-
-            function setButtonLoading(
-                button,
-                loadingState,
-                loadingText
-            ) {
-
-                if (
-                    !button
-                ) {
-                    return;
-                }
-
-
-                if (
-                    loadingState
-                ) {
-
-                    button.dataset.originalText =
-                        button.innerHTML;
-
-                    button.disabled =
-                        true;
-
-                    button.innerHTML =
-                        `
+            button.innerHTML = `
                         <i class="fas fa-spinner fa-spin"></i>
-                        ${loadingText}
+                        ${loadingTextValue}
                         `;
+          } else {
+            button.disabled = false;
 
-                } else {
+            if (button.dataset.originalText) {
+              button.innerHTML = button.dataset.originalText;
 
-                    button.disabled =
-                        false;
-
-                    if (
-                        button.dataset.originalText
-                    ) {
-
-                        button.innerHTML =
-                            button.dataset.originalText;
-                    }
-                }
+              delete button.dataset.originalText;
             }
+          }
+        }
 
-
-            /* =================================================
+        /* =================================================
                AVATAR DISPLAY
                ================================================= */
 
-            function setAvatar(
-                photoURL
-            ) {
+        function setAvatar(photoURL) {
+          const validURL =
+            typeof photoURL === "string" && photoURL.trim() !== "";
 
-                const validURL =
-                    typeof photoURL === "string" &&
-                    photoURL.trim() !== "";
+          if (validURL) {
+            profileAvatarImage.src = photoURL;
 
+            profileAvatarImage.alt = "Profile photo";
 
-                if (validURL) {
+            profileAvatar.classList.add("has-image");
 
-                    profileAvatarImage.src =
-                        photoURL;
+            headerProfileImage.src = photoURL;
 
-                    profileAvatar.classList.add(
-                        "has-image"
-                    );
+            headerProfileImage.alt = "Profile photo";
 
+            headerProfileButton.classList.add("has-image");
 
-                    headerProfileImage.src =
-                        photoURL;
+            removePhotoButton.style.display = "inline-flex";
+          } else {
+            profileAvatarImage.removeAttribute("src");
 
-                    headerProfileButton.classList.add(
-                        "has-image"
-                    );
+            profileAvatar.classList.remove("has-image");
 
+            headerProfileImage.removeAttribute("src");
 
-                    removePhotoButton.style.display =
-                        "inline-flex";
+            headerProfileButton.classList.remove("has-image");
 
-                } else {
+            removePhotoButton.style.display = "none";
+          }
+        }
 
-                    profileAvatarImage.removeAttribute(
-                        "src"
-                    );
-
-                    profileAvatar.classList.remove(
-                        "has-image"
-                    );
-
-
-                    headerProfileImage.removeAttribute(
-                        "src"
-                    );
-
-                    headerProfileButton.classList.remove(
-                        "has-image"
-                    );
-
-
-                    removePhotoButton.style.display =
-                        "none";
-                }
-            }
-
-
-            /* =================================================
+        /* =================================================
                POPULATE PROFILE
                ================================================= */
 
-            function populateProfile(
-                profile
-            ) {
+        function populateProfile(profile) {
+          currentProfile = profile;
 
-                currentProfile =
-                    profile;
+          const name = profile?.displayName || "Profile";
 
+          const email = profile?.email || "No email available";
 
-                const name =
-                    profile.displayName ||
-                    "Profile";
+          profileName.textContent = name;
 
+          profileEmail.textContent = email;
 
-                const email =
-                    profile.email ||
-                    "No email available";
+          displayNameInput.value = profile?.displayName || "";
 
+          emailInput.value = profile?.email || "";
 
-                profileName.textContent =
-                    name;
+          phoneInput.value = profile?.phone || "";
 
+          addressInput.value = profile?.address || "";
 
-                profileEmail.textContent =
-                    email;
+          cityInput.value = profile?.city || "";
 
+          postalCodeInput.value = profile?.postalCode || "";
 
-                displayNameInput.value =
-                    profile.displayName ||
-                    "";
+          countryInput.value = profile?.country || "";
 
+          setAvatar(profile?.photoURL || "");
+        }
 
-                emailInput.value =
-                    profile.email ||
-                    "";
-
-
-                phoneInput.value =
-                    profile.phone ||
-                    "";
-
-
-                addressInput.value =
-                    profile.address ||
-                    "";
-
-
-                cityInput.value =
-                    profile.city ||
-                    "";
-
-
-                postalCodeInput.value =
-                    profile.postalCode ||
-                    "";
-
-
-                countryInput.value =
-                    profile.country ||
-                    "";
-
-
-                setAvatar(
-                    profile.photoURL ||
-                    ""
-                );
-            }
-
-
-            /* =================================================
-               LOAD PROFILE
-               ================================================= */
-
-            async function loadProfile() {
-
-                showLoading();
-
-
-                try {
-
-                    /*
-                     * Wait until firebase-profile.js has exposed
-                     * window.SLProfile.
-                     */
-
-                    if (
-                        !window.SLProfile
-                    ) {
-
-                        await waitForProfileEngine();
-                    }
-
-
-                    if (
-                        !window.SLProfile
-                    ) {
-
-                        throw new Error(
-                            "The Firebase profile engine could not be loaded."
-                        );
-                    }
-
-
-                    /*
-                     * Wait for authentication.
-                     *
-                     * This is important because Firebase Auth may
-                     * still be restoring the existing session when
-                     * the page initially loads.
-                     */
-
-                    const user =
-                        await waitForAuthenticatedUser();
-
-
-                    if (!user) {
-
-                        window.location.href =
-                            "login.html?mode=login";
-
-                        return;
-                    }
-
-
-                    const profile =
-                        await window.SLProfile.getProfile();
-
-
-                    populateProfile(
-                        profile
-                    );
-
-
-                    showContent();
-
-                } catch (error) {
-
-                    showError(
-                        error
-                    );
-                }
-            }
-
-
-            /* =================================================
+        /* =================================================
                WAIT FOR PROFILE ENGINE
                ================================================= */
 
-            function waitForProfileEngine() {
+        function waitForProfileEngine() {
+          return new Promise((resolve, reject) => {
+            if (window.SLProfile) {
+              resolve(window.SLProfile);
 
-                return new Promise(
-                    (resolve) => {
-
-                        if (
-                            window.SLProfile
-                        ) {
-
-                            resolve();
-
-                            return;
-                        }
-
-
-                        const timeout =
-                            setTimeout(
-                                () => {
-
-                                    resolve();
-
-                                },
-                                10000
-                            );
-
-
-                        window.addEventListener(
-                            "slprofile:ready",
-                            () => {
-
-                                clearTimeout(
-                                    timeout
-                                );
-
-                                resolve();
-
-                            },
-                            {
-                                once: true
-                            }
-                        );
-                    }
-                );
+              return;
             }
 
+            let finished = false;
 
-            /* =================================================
+            const cleanup = () => {
+              window.removeEventListener("slprofile:ready", readyHandler);
+
+              clearTimeout(timeout);
+            };
+
+            const readyHandler = () => {
+              if (finished) {
+                return;
+              }
+
+              finished = true;
+
+              cleanup();
+
+              if (window.SLProfile) {
+                resolve(window.SLProfile);
+              } else {
+                reject(
+                  new Error(
+                    "Firebase profile engine initialized without exposing the profile API.",
+                  ),
+                );
+              }
+            };
+
+            const timeout = setTimeout(() => {
+              if (finished) {
+                return;
+              }
+
+              finished = true;
+
+              cleanup();
+
+              reject(
+                new Error(
+                  "Firebase profile engine did not load. Check firebase-profile.js and firebase-config.js.",
+                ),
+              );
+            }, 12000);
+
+            window.addEventListener("slprofile:ready", readyHandler);
+          });
+        }
+
+        /* =================================================
                WAIT FOR AUTHENTICATED USER
+               -------------------------------------------------
+               IMPORTANT:
+               Firebase can initially report null while it
+               restores the persisted session.
+
+               Therefore a temporary null is NOT immediately
+               treated as a logged-out user.
                ================================================= */
 
-            function waitForAuthenticatedUser() {
+        function waitForAuthenticatedUser() {
+          return new Promise((resolve) => {
+            if (
+              !window.SLProfile ||
+              typeof window.SLProfile.onProfileAuthChange !== "function"
+            ) {
+              resolve(null);
 
-                return new Promise(
-                    (resolve) => {
-
-                        if (
-                            !window.SLProfile ||
-                            !window.SLProfile.onProfileAuthChange
-                        ) {
-
-                            resolve(
-                                null
-                            );
-
-                            return;
-                        }
-
-
-                        let finished =
-                            false;
-
-
-                        let unsubscribe =
-                            null;
-
-
-                        const timeout =
-                            setTimeout(
-                                () => {
-
-                                    if (
-                                        finished
-                                    ) {
-                                        return;
-                                    }
-
-
-                                    finished =
-                                        true;
-
-
-                                    if (
-                                        typeof unsubscribe ===
-                                        "function"
-                                    ) {
-
-                                        unsubscribe();
-                                    }
-
-
-                                    resolve(
-                                        window.SLProfile
-                                            .getCurrentUser()
-                                    );
-
-                                },
-                                10000
-                            );
-
-
-                        unsubscribe =
-                            window.SLProfile.onProfileAuthChange(
-                                (user) => {
-
-                                    if (
-                                        finished
-                                    ) {
-                                        return;
-                                    }
-
-
-                                    /*
-                                     * Firebase Auth normally fires
-                                     * once with the restored user.
-                                     */
-
-                                    finished =
-                                        true;
-
-
-                                    clearTimeout(
-                                        timeout
-                                    );
-
-
-                                    if (
-                                        typeof unsubscribe ===
-                                        "function"
-                                    ) {
-
-                                        unsubscribe();
-                                    }
-
-
-                                    resolve(
-                                        user
-                                    );
-
-                                }
-                            );
-                    }
-                );
+              return;
             }
 
+            let finished = false;
 
-            /* =================================================
-               UPDATE SUMMARY LIVE
+            let unsubscribe = null;
+
+            const finish = (user) => {
+              if (finished) {
+                return;
+              }
+
+              finished = true;
+
+              clearTimeout(timeout);
+
+              if (typeof unsubscribe === "function") {
+                try {
+                  unsubscribe();
+                } catch (error) {
+                  console.warn(
+                    "Unable to unsubscribe from auth listener.",
+                    error,
+                  );
+                }
+              }
+
+              resolve(user || null);
+            };
+
+            /*
+             * Give Firebase enough time to restore
+             * the existing authenticated session.
+             */
+
+            const timeout = setTimeout(() => {
+              const currentUser = window.SLProfile.getCurrentUser();
+
+              finish(currentUser);
+            }, 12000);
+
+            try {
+              unsubscribe = window.SLProfile.onProfileAuthChange((user) => {
+                /*
+                 * Do NOT finish on
+                 * temporary null.
+                 */
+
+                if (!user) {
+                  const currentUser = window.SLProfile.getCurrentUser();
+
+                  if (currentUser) {
+                    finish(currentUser);
+                  }
+
+                  return;
+                }
+
+                finish(user);
+              });
+            } catch (error) {
+              console.error("Auth listener error:", error);
+
+              finish(window.SLProfile.getCurrentUser());
+            }
+          });
+        }
+
+        /* =================================================
+               LOAD PROFILE
                ================================================= */
 
-            displayNameInput.addEventListener(
-                "input",
-                () => {
+        async function loadProfile() {
+          showLoading("Checking your account...");
 
-                    const name =
-                        displayNameInput.value.trim();
+          try {
+            /*
+             * Wait for firebase-profile.js.
+             */
 
+            await waitForProfileEngine();
 
-                    profileName.textContent =
-                        name ||
-                        "Profile";
-                }
+            if (!window.SLProfile) {
+              throw new Error(
+                "The Firebase profile engine could not be loaded.",
+              );
+            }
+
+            /*
+             * Wait for Firebase Authentication.
+             */
+
+            showLoading("Checking your account...");
+
+            const user = await waitForAuthenticatedUser();
+
+            /*
+             * Only redirect after Firebase has had
+             * enough time to restore authentication.
+             */
+
+            if (!user) {
+              window.location.href = "login.html?mode=login";
+
+              return;
+            }
+
+            /*
+             * Load Firestore profile with a hard timeout.
+             */
+
+            showLoading("Loading your profile...");
+
+            const profile = await withTimeout(
+              window.SLProfile.getProfile(),
+              15000,
+              "Your profile request timed out. Please check your Firebase connection and Firestore configuration.",
             );
 
+            populateProfile(profile);
 
-            /* =================================================
+            /*
+             * Profile is fully rendered BEFORE the
+             * loading state is removed.
+             */
+
+            showContent();
+          } catch (error) {
+            showError(error);
+          }
+        }
+
+        /* =================================================
+               LIVE NAME UPDATE
+               ================================================= */
+
+        displayNameInput.addEventListener("input", () => {
+          const name = displayNameInput.value.trim();
+
+          profileName.textContent = name || "Profile";
+        });
+
+        /* =================================================
                OPEN FILE PICKER
                ================================================= */
 
-            function openFilePicker() {
+        function openFilePicker() {
+          if (uploadInProgress) {
+            return;
+          }
 
-                avatarFileInput.click();
-            }
+          avatarFileInput.click();
+        }
 
+        avatarEditButton.addEventListener("click", openFilePicker);
 
-            avatarEditButton.addEventListener(
-                "click",
-                openFilePicker
-            );
+        changePhotoButton.addEventListener("click", openFilePicker);
 
-
-            changePhotoButton.addEventListener(
-                "click",
-                openFilePicker
-            );
-
-
-            /* =================================================
+        /* =================================================
                AVATAR UPLOAD
                ================================================= */
 
-            avatarFileInput.addEventListener(
-                "change",
-                async () => {
+        avatarFileInput.addEventListener("change", async () => {
+          const file = avatarFileInput.files?.[0];
 
-                    const file =
-                        avatarFileInput.files?.[0];
+          if (!file) {
+            return;
+          }
 
+          if (uploadInProgress) {
+            return;
+          }
 
-                    if (!file) {
+          uploadInProgress = true;
 
-                        return;
-                    }
+          try {
+            /*
+             * Client-side validation.
+             */
 
+            if (!file.type || !file.type.startsWith("image/")) {
+              throw new Error("Please select a valid image file.");
+            }
 
-                    try {
+            const maxSize = 5 * 1024 * 1024;
 
-                        setButtonLoading(
-                            changePhotoButton,
-                            true,
-                            "Uploading..."
-                        );
+            if (file.size > maxSize) {
+              throw new Error("Profile images must be smaller than 5 MB.");
+            }
 
+            /*
+             * Disable all avatar actions while
+             * upload is running.
+             */
 
-                        avatarEditButton.disabled =
-                            true;
+            setButtonLoading(changePhotoButton, true, "Uploading...");
 
+            avatarEditButton.disabled = true;
 
-                        const downloadURL =
-                            await window.SLProfile.uploadAvatar(
-                                file
-                            );
+            removePhotoButton.disabled = true;
 
+            /*
+             * Upload with timeout.
+             *
+             * This is important because the old
+             * implementation could remain at
+             * "Uploading..." indefinitely if Storage
+             * was unavailable or blocked by rules.
+             */
 
-                        /*
-                         * Immediately update the UI.
-                         */
-
-                        setAvatar(
-                            downloadURL
-                        );
-
-
-                        if (
-                            currentProfile
-                        ) {
-
-                            currentProfile.photoURL =
-                                downloadURL;
-                        }
-
-
-                        showMessage(
-                            "Profile photo updated successfully."
-                        );
-
-                    } catch (error) {
-
-                        console.error(
-                            "Avatar upload error:",
-                            error
-                        );
-
-
-                        showMessage(
-                            error?.message ||
-                            "Unable to upload your profile photo.",
-                            "error"
-                        );
-
-                    } finally {
-
-                        setButtonLoading(
-                            changePhotoButton,
-                            false
-                        );
-
-
-                        avatarEditButton.disabled =
-                            false;
-
-
-                        /*
-                         * Reset the file input so the same
-                         * image can be selected again.
-                         */
-
-                        avatarFileInput.value =
-                            "";
-                    }
-                }
+            const downloadURL = await withTimeout(
+              window.SLProfile.uploadAvatar(file),
+              30000,
+              "Profile photo upload timed out. Please check your Firebase Storage configuration and try again.",
             );
 
+            if (!downloadURL) {
+              throw new Error(
+                "Firebase uploaded the image but did not return a download URL.",
+              );
+            }
 
-            /* =================================================
+            /*
+             * Update UI immediately.
+             */
+
+            setAvatar(downloadURL);
+
+            if (currentProfile) {
+              currentProfile.photoURL = downloadURL;
+            }
+
+            showMessage("Profile photo updated successfully.");
+          } catch (error) {
+            console.error("Avatar upload error:", error);
+
+            let errorMessage =
+              error?.message || "Unable to upload your profile photo.";
+
+            /*
+             * Make Firebase Storage errors
+             * easier for the customer to understand.
+             */
+
+            if (error?.code === "storage/unauthorized") {
+              errorMessage =
+                "Photo upload was denied by Firebase Storage rules. Please check your Storage security rules.";
+            } else if (error?.code === "storage/unauthenticated") {
+              errorMessage =
+                "Your Firebase session has expired. Please sign in again.";
+            } else if (error?.code === "storage/quota-exceeded") {
+              errorMessage = "Firebase Storage quota has been exceeded.";
+            } else if (error?.code === "storage/canceled") {
+              errorMessage = "The profile photo upload was canceled.";
+            }
+
+            showMessage(errorMessage, "error");
+          } finally {
+            uploadInProgress = false;
+
+            setButtonLoading(changePhotoButton, false);
+
+            avatarEditButton.disabled = false;
+
+            removePhotoButton.disabled = false;
+
+            /*
+             * Reset file input so the same image
+             * can be selected again.
+             */
+
+            avatarFileInput.value = "";
+          }
+        });
+
+        /* =================================================
                REMOVE AVATAR
                ================================================= */
 
-            removePhotoButton.addEventListener(
-                "click",
-                async () => {
+        removePhotoButton.addEventListener("click", async () => {
+          if (uploadInProgress) {
+            return;
+          }
 
-                    if (
-                        !currentProfile?.photoURL
-                    ) {
+          if (!currentProfile?.photoURL) {
+            return;
+          }
 
-                        return;
-                    }
+          const confirmed = window.confirm("Remove your profile photo?");
 
+          if (!confirmed) {
+            return;
+          }
 
-                    const confirmed =
-                        window.confirm(
-                            "Remove your profile photo?"
-                        );
+          try {
+            setButtonLoading(removePhotoButton, true, "Removing...");
 
+            avatarEditButton.disabled = true;
 
-                    if (!confirmed) {
+            changePhotoButton.disabled = true;
 
-                        return;
-                    }
-
-
-                    try {
-
-                        setButtonLoading(
-                            removePhotoButton,
-                            true,
-                            "Removing..."
-                        );
-
-
-                        await window.SLProfile.deleteAvatar();
-
-
-                        setAvatar(
-                            ""
-                        );
-
-
-                        if (
-                            currentProfile
-                        ) {
-
-                            currentProfile.photoURL =
-                                "";
-                        }
-
-
-                        showMessage(
-                            "Profile photo removed."
-                        );
-
-                    } catch (error) {
-
-                        console.error(
-                            "Avatar removal error:",
-                            error
-                        );
-
-
-                        showMessage(
-                            error?.message ||
-                            "Unable to remove your profile photo.",
-                            "error"
-                        );
-
-                    } finally {
-
-                        setButtonLoading(
-                            removePhotoButton,
-                            false
-                        );
-                    }
-                }
+            await withTimeout(
+              window.SLProfile.deleteAvatar(),
+              20000,
+              "Removing the profile photo timed out. Please try again.",
             );
 
+            setAvatar("");
 
-            /* =================================================
+            if (currentProfile) {
+              currentProfile.photoURL = "";
+            }
+
+            showMessage("Profile photo removed.");
+          } catch (error) {
+            console.error("Avatar removal error:", error);
+
+            let errorMessage =
+              error?.message || "Unable to remove your profile photo.";
+
+            if (error?.code === "storage/unauthorized") {
+              errorMessage =
+                "Photo removal was denied by Firebase Storage rules. Please check your Storage security rules.";
+            }
+
+            showMessage(errorMessage, "error");
+          } finally {
+            setButtonLoading(removePhotoButton, false);
+
+            avatarEditButton.disabled = false;
+
+            changePhotoButton.disabled = false;
+          }
+        });
+
+        /* =================================================
                SAVE PROFILE
                ================================================= */
 
-            profileForm.addEventListener(
-                "submit",
-                async (event) => {
+        profileForm.addEventListener("submit", async (event) => {
+          event.preventDefault();
 
-                    event.preventDefault();
+          try {
+            setButtonLoading(saveButton, true, "Saving...");
 
+            const fields = {
+              displayName: displayNameInput.value,
 
-                    try {
+              phone: phoneInput.value,
 
-                        setButtonLoading(
-                            saveButton,
-                            true,
-                            "Saving..."
-                        );
+              address: addressInput.value,
 
+              city: cityInput.value,
 
-                        const fields = {
+              postalCode: postalCodeInput.value,
 
-                            displayName:
-                                displayNameInput.value,
+              country: countryInput.value,
+            };
 
-                            phone:
-                                phoneInput.value,
-
-                            address:
-                                addressInput.value,
-
-                            city:
-                                cityInput.value,
-
-                            postalCode:
-                                postalCodeInput.value,
-
-                            country:
-                                countryInput.value
-                        };
-
-
-                        const updatedProfile =
-                            await window.SLProfile.updateProfile(
-                                fields
-                            );
-
-
-                        populateProfile(
-                            updatedProfile
-                        );
-
-
-                        showMessage(
-                            "Your profile has been saved successfully."
-                        );
-
-                    } catch (error) {
-
-                        console.error(
-                            "Profile update error:",
-                            error
-                        );
-
-
-                        showMessage(
-                            error?.message ||
-                            "Unable to save your profile.",
-                            "error"
-                        );
-
-                    } finally {
-
-                        setButtonLoading(
-                            saveButton,
-                            false
-                        );
-                    }
-                }
+            const updatedProfile = await withTimeout(
+              window.SLProfile.updateProfile(fields),
+              15000,
+              "Saving your profile timed out. Please check your connection and try again.",
             );
 
+            populateProfile(updatedProfile);
 
-            /* =================================================
+            showMessage("Your profile has been saved successfully.");
+          } catch (error) {
+            console.error("Profile update error:", error);
+
+            showMessage(
+              error?.message || "Unable to save your profile.",
+              "error",
+            );
+          } finally {
+            setButtonLoading(saveButton, false);
+          }
+        });
+
+        /* =================================================
                BACK BUTTON
                ================================================= */
 
-            backButton.addEventListener(
-                "click",
-                () => {
+        backButton.addEventListener("click", () => {
+          if (window.history.length > 1) {
+            window.history.back();
+          } else {
+            window.location.href = "index.html";
+          }
+        });
 
-                    /*
-                     * Prefer browser history so the user returns
-                     * to the exact page they came from.
-                     */
-
-                    if (
-                        window.history.length > 1
-                    ) {
-
-                        window.history.back();
-
-                    } else {
-
-                        window.location.href =
-                            "index.html";
-                    }
-                }
-            );
-
-
-            /* =================================================
+        /* =================================================
                HEADER PROFILE BUTTON
                ================================================= */
 
-            headerProfileButton.addEventListener(
-                "click",
-                () => {
+        headerProfileButton.addEventListener("click", () => {
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        });
 
-                    window.scrollTo({
-                        top: 0,
-                        behavior: "smooth"
-                    });
-                }
-            );
-
-
-            /* =================================================
+        /* =================================================
                INITIALISE
                ================================================= */
 
-            loadProfile();
-
-
-        })();
-
+        loadProfile();
+      })();
     </script>
-
-</body>
-
+  </body>
 </html>
