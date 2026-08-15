@@ -55,57 +55,16 @@ let db = null;
 let auth = null;
 let storage = null;
 
-if (isConfigured) {
-  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+try {
+  if (isConfigured) {
+    app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-  db = getFirestore(app);
-  auth = getAuth(app);
-  storage = getStorage(app);
-}
-
-/* =========================================================
-   AUTH STATE
-   ---------------------------------------------------------
-   IMPORTANT:
-   Firebase Auth can take a short time to restore the
-   existing browser session.
-
-   We keep the latest user and expose a Promise that resolves
-   exactly once when Firebase has completed its initial
-   auth-state check.
-   ========================================================= */
-
-let currentAuthUser = null;
-let authInitialised = false;
-
-let resolveAuthReady;
-
-const authReadyPromise = new Promise((resolve) => {
-  resolveAuthReady = resolve;
-});
-
-if (auth) {
-  onAuthStateChanged(auth, (user) => {
-    currentAuthUser = user || null;
-
-    /*
-     * This callback is also Firebase's confirmation that
-     * the initial authentication state has been resolved.
-     */
-    if (!authInitialised) {
-      authInitialised = true;
-
-      resolveAuthReady(currentAuthUser);
-    }
-  });
-} else {
-  /*
-   * Firebase is not configured.
-   * Resolve immediately so the page cannot remain
-   * stuck waiting forever.
-   */
-  authInitialised = true;
-  resolveAuthReady(null);
+    db = getFirestore(app);
+    auth = getAuth(app);
+    storage = getStorage(app);
+  }
+} catch (error) {
+  console.error("SneakersLink Firebase initialization error:", error);
 }
 
 /* =========================================================
@@ -115,6 +74,10 @@ if (auth) {
 function requireFirebase() {
   if (!isConfigured) {
     throw new Error("Firebase isn't configured. Check firebase-config.js.");
+  }
+
+  if (!app || !db || !auth) {
+    throw new Error("Firebase failed to initialize. Check firebase-config.js.");
   }
 }
 
@@ -131,15 +94,7 @@ function getCurrentUser() {
     return null;
   }
 
-  return auth.currentUser || currentAuthUser || null;
-}
-
-/*
- * Wait until Firebase has completed its initial
- * authentication-state check.
- */
-async function waitForAuthReady() {
-  return authReadyPromise;
+  return auth.currentUser || null;
 }
 
 function requireUser() {
@@ -157,12 +112,7 @@ function requireUser() {
 /* =========================================================
    PROFILE REFERENCE
    ---------------------------------------------------------
-   MUST MATCH FIRESTORE RULES:
-
-       match /users/{userId}
-
-   Therefore:
-
+   Firestore:
        users/{uid}
    ========================================================= */
 
@@ -241,12 +191,6 @@ function normaliseProfile(data, user) {
    ========================================================= */
 
 async function getProfile() {
-  /*
-   * Make absolutely sure Firebase has finished restoring
-   * the authentication session before reading currentUser.
-   */
-  await waitForAuthReady();
-
   const user = requireUser();
 
   const profileRef = getProfileRef(user.uid);
@@ -278,8 +222,6 @@ async function getProfile() {
    ========================================================= */
 
 async function updateProfile(fields = {}) {
-  await waitForAuthReady();
-
   const user = requireUser();
 
   const allowedFields = [
@@ -311,11 +253,6 @@ async function updateProfile(fields = {}) {
     await updateAuthProfile(user, {
       displayName: updates.displayName,
     });
-
-    /*
-     * Keep our cached user object synchronised.
-     */
-    currentAuthUser = auth.currentUser || user;
   }
 
   updates.updatedAt = serverTimestamp();
@@ -354,8 +291,6 @@ function validateAvatar(file) {
    ========================================================= */
 
 async function uploadAvatar(file) {
-  await waitForAuthReady();
-
   const user = requireUser();
 
   validateAvatar(file);
@@ -364,15 +299,7 @@ async function uploadAvatar(file) {
     throw new Error("Firebase Storage is not available.");
   }
 
-  /* -------------------------------------------------------
-     Storage location
-     ------------------------------------------------------- */
-
   const avatarRef = ref(storage, `profile-images/${user.uid}/avatar`);
-
-  /* -------------------------------------------------------
-     Upload
-     ------------------------------------------------------- */
 
   const snapshot = await uploadBytes(avatarRef, file, {
     contentType: file.type,
@@ -380,29 +307,11 @@ async function uploadAvatar(file) {
     cacheControl: "public,max-age=3600",
   });
 
-  /* -------------------------------------------------------
-     Get download URL
-     ------------------------------------------------------- */
-
   const downloadURL = await getDownloadURL(snapshot.ref);
-
-  /* -------------------------------------------------------
-     Update Firebase Authentication
-     ------------------------------------------------------- */
 
   await updateAuthProfile(user, {
     photoURL: downloadURL,
   });
-
-  /* -------------------------------------------------------
-     Update cached user
-     ------------------------------------------------------- */
-
-  currentAuthUser = auth.currentUser || user;
-
-  /* -------------------------------------------------------
-     Update Firestore
-     ------------------------------------------------------- */
 
   const profileRef = getProfileRef(user.uid);
 
@@ -426,8 +335,6 @@ async function uploadAvatar(file) {
    ========================================================= */
 
 async function deleteAvatar() {
-  await waitForAuthReady();
-
   const user = requireUser();
 
   if (!storage) {
@@ -444,19 +351,9 @@ async function deleteAvatar() {
     }
   }
 
-  /* -------------------------------------------------------
-     Clear Firebase Auth photo
-     ------------------------------------------------------- */
-
   await updateAuthProfile(user, {
     photoURL: null,
   });
-
-  currentAuthUser = auth.currentUser || user;
-
-  /* -------------------------------------------------------
-     Clear Firestore photo
-     ------------------------------------------------------- */
 
   const profileRef = getProfileRef(user.uid);
 
@@ -476,7 +373,11 @@ async function deleteAvatar() {
 }
 
 /* =========================================================
-   AUTH CHANGE LISTENER
+   AUTH STATE
+   ---------------------------------------------------------
+   IMPORTANT:
+   - Does not artificially delay an already restored user.
+   - Always exposes the actual Firebase auth state.
    ========================================================= */
 
 function onProfileAuthChange(callback) {
@@ -487,10 +388,9 @@ function onProfileAuthChange(callback) {
   }
 
   return onAuthStateChanged(auth, (user) => {
-    currentAuthUser = user || null;
-
     if (!user) {
       callback(null);
+
       return;
     }
 
@@ -516,8 +416,6 @@ window.SLProfile = {
   isConfigured,
 
   getCurrentUser,
-
-  waitForAuthReady,
 
   getProfile,
 
