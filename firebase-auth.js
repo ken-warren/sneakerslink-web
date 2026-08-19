@@ -216,9 +216,16 @@ function getFriendlyAuthError(
    ========================================================= */
 
 /**
- * Creates:
+ * Creates / bootstraps:
  *
- * customers/{uid}
+ * users/{uid}
+ *
+ * This is the SAME Firestore document that firebase-profile.js
+ * (the profile page) reads and updates. Keeping the collection
+ * name in sync between the two modules is required — a prior
+ * version of this function wrote to a separate "customers/{uid}"
+ * collection that nothing else in the app ever read, which meant
+ * profile data (phone/address/city/etc.) never appeared here.
  *
  * The function uses merge:true so it does not overwrite
  * existing profile information.
@@ -238,7 +245,7 @@ async function createCustomerProfile(
   const profileRef =
     doc(
       db,
-      "customers",
+      "users",
       user.uid
     );
 

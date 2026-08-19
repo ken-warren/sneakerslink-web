@@ -227,9 +227,21 @@
         main { padding: 20px 14px 50px; }
         .order-card-head { flex-direction: column; }
     }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 </style>
 
 <body>
+    <h1 class="sr-only">Admin Dashboard | SneakersLink</h1>
 
     <header class="admin-bar">
         <div class="brand">SNEAKERS<span>LINK</span> · Admin</div>
@@ -267,15 +279,28 @@
             <form id="signInForm" novalidate>
                 <div class="input-field">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" id="adminEmail" placeholder="Email" autocomplete="username" required>
+                    <input type="email" id="adminEmail" placeholder="Email" aria-label="Admin email" autocomplete="username" required>
                 </div>
                 <div class="input-field">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="adminPassword" placeholder="Password" autocomplete="current-password" required>
+                    <input type="password" id="adminPassword" placeholder="Password" aria-label="Admin password" autocomplete="current-password" required>
                 </div>
                 <span class="error-msg" id="signInError"></span>
                 <button type="submit" class="submit-btn" id="signInBtn">Sign In</button>
             </form>
+        </div>
+
+        <!-- Signed in, but not an authorized admin -->
+        <div class="state-card" id="accessDeniedState" hidden>
+            <i class="fas fa-exclamation-triangle big"></i>
+            <h2>This account isn't an admin</h2>
+            <p>
+                You're signed in, but this Firebase account isn't on the admin
+                allow-list, so order data won't be shown. If this should be an
+                admin account, add a document for it in the Firebase console
+                under <strong>Firestore → admins → (this account's UID)</strong>.
+            </p>
+            <button type="button" class="submit-btn" id="accessDeniedSignOutBtn">Sign Out</button>
         </div>
 
         <!-- Signed-in dashboard -->
@@ -297,8 +322,27 @@
         (function () {
             const $ = (s) => document.querySelector(s);
 
+            // Order data (item names/sizes, order IDs) ultimately comes
+            // from a customer's cart, which lives in their own browser's
+            // localStorage — nothing stops it from containing arbitrary
+            // HTML. firebase-orders.js's cleanText() only trims/truncates,
+            // it does not strip HTML. Every piece of order data rendered
+            // below MUST go through this before being placed in innerHTML,
+            // or a manipulated cart item name becomes stored XSS that runs
+            // in this authenticated admin session.
+            function escapeHtml(value) {
+                return String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    '"': "&quot;",
+                    "'": "&#39;",
+                }[ch]));
+            }
+
             const notConfiguredState = $("#notConfiguredState");
             const signInState = $("#signInState");
+            const accessDeniedState = $("#accessDeniedState");
             const dashboard = $("#dashboard");
             const whoBar = $("#whoBar");
             const whoEmail = $("#whoEmail");
@@ -312,6 +356,7 @@
             function showState(state) {
                 notConfiguredState.hidden = state !== "not-configured";
                 signInState.hidden = state !== "signed-out";
+                accessDeniedState.hidden = state !== "access-denied";
                 dashboard.hidden = state !== "signed-in";
                 whoBar.hidden = state !== "signed-in";
             }
@@ -342,27 +387,27 @@
                     const placedStr = placedMs ? new Date(placedMs).toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short" }) : "—";
                     const updatedStr = updatedMs ? new Date(updatedMs).toLocaleString("en-KE", { dateStyle: "medium", timeStyle: "short" }) : "";
 
-                    const itemsStr = o.items.map((i) => `${i.name}${i.size ? ` (Size ${i.size})` : ""} × ${i.qty}`).join(", ");
+                    const itemsStr = o.items.map((i) => `${escapeHtml(i.name)}${i.size ? ` (Size ${escapeHtml(i.size)})` : ""} × ${escapeHtml(i.qty)}`).join(", ");
 
                     const optionsHtml = stages.map((s) =>
-                        `<option value="${s.key}" ${o.status === s.key ? "selected" : ""}>${s.label}</option>`
+                        `<option value="${escapeHtml(s.key)}" ${o.status === s.key ? "selected" : ""}>${escapeHtml(s.label)}</option>`
                     ).join("");
 
                     return `
-                        <div class="order-card" data-id="${o.id}">
+                        <div class="order-card" data-id="${escapeHtml(o.id)}">
                             <div class="order-card-head">
                                 <div>
-                                    <div class="order-id">${o.id}</div>
-                                    <div class="order-date">Placed ${placedStr}</div>
+                                    <div class="order-id">${escapeHtml(o.id)}</div>
+                                    <div class="order-date">Placed ${escapeHtml(placedStr)}</div>
                                 </div>
-                                <div class="order-total">${money(o.total)}</div>
+                                <div class="order-total">${escapeHtml(money(o.total))}</div>
                             </div>
                             <div class="order-items">${itemsStr}</div>
                             <div class="order-footer">
-                                <select class="status-select status-badge--${o.status}" data-id="${o.id}">
+                                <select class="status-select status-badge--${escapeHtml(o.status)}" data-id="${escapeHtml(o.id)}" aria-label="Update status for order ${escapeHtml(o.id)}">
                                     ${optionsHtml}
                                 </select>
-                                <span class="order-updated">${updatedStr ? "Updated " + updatedStr : ""}</span>
+                                <span class="order-updated">${updatedStr ? "Updated " + escapeHtml(updatedStr) : ""}</span>
                             </div>
                         </div>
                     `;
@@ -400,15 +445,33 @@
                     return;
                 }
 
-                window.SLOrders.onAdminAuthChange((user) => {
-                    if (user) {
-                        whoEmail.textContent = user.email;
-                        showState("signed-in");
-                        watchOrders();
-                    } else {
-                        if (ordersUnsubscribe) { ordersUnsubscribe(); ordersUnsubscribe = null; }
+                window.SLOrders.onAdminAuthChange(async (user) => {
+                    if (ordersUnsubscribe) { ordersUnsubscribe(); ordersUnsubscribe = null; }
+
+                    if (!user) {
                         showState("signed-out");
+                        return;
                     }
+
+                    // Being signed in only proves this is a valid Firebase
+                    // Authentication account — customers can create their own
+                    // from login.html. Check the admin allow-list before
+                    // showing any order data.
+                    let authorized = false;
+                    try {
+                        authorized = await window.SLOrders.isAdminUser(user.uid);
+                    } catch (err) {
+                        console.error("Admin role check failed:", err);
+                    }
+
+                    if (!authorized) {
+                        showState("access-denied");
+                        return;
+                    }
+
+                    whoEmail.textContent = user.email;
+                    showState("signed-in");
+                    watchOrders();
                 });
             }
 
@@ -438,6 +501,10 @@
             });
 
             $("#signOutBtn").addEventListener("click", async () => {
+                await window.SLOrders.adminSignOut();
+            });
+
+            $("#accessDeniedSignOutBtn").addEventListener("click", async () => {
                 await window.SLOrders.adminSignOut();
             });
 

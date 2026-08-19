@@ -135,7 +135,8 @@ nav ul li a {
   color: var(--text);
   padding: 7px 13px;
   border-radius: 3px;
-  transition: 0.3s ease;
+  transition: color 0.3s ease;
+  position: relative;
 }
 
 a:hover,
@@ -143,15 +144,29 @@ a.active {
   color: #08813a;
 }
 
+/* underline sweeps in from the left rather than snapping into
+   place — a small touch that makes hover feel intentional */
+nav ul li a::after {
+  content: "";
+  position: absolute;
+  left: 13px;
+  right: 13px;
+  bottom: 6px;
+
+  height: 2px;
+
+  background: #088178;
+  border-radius: 2px;
+
+  transform: scaleX(0);
+  transform-origin: left;
+
+  transition: transform 0.35s var(--ease);
+}
+
 nav ul a.active::after,
 nav ul a:hover::after {
-  content: "";
-  width: 30%;
-  height: 2px;
-  background: #088178;
-  position: absolute;
-  bottom: 25px;
-  left: 20px;
+  transform: scaleX(1);
 }
 
 .navbutton {
@@ -364,6 +379,100 @@ nav ul a:hover::after {
   color: var(--brand);
 }
 
+/* ---------------------------------------------------------
+   PRODUCT GRID — 2 columns on smaller screens
+
+   The base layout above relies on flex-wrap with a fixed
+   min-width per card, which is great on desktop but forces a
+   single column once the viewport can no longer fit two
+   250px cards side by side — roughly anything below tablet
+   width. We deliberately switch to CSS Grid at that point:
+   grid gives us two fluid, equal-width columns that never
+   overflow, so the product wall stays a wall instead of
+   collapsing into a long single-file list on phones.
+   --------------------------------------------------------- */
+
+@media (max-width: 700px) {
+
+  #sneakers1 .pro-container, #sneakers2 .pro-container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: unset;
+    column-gap: 14px;
+    row-gap: 20px;
+  }
+
+  #sneakers1 .pro, #sneakers2 .pro {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 10px 10px 14px;
+    border-radius: 18px;
+  }
+
+  #sneakers1 .pro img, #sneakers2 .pro img {
+    width: 100%;
+    height: auto;
+    border-radius: 14px;
+  }
+
+  #sneakers1 .pro .des span, #sneakers2 .pro .des span {
+    font-size: 11px;
+  }
+
+  #sneakers1 .pro .des h5, #sneakers2 .pro .des h5 {
+    font-size: 13px;
+    line-height: 1.35;
+
+    /* keep two-column card titles tidy even on longer product names */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  #sneakers1 .pro .des h4, #sneakers2 .pro .des h4 {
+    font-size: 14px;
+  }
+
+  #sneakers1 .pro .add-cart-btn, #sneakers2 .pro .add-cart-btn {
+    width: 34px;
+    height: 34px;
+    top: 10px;
+    right: 10px;
+  }
+
+  #sneakers1 .pro .add-cart-btn i, #sneakers2 .pro .add-cart-btn i {
+    font-size: 13px;
+  }
+
+}
+
+/* Tighten spacing further on very narrow phones so two columns
+   never feel cramped or risk overflowing */
+
+@media (max-width: 360px) {
+
+  #sneakers1 .pro-container, #sneakers2 .pro-container {
+    column-gap: 10px;
+    row-gap: 16px;
+  }
+
+  #sneakers1 .pro, #sneakers2 .pro {
+    padding: 8px 8px 12px;
+    border-radius: 14px;
+  }
+
+  #sneakers1 .pro .des h5, #sneakers2 .pro .des h5 {
+    font-size: 12px;
+  }
+
+  #sneakers1 .pro .des h4, #sneakers2 .pro .des h4 {
+    font-size: 13px;
+  }
+
+}
+
 /* =========================================================
    MINIMAL PREMIUM PROMOTIONAL BANNER
    ========================================================= */
@@ -499,6 +608,240 @@ nav ul a:hover::after {
 
 #banner .banner-cta:hover i {
   transform: translateX(4px);
+}
+
+/* =====================================================
+   FPL MINI-LEAGUE PROMO
+   ===================================================== */
+
+#fpl-promo {
+  width: 100%;
+  margin: 70px 0;
+}
+
+#fpl-promo .fpl-card {
+  position: relative;
+
+  display: flex;
+  align-items: stretch;
+
+  width: 100%;
+  min-height: 460px;
+
+  margin: 0 auto;
+
+  background: #0d0d0d;
+  border-radius: 6px;
+
+  overflow: hidden;
+}
+
+/* Visual side */
+
+#fpl-promo .fpl-visual {
+  position: relative;
+
+  flex: 0 0 42%;
+
+  min-height: 100%;
+
+  overflow: hidden;
+}
+
+#fpl-promo .fpl-visual img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Content side */
+
+#fpl-promo .fpl-content {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 50px 55px;
+}
+
+#fpl-promo .fpl-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  width: fit-content;
+
+  margin-bottom: 18px;
+
+  color: #3ddc84;
+
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+#fpl-promo h2 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: clamp(30px, 3.6vw, 44px);
+  line-height: 1.12;
+  font-weight: 600;
+  letter-spacing: -1px;
+}
+
+#fpl-promo .fpl-content p {
+  margin: 20px 0 24px;
+
+  max-width: 480px;
+
+  color: rgba(255, 255, 255, 0.72);
+
+  font-size: 14.5px;
+  line-height: 1.75;
+}
+
+#fpl-promo .fpl-content p strong {
+  color: #ffffff;
+}
+
+#fpl-promo .fpl-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  margin: 0 0 28px;
+  padding: 0;
+
+  list-style: none;
+}
+
+#fpl-promo .fpl-details li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  color: rgba(255, 255, 255, 0.85);
+
+  font-size: 13.5px;
+}
+
+#fpl-promo .fpl-details li i {
+  width: 16px;
+
+  color: #3ddc84;
+
+  font-size: 13px;
+  text-align: center;
+}
+
+#fpl-promo .fpl-code-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  width: fit-content;
+
+  margin-bottom: 26px;
+  padding: 10px 18px;
+
+  background: rgba(61, 220, 132, 0.08);
+  border: 1px dashed rgba(61, 220, 132, 0.45);
+  border-radius: 4px;
+}
+
+#fpl-promo .fpl-code-label {
+  color: rgba(255, 255, 255, 0.55);
+
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+#fpl-promo .fpl-code-value {
+  color: #3ddc84;
+
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+#fpl-promo .fpl-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  width: fit-content;
+
+  padding: 14px 24px;
+
+  background: #3ddc84;
+  color: #0d0d0d;
+
+  border-radius: 4px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  text-decoration: none;
+
+  transition:
+    transform 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+#fpl-promo .fpl-cta i {
+  font-size: 11px;
+  transition: transform 0.25s ease;
+}
+
+#fpl-promo .fpl-cta:hover {
+  background: #ffffff;
+  color: #0d0d0d;
+
+  transform: translateY(-2px);
+}
+
+#fpl-promo .fpl-cta:hover i {
+  transform: translateX(4px);
+}
+
+@media (max-width: 870px) {
+  #fpl-promo .fpl-card {
+    flex-direction: column;
+  }
+
+  #fpl-promo .fpl-visual {
+    flex: 0 0 320px;
+  }
+
+  #fpl-promo .fpl-content {
+    padding: 40px 30px;
+  }
+}
+
+@media (max-width: 550px) {
+  #fpl-promo .fpl-visual {
+    flex-basis: 260px;
+  }
+
+  #fpl-promo .fpl-content {
+    padding: 34px 22px;
+  }
+
+  #fpl-promo .fpl-details li {
+    font-size: 13px;
+  }
 }
 
 /*NEWSLETTER*/
@@ -871,6 +1214,89 @@ nav ul a:hover::after {
 
 .footer-bottom-links a:hover {
   color: #088178;
+}
+
+
+/* =========================================================
+   RESPONSIVE FOOTER
+   ---------------------------------------------------------
+   .footer-main's 5-column grid and .footer-bottom's row
+   layout had no responsive overrides anywhere in this file.
+   CSS Grid/Flex items default to a content-based minimum
+   width, so below desktop/laptop widths the columns could
+   not shrink enough to fit and forced the footer wider than
+   the viewport. Breakpoints below match the ones already
+   used elsewhere in this stylesheet (952px, 780px, 550px,
+   360px) for consistency.
+   ========================================================= */
+
+@media (max-width: 952px) {
+  .footer-main {
+    grid-template-columns: 1fr 1fr;
+    padding: 55px 40px 40px;
+    gap: 40px 30px;
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+    max-width: none;
+  }
+
+  .footer-app {
+    grid-column: 1 / -1;
+  }
+
+  .footer-bottom {
+    padding: 20px 40px;
+  }
+}
+
+@media (max-width: 780px) {
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .footer-bottom-links {
+    flex-wrap: wrap;
+    gap: 14px 22px;
+  }
+}
+
+@media (max-width: 550px) {
+  .footer-main {
+    grid-template-columns: 1fr;
+    padding: 45px 24px 30px;
+    gap: 32px;
+  }
+
+  .footer-brand,
+  .footer-app {
+    grid-column: auto;
+  }
+
+  .footer-bottom {
+    padding: 18px 24px;
+  }
+
+  .footer-app-links {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 360px) {
+  .footer-main {
+    padding: 35px 16px 24px;
+  }
+
+  .footer-bottom {
+    padding: 16px 16px;
+  }
+
+  .footer-app-links img {
+    width: 110px;
+  }
 }
 
 /* SHOP PAGE */
@@ -1760,6 +2186,7 @@ nav ul a:hover::after {
   --brand: #088178;
   --brand-dark: #066b63;
   --brand-light: #e8f6ea;
+  --nav-height: 80px; /* fallback; script.js measures and overrides this with the real value */
   --ink: #1a1a1a;
   --bg-soft: #e3e6f3;
   --radius-md: 10px;
@@ -1850,14 +2277,8 @@ nav.nav--scrolled {
   transform: scale(1.12);
 }
 
-nav ul li a {
-  position: relative;
-}
-
-nav ul a.active::after,
-nav ul a:hover::after {
-  transition: width 0.25s var(--ease);
-}
+/* nav underline transition now lives with the base rule above —
+   kept as a no-op here for backwards compatibility */
 
 /* cart badge */
 .cart {
@@ -1899,18 +2320,65 @@ nav ul a:hover::after {
 /* ---------- SCROLL REVEAL ---------- */
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+  transform: translateY(28px) scale(0.98);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+  will-change: opacity, transform;
 }
 
 .reveal--in {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
-/* stagger product cards a touch */
-.pro-container .pro.reveal--in {
-  transition-delay: calc(var(--i, 0) * 40ms);
+/* cascade related cards in together — capped so a long grid
+   doesn't take forever to finish settling */
+.pro-container .pro.reveal--in,
+#feature .ft-box.reveal--in,
+.blog-box.reveal--in {
+  transition-delay: min(calc(var(--i, 0) * 55ms), 330ms);
+}
+
+/* ---------- HERO ENTRANCE ---------- */
+/* the very first thing a visitor sees shouldn't wait for a
+   scroll — it plays once, immediately, like a curtain rising */
+
+#headline h4,
+#headline h2,
+#headline h1,
+#headline p,
+#headline a {
+  opacity: 0;
+  animation: hero-in 0.8s var(--ease) forwards;
+}
+
+#headline h4 { animation-delay: 0.05s; }
+#headline h2 { animation-delay: 0.16s; }
+#headline h1 { animation-delay: 0.27s; }
+#headline p  { animation-delay: 0.38s; }
+#headline a  { animation-delay: 0.49s; }
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- WHOLE-PAGE ENTRANCE ---------- */
+/* a soft, single fade so every page feels considered rather
+   than snapping into place — simple, and never in the way */
+
+body {
+  animation: page-in 0.5s ease both;
+}
+
+@keyframes page-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ---------- PRODUCT CARDS: hover zoom + lift ---------- */
@@ -4551,89 +5019,17 @@ footer .col img.logo:hover {
 
 /* ---------------------------------------------------------
    HOME WELCOME MESSAGE
+   ---------------------------------------------------------
+   (The full component styling lives further down this file,
+   under the second "HOME WELCOME MESSAGE" header — see the
+   comment in script.js's initHomeWelcome(): "This is the ONLY
+   home welcome implementation.")
    --------------------------------------------------------- */
-
-.home-welcome {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 16px 20px 0;
-
-    opacity: 0;
-    transform: translateY(8px);
-
-    transition:
-        opacity 0.45s ease,
-        transform 0.45s ease;
-}
-
-.home-welcome.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.home-welcome-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-
-    padding: 15px 18px;
-
-    border: 1px solid rgba(8, 129, 120, 0.12);
-    border-radius: 14px;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(8, 129, 120, 0.08),
-            rgba(8, 129, 120, 0.025)
-        );
-}
-
-.home-welcome-text {
-    margin: 0;
-
-    color: var(--text);
-    font-size: 17px;
-    font-weight: 600;
-}
-
-.home-welcome-text span {
-    color: #088178;
-    font-weight: 700;
-}
-
-.home-welcome-subtext {
-    margin: 3px 0 0;
-
-    color: var(--text-muted);
-    font-size: 12px;
-}
 
 
 /* ---------------------------------------------------------
    MOBILE
    --------------------------------------------------------- */
-
-@media (max-width: 600px) {
-
-    .home-welcome {
-        padding: 12px 15px 0;
-    }
-
-    .home-welcome-inner {
-        padding: 13px 15px;
-        border-radius: 12px;
-    }
-
-    .home-welcome-text {
-        font-size: 15px;
-    }
-
-    .home-welcome-subtext {
-        font-size: 11px;
-    }
-}
 
 
 /* ---------------------------------------------------------
@@ -4672,14 +5068,6 @@ footer .col img.logo:hover {
         right: -4px;
         width: 250px;
     }
-
-    .home-welcome {
-        padding: 12px 14px 0;
-    }
-
-    .home-welcome-inner {
-        padding: 13px 14px;
-    }
 }
 
 
@@ -4709,14 +5097,6 @@ footer .col img.logo:hover {
 
         width: auto;
     }
-
-    .home-welcome-text {
-        font-size: 15px;
-    }
-
-    .home-welcome-subtext {
-        font-size: 11px;
-    }
 }
 
 
@@ -4726,11 +5106,6 @@ footer .col img.logo:hover {
         min-height: 30px;
         padding: 0 5px;
         font-size: 11px;
-    }
-
-    .home-welcome {
-        padding-left: 10px;
-        padding-right: 10px;
     }
 }
 
@@ -5334,7 +5709,7 @@ footer .col img.logo:hover {
   z-index: 10;
 
   width: 100%;
-  margin-top: 80px;
+  margin-top: var(--nav-height, 80px);
 
   padding: 22px 20px 18px;
 
@@ -5345,12 +5720,32 @@ footer .col img.logo:hover {
 
   overflow: hidden;
 
-  opacity: 1;
-  visibility: visible;
+  /*
+   * Starts hidden via the `hidden` attribute already present
+   * in the HTML, so there's no flash of unstyled content —
+   * script.js sets `hidden = false` and adds
+   * .home-welcome-visible in the same call, which is what
+   * actually triggers this animation.
+   */
+  opacity: 0;
+  transform: translateY(-8px);
 
   transition:
+    opacity 0.4s var(--ease, ease),
+    transform 0.4s var(--ease, ease),
     background-color 0.3s ease,
     color 0.3s ease;
+}
+
+.home-welcome.home-welcome-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-welcome {
+    transition: none;
+  }
 }
 
 
@@ -5680,8 +6075,6 @@ footer .col img.logo:hover {
 @media (max-width: 768px) {
 
   .home-welcome {
-    margin-top: 60px;
-
     padding:
       18px
       15px
@@ -5705,8 +6098,6 @@ footer .col img.logo:hover {
 @media (max-width: 480px) {
 
   .home-welcome {
-    margin-top: 55px;
-
     padding:
       16px
       12px
@@ -5743,4 +6134,27 @@ footer .col img.logo:hover {
 
     transform: none !important;
   }
+}
+/* =========================================================
+   ACCESSIBILITY UTILITY
+   ---------------------------------------------------------
+   Standard "visually hidden but available to screen readers"
+   pattern. Used for page <h1> elements on pages whose visual
+   hero text isn't semantically the page title (e.g. a short
+   hashtag-style slogan) — keeps one real, unique h1 per page
+   for screen-reader/assistive-tech navigation without changing
+   any existing visual heading or the tag-based selectors
+   (#header h2, .single-pro-details h4, etc.) other styles rely
+   on.
+   ========================================================= */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

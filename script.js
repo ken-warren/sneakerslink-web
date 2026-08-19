@@ -1340,6 +1340,54 @@
   }
 
   /* =========================================================
+     NAV HEIGHT SYNC
+     ---------------------------------------------------------
+     The nav is position:fixed, so anything below it (like the
+     home welcome banner) needs top spacing that matches its
+     real rendered height. That height isn't constant — it's
+     80px on desktop but shrinks to content-driven "auto" on
+     smaller screens as the logo's font-size drops across
+     breakpoints. Hardcoding a matching pixel value per
+     breakpoint is fragile and drifts out of sync whenever the
+     nav's own sizing changes. Measuring it directly and
+     exposing it as --nav-height means anything that needs to
+     clear the nav always gets the correct value, automatically.
+     ========================================================= */
+
+  function initNavHeightSync() {
+    const nav = $("nav");
+
+    if (!nav) {
+      return;
+    }
+
+    const sync = () => {
+      const height = nav.offsetHeight;
+
+      if (height > 0) {
+        document.documentElement.style.setProperty(
+          "--nav-height",
+          `${height}px`,
+        );
+      }
+    };
+
+    sync();
+
+    window.addEventListener("resize", sync, {
+      passive: true,
+    });
+
+    window.addEventListener("orientationchange", sync, {
+      passive: true,
+    });
+
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(sync).catch(() => {});
+    }
+  }
+
+  /* =========================================================
      SCROLL REVEAL
      ========================================================= */
 
@@ -1348,13 +1396,38 @@
       .pro-container .pro,
       #feature .ft-box,
       #banner,
+      #fpl-promo .fpl-card,
       #sm-banner .banner-box,
       #banner3 .banner-box,
-      #newsletter
+      #newsletter,
+      .blog-box,
+      #about-header img,
+      #about-header > div,
+      #about-app,
+      #contact-details .details,
+      #contact-details .map,
+      #form-details form,
+      #header h2,
+      #header p
     `;
 
     $$(selector).forEach((element) => {
       element.classList.add("reveal");
+    });
+
+    /* give every reveal group its own stagger rhythm — each
+       group of siblings counts up from 0 so cards cascade in
+       together instead of inheriting an unrelated index */
+    const groups = new Map();
+
+    $$(".reveal").forEach((element) => {
+      const parent = element.parentElement;
+
+      const count = groups.get(parent) || 0;
+
+      element.style.setProperty("--i", count);
+
+      groups.set(parent, count + 1);
     });
 
     const elements = $$(".reveal");
@@ -2609,6 +2682,8 @@
     initMobileNavigation();
 
     initActiveNavigation();
+
+    initNavHeightSync();
 
     initNavbarScroll();
 

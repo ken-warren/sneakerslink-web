@@ -337,45 +337,17 @@ function onCustomerAuthChange(
 }
 
 
-async function customerSignIn(
-    email,
-    password
-) {
-
-    requireAuth();
-
-    const cleanEmailAddress =
-        cleanEmail(email);
-
-    if (!cleanEmailAddress) {
-        throw new Error(
-            "Please enter your email address."
-        );
-    }
-
-    if (!password) {
-        throw new Error(
-            "Please enter your password."
-        );
-    }
-
-    const credential =
-        await signInWithEmailAndPassword(
-            auth,
-            cleanEmailAddress,
-            password
-        );
-
-    return credential.user;
-}
-
-
-async function customerSignOut() {
-
-    requireAuth();
-
-    await signOut(auth);
-}
+/*
+ * NOTE: there is no separate "customer sign-in" here.
+ * Customer login/logout is handled by firebase-auth.js
+ * (window.SLAuth.login / .logout). This module previously
+ * had its own customerSignIn/customerSignOut that duplicated
+ * adminSignIn/adminSignOut exactly — same Firebase call, no
+ * role distinction — and were unused anywhere in the app.
+ * Removed to avoid implying "customer" and "admin" sign-in
+ * were meaningfully different paths; see isAdminUser() below
+ * for the actual admin/customer distinction.
+ */
 
 
 /* =========================================================
@@ -1422,6 +1394,82 @@ function onAdminAuthChange(
 
 
 /* =========================================================
+   ADMIN ROLE CHECK
+   ---------------------------------------------------------
+   IMPORTANT — READ BEFORE RELYING ON THIS:
+
+   Signing in above only proves someone has a valid Firebase
+   Authentication account — customers can create their own
+   accounts from login.html, so "signed in" is NOT the same
+   as "is an admin".
+
+   This checks a Firestore allow-list document at
+   admins/{uid}. Whoever should be allowed to use admin.html
+   needs ONE document created for them:
+
+       Firestore console -> Data -> Start collection "admins"
+       -> Document ID: their Firebase Auth UID
+       -> any field, e.g. { role: "admin" }
+
+   This client-side check is a UI convenience only — it stops
+   a non-admin from ever *seeing* the dashboard in normal use,
+   but it is not a security boundary by itself, since a
+   determined user could bypass client-side JavaScript
+   entirely. The actual security boundary has to be Firestore
+   Security Rules, e.g.:
+
+       match /admins/{uid} {
+         allow read: if request.auth != null
+                     && request.auth.uid == uid;
+       }
+       match /orders/{orderId} {
+         allow list, update: if request.auth != null
+           && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+         ...
+       }
+
+   Without that rules change, anyone who knows (or guesses) a
+   customer's Firebase project details could still call the
+   Firestore SDK directly and bypass this page entirely — this
+   function only protects the normal, in-app flow.
+   ========================================================= */
+
+async function isAdminUser(
+    uid
+) {
+
+    requireDb();
+
+    if (!uid) {
+        return false;
+    }
+
+    try {
+
+        const snapshot =
+            await getDoc(
+                doc(
+                    db,
+                    "admins",
+                    uid
+                )
+            );
+
+        return snapshot.exists();
+
+    } catch (error) {
+
+        console.warn(
+            "[SneakersLink] Admin role check failed:",
+            error
+        );
+
+        return false;
+    }
+}
+
+
+/* =========================================================
    STATUS HELPERS
    ========================================================= */
 
@@ -1579,10 +1627,6 @@ window.SLOrders = {
 
     getCurrentCustomer,
 
-    customerSignIn,
-
-    customerSignOut,
-
     onCustomerAuthChange,
 
     adminSignIn,
@@ -1590,6 +1634,8 @@ window.SLOrders = {
     adminSignOut,
 
     onAdminAuthChange,
+
+    isAdminUser,
 };
 
 

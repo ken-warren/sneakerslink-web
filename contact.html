@@ -25,6 +25,7 @@
   </head>
 
   <body>
+    <h1 class="sr-only">Contact Us | SneakersLink</h1>
     
     <!-- NAVIGATIOB BAR -->
 
@@ -390,19 +391,25 @@
         <form id="contactForm" novalidate>
             <span>LEAVE A MESSAGE</span>
             <h2>We'd love to hear from you</h2>
-            <input type="text" name="name" placeholder="Your Name" required>
-            <input type="email" name="email" placeholder="Your Email" required>
-            <input type="text" name="subject" placeholder="Subject" required>
-            <textarea name="message" cols="30" rows="10" placeholder="Your Message" required></textarea>
+            <input type="text" name="name" placeholder="Your Name" aria-label="Your name" required>
+            <input type="email" name="email" placeholder="Your Email" aria-label="Your email" required>
+            <input type="text" name="subject" placeholder="Subject" aria-label="Subject" required>
+            <textarea name="message" cols="30" rows="10" placeholder="Your Message" aria-label="Your message" required></textarea>
             <button class="normal" type="submit">Submit</button>
         </form>
         <div class="staff">
-            <img src="img/staff/ken.png" alt="" loading="lazy">
+            <div>
+                <img src="img/staff/ken.png" alt="Ken Warren" loading="lazy">
                 <p><span>Ken Warren</span> - JKUAT Plug <br>Phone: +254 768 372955</p>
-            <img src="img/staff/salim.png" alt="" loading="lazy">
+            </div>
+            <div>
+                <img src="img/staff/salim.png" alt="SJ Mwatsefu" loading="lazy">
                 <p><span>SJ Mwatsefu</span> - USIU Plug <br>Phone: +254 114 141830</p>
-            <img src="" alt="">
+            </div>
+            <div>
+                <span class="staff-avatar-fallback" aria-hidden="true">IM</span>
                 <p><span>Imran Maundu</span> - Coast Plug <br>Phone: +254 727 747780</p>
+            </div>
         </div>
 
     </section>
@@ -415,7 +422,7 @@
             <p>Get E-mail updates about out latest shop and <span> special offers.</span></p>
         </div>
         <form class="form" id="newsletterForm">
-            <input type="email" required placeholder="Your email address">
+            <input type="email" required placeholder="Your email address" aria-label="Email address">
             <button class="normal" type="submit">Sign Up</button>
         </form>
     </section>
