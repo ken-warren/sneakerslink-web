@@ -115,442 +115,6 @@
       .replace(/^-+|-+$/g, "");
 
   /* =========================================================
-     PRODUCT CATALOG
-     =========================================================
-     Every product card and detail page on the site is rendered
-     from a single data source, so updating 1 or 200 prices
-     means editing one file instead of hunting through HTML.
-
-     Default source: data/products.js (window.SNEAKERLINK_PRODUCTS),
-     loaded as a plain <script> tag so it works even when the
-     site is opened straight from a folder — no local server or
-     hosting required. Open that file and edit the array to add,
-     remove, or reprice products.
-
-     To hand price/stock updates off to a Google Sheet instead
-     (no code edits, no redeploy — just edit the sheet; requires
-     the site to be actually hosted somewhere, since it fetches
-     over the network):
-
-       1. In Google Sheets: File → Share → Publish to web →
-          choose the product sheet/tab → CSV → Publish.
-       2. Paste the resulting URL into PRODUCTS_SHEET_CSV_URL
-          below.
-       3. Give the sheet these column headers (any order):
-          id, brand, name, price, image, images, sizes,
-          collections, rating, description
-          — "images" and "sizes" and "collections" accept
-          multiple values separated by "|" in a single cell.
-
-     Setting PRODUCTS_SHEET_CSV_URL takes over from
-     data/products.js automatically.
-     ========================================================= */
-
-  const PRODUCTS_JSON_URL = "data/products.json";
-  const PRODUCTS_SHEET_CSV_URL = "";
-
-  const DEFAULT_SIZES = [36, 37, 38, 39, 40, 41, 42, 43, 44, 45];
-
-  const formatKes = (value) =>
-    `Kes ${Math.round(Number(value) || 0).toLocaleString("en-US")}`;
-
-  let productsPromise = null;
-
-  /* ---- CSV parsing (for the Google Sheet source) ---- */
-
-  function parseProductsCsv(text) {
-    const rows = [];
-
-    let row = [];
-    let field = "";
-    let inQuotes = false;
-
-    for (let i = 0; i < text.length; i += 1) {
-      const char = text[i];
-
-      if (inQuotes) {
-        if (char === '"' && text[i + 1] === '"') {
-          field += '"';
-          i += 1;
-        } else if (char === '"') {
-          inQuotes = false;
-        } else {
-          field += char;
-        }
-
-        continue;
-      }
-
-      if (char === '"') {
-        inQuotes = true;
-      } else if (char === ",") {
-        row.push(field);
-        field = "";
-      } else if (char === "\n" || char === "\r") {
-        if (char === "\r" && text[i + 1] === "\n") {
-          i += 1;
-        }
-
-        row.push(field);
-        rows.push(row);
-        row = [];
-        field = "";
-      } else {
-        field += char;
-      }
-    }
-
-    if (field.length || row.length) {
-      row.push(field);
-      rows.push(row);
-    }
-
-    const cleanRows = rows.filter((r) => r.some((cell) => cell.trim() !== ""));
-
-    const [header, ...body] = cleanRows;
-
-    if (!header) {
-      return [];
-    }
-
-    const keys = header.map((key) => key.trim().toLowerCase());
-
-    return body.map((cells) => {
-      const record = {};
-
-      keys.forEach((key, index) => {
-        record[key] = (cells[index] || "").trim();
-      });
-
-      return record;
-    });
-  }
-
-  /* ---- shape any raw row (JSON or CSV) into a clean product ---- */
-
-  function splitMultiValue(value) {
-    if (Array.isArray(value)) {
-      return value.map((entry) => String(entry).trim()).filter(Boolean);
-    }
-
-    return String(value || "")
-      .split("|")
-      .map((entry) => entry.trim())
-      .filter(Boolean);
-  }
-
-  function normaliseProduct(raw) {
-    if (!raw) {
-      return null;
-    }
-
-    const name = String(raw.name || raw.product || "").trim();
-    const brand = String(raw.brand || "").trim();
-
-    if (!name) {
-      return null;
-    }
-
-    const id = normaliseId(raw.id || `${brand}-${name}`);
-
-    const price = parsePrice(raw.price);
-
-    const image = String(raw.image || raw.img || "").trim();
-
-    let images = splitMultiValue(raw.images);
-
-    if (!images.length && image) {
-      images = [image];
-    }
-
-    let sizes = splitMultiValue(raw.sizes);
-
-    if (!sizes.length) {
-      sizes = DEFAULT_SIZES;
-    }
-
-    let collections = splitMultiValue(raw.collections || raw.collection).map(
-      (value) => value.toLowerCase(),
-    );
-
-    if (!collections.length) {
-      collections = ["all"];
-    }
-
-    const rating = Math.min(
-      5,
-      Math.max(1, Number.parseInt(raw.rating, 10) || 5),
-    );
-
-    const description =
-      String(raw.description || "").trim() ||
-      `${brand} ${name} — comfortable, durable, and ready for everyday wear.`;
-
-    return {
-      id,
-      brand,
-      name,
-      price,
-      image: image || images[0] || "",
-      images,
-      sizes,
-      collections,
-      rating,
-      description,
-    };
-  }
-
-  /* ---- fetch + cache (once per page load) ----
-     Priority: an explicit Google Sheet (if configured) > the
-     inline data/products.js (works everywhere, no server
-     needed) > data/products.json as a last-resort fetch. */
-
-  function fetchProducts() {
-    if (productsPromise) {
-      return productsPromise;
-    }
-
-    if (!PRODUCTS_SHEET_CSV_URL && Array.isArray(window.SNEAKERLINK_PRODUCTS)) {
-      productsPromise = Promise.resolve(
-        window.SNEAKERLINK_PRODUCTS.map(normaliseProduct).filter(Boolean),
-      );
-
-      return productsPromise;
-    }
-
-    const usingSheet = Boolean(PRODUCTS_SHEET_CSV_URL);
-    const url = usingSheet ? PRODUCTS_SHEET_CSV_URL : PRODUCTS_JSON_URL;
-
-    productsPromise = fetch(url, { cache: "no-store" })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Failed to load products (${response.status})`);
-        }
-
-        return usingSheet ? response.text() : response.json();
-      })
-      .then((data) => (usingSheet ? parseProductsCsv(data) : data))
-      .then((rawList) =>
-        (Array.isArray(rawList) ? rawList : []).map(normaliseProduct).filter(Boolean),
-      )
-      .catch((error) => {
-        console.warn("[SneakersLink] Could not load products:", error);
-
-        return [];
-      });
-
-    return productsPromise;
-  }
-
-  /* ---- build one .pro card, matching the existing markup exactly
-     so all current cart / hover / reveal logic keeps working ---- */
-
-  function buildProductCard(product, index) {
-    const card = document.createElement("div");
-
-    card.className = "pro reveal";
-    card.dataset.href = `sproduct.html?id=${encodeURIComponent(product.id)}`;
-    card.dataset.productId = product.id;
-    card.dataset.productName = product.name;
-    card.dataset.productBrand = product.brand;
-    card.dataset.productPrice = String(product.price);
-    card.dataset.productImage = product.image;
-    card.style.setProperty("--i", index);
-
-    const img = document.createElement("img");
-
-    img.src = product.image;
-    img.alt = `${product.brand} ${product.name}`.trim();
-    img.loading = "lazy";
-
-    card.appendChild(img);
-
-    const des = document.createElement("div");
-    des.className = "des";
-
-    const span = document.createElement("span");
-    span.textContent = product.brand;
-    des.appendChild(span);
-
-    const h5 = document.createElement("h5");
-    h5.textContent = product.name;
-    des.appendChild(h5);
-
-    const star = document.createElement("div");
-    star.className = "star";
-    star.setAttribute("aria-label", `${product.rating} out of 5 stars`);
-
-    for (let i = 0; i < product.rating; i += 1) {
-      const icon = document.createElement("i");
-      icon.className = "fas fa-star";
-      star.appendChild(icon);
-    }
-
-    des.appendChild(star);
-
-    const h4 = document.createElement("h4");
-    h4.textContent = formatKes(product.price);
-    des.appendChild(h4);
-
-    card.appendChild(des);
-
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "add-cart-btn";
-    button.setAttribute("aria-label", `Add ${product.name} to cart`);
-
-    const cartIcon = document.createElement("i");
-    cartIcon.className = "fas fa-shopping-cart";
-    cartIcon.setAttribute("aria-hidden", "true");
-    button.appendChild(cartIcon);
-
-    card.appendChild(button);
-
-    return card;
-  }
-
-  /* ---- render every [data-product-grid] container on the page ---- */
-
-  async function renderProductGrids() {
-    const containers = $$("[data-product-grid]");
-
-    if (!containers.length) {
-      return;
-    }
-
-    const products = await fetchProducts();
-
-    const currentId = new URLSearchParams(window.location.search).get("id");
-
-    containers.forEach((container) => {
-      const collection = (container.dataset.collection || "all").toLowerCase();
-      const limit = Number.parseInt(container.dataset.limit || "", 10);
-      const excludeCurrent = container.hasAttribute("data-exclude-current");
-
-      let list =
-        collection === "all"
-          ? products
-          : products.filter((product) => product.collections.includes(collection));
-
-      if (excludeCurrent && currentId) {
-        list = list.filter((product) => product.id !== currentId);
-      }
-
-      if (Number.isFinite(limit) && limit > 0) {
-        list = list.slice(0, limit);
-      }
-
-      container.innerHTML = "";
-
-      if (!list.length) {
-        const empty = document.createElement("p");
-        empty.className = "pro-empty";
-        empty.textContent = "No products to show yet.";
-        container.appendChild(empty);
-
-        return;
-      }
-
-      list.forEach((product, index) => {
-        container.appendChild(buildProductCard(product, index));
-      });
-    });
-  }
-
-  /* ---- populate the single-product detail page from ?id= ---- */
-
-  async function renderProductDetail() {
-    const details = $(".single-pro-details");
-    const mainImage = $("#mainImg");
-
-    if (!details || !mainImage) {
-      return;
-    }
-
-    const products = await fetchProducts();
-
-    if (!products.length) {
-      return;
-    }
-
-    const requestedId = new URLSearchParams(window.location.search).get("id");
-
-    const product =
-      products.find((item) => item.id === requestedId) || products[0];
-
-    if (!product) {
-      return;
-    }
-
-    document.title = `${product.name} — SneakersLink`;
-
-    details.dataset.productId = product.id;
-    details.dataset.productName = product.name;
-    details.dataset.productPrice = String(product.price);
-    details.dataset.brand = product.brand;
-
-    const nameEl = $("#productName", details);
-
-    if (nameEl) {
-      nameEl.textContent = `${product.brand} ${product.name}`.trim();
-    }
-
-    const priceEl = $("#productPrice", details);
-
-    if (priceEl) {
-      priceEl.textContent = formatKes(product.price);
-    }
-
-    const descEl = $("#productDescription", details);
-
-    if (descEl) {
-      descEl.textContent = product.description;
-    }
-
-    mainImage.src = product.image;
-    mainImage.alt = `${product.brand} ${product.name}`.trim();
-
-    const thumbGroup = $("#thumbGroup");
-
-    if (thumbGroup) {
-      thumbGroup.innerHTML = "";
-
-      const gallery = product.images.length ? product.images : [product.image];
-
-      gallery.forEach((src, index) => {
-        const col = document.createElement("div");
-        col.className = "small-img-col";
-
-        const img = document.createElement("img");
-        img.setAttribute("width", "100%");
-        img.className = "small-img";
-        img.src = src;
-        img.alt = `${product.brand} ${product.name}, thumbnail ${index + 1}`.trim();
-        img.loading = "lazy";
-
-        col.appendChild(img);
-        thumbGroup.appendChild(col);
-      });
-    }
-
-    const sizeSelect = $("#sizeSelect", details);
-
-    if (sizeSelect && product.sizes.length) {
-      sizeSelect.innerHTML = "";
-
-      const placeholder = document.createElement("option");
-      placeholder.textContent = "Select Size";
-      sizeSelect.appendChild(placeholder);
-
-      product.sizes.forEach((size) => {
-        const option = document.createElement("option");
-        option.textContent = String(size);
-        sizeSelect.appendChild(option);
-      });
-    }
-  }
-
-  /* =========================================================
      CART
      ========================================================= */
 
@@ -1395,10 +959,110 @@
   }
 
   /* =========================================================
+     PAGE LOADER
+     ---------------------------------------------------------
+     Instagram-style splash: #slPageLoader is the first thing
+     in <body>, painted immediately (style.css is render-blocking
+     so there's no flash-of-unstyled overlay). It stays up until
+     BOTH of these are true:
+
+       1. A short minimum splash time has elapsed, so the reveal
+          never looks like a flicker on fast connections.
+       2. The signed-in / signed-out state is known.
+
+     Waiting on (2) is what stops the nav's "Sign in / Sign up"
+     links from flashing before swapping to the account menu —
+     the UI is only ever shown once it already matches who's
+     looking at it. A bounded safety timeout guarantees the
+     splash is never stuck up if Firebase is slow, offline, or
+     unconfigured.
+     ========================================================= */
+
+  function initPageLoader() {
+    const loader = $("#slPageLoader");
+
+    if (!loader) {
+      return;
+    }
+
+    const MIN_DISPLAY_MS = 350;
+    const MAX_WAIT_MS = 1400;
+
+    const shownAt = Date.now();
+
+    let authResolved = false;
+
+    let hidden = false;
+
+    function finishHide() {
+      if (hidden) {
+        return;
+      }
+
+      hidden = true;
+
+      loader.classList.add("is-hidden");
+
+      window.setTimeout(() => {
+        loader.remove();
+      }, 500);
+    }
+
+    function attemptHide() {
+      if (!authResolved) {
+        return;
+      }
+
+      const elapsed = Date.now() - shownAt;
+
+      const remaining = Math.max(MIN_DISPLAY_MS - elapsed, 0);
+
+      window.setTimeout(finishHide, remaining);
+    }
+
+    function markAuthResolved() {
+      if (authResolved) {
+        return;
+      }
+
+      authResolved = true;
+
+      attemptHide();
+    }
+
+    function connectAuth() {
+      if (
+        window.SLAuth &&
+        typeof window.SLAuth.onAuthStateChanged === "function"
+      ) {
+        window.SLAuth.onAuthStateChanged(() => markAuthResolved());
+
+        return true;
+      }
+
+      return false;
+    }
+
+    if (!connectAuth()) {
+      window.addEventListener("slauth:ready", connectAuth, {
+        once: true,
+      });
+    }
+
+    /*
+     * Safety net so a slow, offline, or unconfigured Firebase
+     * project never leaves a customer staring at the splash.
+     */
+    window.setTimeout(markAuthResolved, MAX_WAIT_MS);
+  }
+
+  /* =========================================================
      ACCOUNT / AUTH
      ========================================================= */
 
   function initAccountMenu() {
+    const accountArea = $("#accountArea");
+
     const guestLinks = $("#accountGuestLinks");
 
     const menu = $("#accountMenu");
@@ -1487,6 +1151,10 @@
     }
 
     function setLoggedInView(user) {
+      if (accountArea) {
+        accountArea.dataset.authState = "in";
+      }
+
       if (guestLinks) {
         guestLinks.hidden = true;
 
@@ -1525,6 +1193,10 @@
     }
 
     function setLoggedOutView() {
+      if (accountArea) {
+        accountArea.dataset.authState = "out";
+      }
+
       if (guestLinks) {
         guestLinks.hidden = false;
 
@@ -3102,12 +2774,14 @@
      MAIN INITIALISATION
      ========================================================= */
 
-  async function init() {
+  function init() {
     if (appInitialised) {
       return;
     }
 
     appInitialised = true;
+
+    initPageLoader();
 
     initTheme();
 
@@ -3122,11 +2796,6 @@
     initNavHeightSync();
 
     initNavbarScroll();
-
-    /* product data is rendered into the page before anything
-       below tries to wire up cards, thumbnails, or reveals —
-       otherwise those would run against empty containers */
-    await Promise.all([renderProductGrids(), renderProductDetail()]);
 
     initProductCards();
 
