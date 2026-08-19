@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SneakersLink | Premium Sneakers in Kenya</title>
+
+    <meta
+        name="description"
+        content="SneakersLink — shop Adidas Samba, Campus and other sneakers in Kenya. Browse new stock, special offers and track your orders."
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+    >
+
+    <!-- =========================================================
+         APPLY SAVED / SYSTEM THEME BEFORE PAGE RENDERS
+         ========================================================= -->
+    <script>
+        (function () {
+            try {
+                var saved = localStorage.getItem("sl_theme");
+
+                var theme =
+                    saved === "light" || saved === "dark"
+                        ? saved
+                        : (
+                            window.matchMedia &&
+                            window.matchMedia("(prefers-color-scheme: dark)").matches
+                                ? "dark"
+                                : "light"
+                        );
+
+                document.documentElement.setAttribute("data-theme", theme);
+            } catch (error) {
+                document.documentElement.setAttribute("data-theme", "light");
+            }
+        })();
+    </script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =========================================================
+         NAVIGATION
+         ========================================================= -->
+
+    <nav class="home-nav" aria-label="Main navigation">
+
+        <!-- MOBILE MENU TOGGLE -->
+
+        <input
+            type="checkbox"
+            id="check"
+            aria-label="Toggle navigation menu"
+        >
+
+        <label
+            for="check"
+            class="navbutton"
+            aria-label="Open navigation menu"
+        >
+            <i
+                class="fas fa-bars"
+                aria-hidden="true"
+            ></i>
+        </label>
+
+
+        <!-- LOGO -->
+
+        <a
+            href="index.html"
+            class="logo nav-logo"
+            aria-label="SneakersLink Home"
+        >
+            Sneakers<span>Link</span>
+        </a>
+
+
+        <!-- MAIN NAVIGATION -->
+
+        <ul id="navbar">
+
+            <li>
+                <a href="index.html">
+                    Home
+                </a>
+            </li>
+
+            <li>
+                <a href="shop.html">
+                    Shop
+                </a>
+            </li>
+
+            <li>
+                <a href="blog.html">
+                    Blog
+                </a>
+            </li>
+
+            <li>
+                <a href="about.html">
+                    About
+                </a>
+            </li>
+
+            <li>
+                <a href="contact.html">
+                    Contact
+                </a>
+            </li>
+
+        </ul>
+
+
+        <!-- =====================================================
+             RIGHT-SIDE ACTIONS
+             ===================================================== -->
+
+        <div
+            class="nav-actions"
+            aria-label="Shopping cart and account"
+        >
+
+            <!-- CART -->
+
+            <a
+                href="cart.html"
+                class="cart"
+                id="navbarCart"
+                aria-label="Shopping cart"
+                title="Shopping Cart"
+            >
+
+                <i
+                    class="fas fa-shopping-bag"
+                    aria-hidden="true"
+                ></i>
+
+                <span
+                    class="cart-count"
+                    data-cart-count
+                    aria-hidden="true"
+                >
+                    0
+                </span>
+
+            </a>
+
+
+            <!-- ACCOUNT -->
+
+            <div
+                class="account-area"
+                id="accountArea"
+            >
+
+                <!-- LOGGED OUT -->
+
+                <span
+                    class="account-guest-links"
+                    id="accountGuestLinks"
+                >
+
+                    <a
+                        href="login.html?mode=login"
+                        class="account-text-link"
+                    >
+                        Sign in
+                    </a>
+
+                    <a
+                        href="login.html?mode=signup"
+                        class="account-text-link account-text-link--primary"
+                    >
+                        Sign up
+                    </a>
+
+                </span>
+
+
+                <!-- LOGGED IN -->
+
+                <div
+                    class="account-menu"
+                    id="accountMenu"
+                    hidden
+                >
+
+                    <!-- PROFILE BUTTON -->
+
+                    <button
+                        type="button"
+                        class="account-toggle"
+                        id="accountToggle"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        aria-label="Open profile menu"
+                        title="Profile"
+                    >
+
+                        <span
+                            class="account-avatar"
+                            id="accountAvatar"
+                        >
+
+                            <i
+                                class="fas fa-user"
+                                aria-hidden="true"
+                            ></i>
+
+                        </span>
+
+                    </button>
+
+
+                    <!-- PROFILE DROPDOWN -->
+
+                    <div
+                        class="account-dropdown"
+                        id="accountDropdown"
+                    >
+
+                        <!-- PROFILE SUMMARY -->
+
+                        <div class="account-profile-summary">
+
+                            <div
+                                class="account-avatar account-avatar-large"
+                                id="accountDropdownAvatar"
+                            >
+
+                                <i
+                                    class="fas fa-user"
+                                    aria-hidden="true"
+                                ></i>
+
+                            </div>
+
+                            <div class="account-profile-text">
+
+                                <strong id="accountDropdownName">
+                                    Profile
+                                </strong>
+
+                                <span id="accountDropdownEmail">
+                                    Signed in
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="account-dropdown-divider"></div>
+
+
+                        <!-- MY PROFILE -->
+
+                        <a
+                            href="profile.html"
+                            class="account-dropdown-link"
+                        >
+
+                            <i
+                                class="fas fa-user"
+                                aria-hidden="true"
+                            ></i>
+
+                            <span>
+                                My Profile
+                            </span>
+
+                        </a>
+
+
+                        <!-- TRACK ORDER -->
+
+                        <a
+                            href="track-order.html"
+                            class="account-dropdown-link"
+                        >
+
+                            <i
+                                class="fas fa-truck"
+                                aria-hidden="true"
+                            ></i>
+
+                            <span>
+                                Track Order
+                            </span>
+
+                        </a>
+
+
+                        <!-- MY CART -->
+
+                        <a
+                            href="cart.html"
+                            class="account-dropdown-link"
+                        >
+
+                            <i
+                                class="fas fa-shopping-bag"
+                                aria-hidden="true"
+                            ></i>
+
+                            <span>
+                                My Cart
+                            </span>
+
+                        </a>
+
+
+                        <!-- THEME -->
+
+                        <button
+                            type="button"
+                            class="account-dropdown-link"
+                            id="accountThemeToggle"
+                        >
+
+                            <i
+                                class="fas fa-moon"
+                                aria-hidden="true"
+                            ></i>
+
+                            <span id="accountThemeLabel">
+                                Dark Mode
+                            </span>
+
+                        </button>
+
+
+                        <div class="account-dropdown-divider"></div>
+
+
+                        <!-- SIGN OUT -->
+
+                        <button
+                            type="button"
+                            class="account-dropdown-link account-dropdown-link--danger"
+                            id="accountSignOutBtn"
+                        >
+
+                            <i
+                                class="fas fa-sign-out-alt"
+                                aria-hidden="true"
+                            ></i>
+
+                            <span>
+                                Sign Out
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================================================
+     PERSONALIZED CUSTOMER WELCOME
+     ========================================================= -->
+
+<section
+    id="homeWelcome"
+    class="home-welcome"
+    aria-live="polite"
+    hidden
+>
+    <div class="home-welcome-inner">
+
+        <div class="home-welcome-content">
+
+            <p
+                id="homeWelcomeText"
+                class="home-welcome-text"
+            ></p>
+
+            <p class="home-welcome-subtext">
+                Great to have you at SneakersLink.
+            </p>
+
+            <span class="welcome-step"></span>
+
+        </div>
+
+    </div>
+</section>
+
+
+    <!-- =========================================================
+         MAIN CONTENT
+         ========================================================= -->
+
+    <main>
+
+        <!-- =====================================================
+             HERO / HEADLINE
+             ===================================================== -->
+
+        <section
+            class="headline-container"
+            aria-label="SneakersLink featured offer"
+        >
+
+            <video
+                autoplay
+                loop
+                muted
+                playsinline
+                class="background-clip"
+                preload="metadata"
+                aria-hidden="true"
+            >
+
+                <source
+                    src="img/vid1.mp4"
+                    type="video/mp4"
+                >
+
+            </video>
+
+
+            <div id="headline">
+
+                <h4>
+                    Hot Deals 🔥
+                </h4>
+
+                <h2>
+                    Form ni Samba na Campus
+                </h2>
+
+                <h1>
+                    Amazing offers!!!
+                </h1>
+
+                <p>
+                    Save more when you buy more than two pairs
+                    and up to 60% off.
+                </p>
+
+                <a
+                    href="shop.html"
+                    aria-label="Shop SneakersLink sneakers"
+                >
+
+                    <button
+                        type="button"
+                        class="normal"
+                    >
+                        Shop Now
+                    </button>
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             FEATURES
+             ===================================================== -->
+
+        <section
+            id="feature"
+            class="section-p1"
+            aria-label="SneakersLink services"
+        >
+
+            <div class="ft-box">
+
+                <img
+                    src="img/feature/f1.png"
+                    alt="Free delivery"
+                    loading="lazy"
+                >
+
+                <h6>
+                    Free Delivery
+                </h6>
+
+            </div>
+
+
+            <div class="ft-box">
+
+                <img
+                    src="img/feature/f2.png"
+                    alt="Order online"
+                    loading="lazy"
+                >
+
+                <h6>
+                    Order Online
+                </h6>
+
+            </div>
+
+
+            <div class="ft-box">
+
+                <img
+                    src="img/feature/f4.png"
+                    alt="Special offers"
+                    loading="lazy"
+                >
+
+                <h6>
+                    Offers
+                </h6>
+
+            </div>
+
+
+            <div class="ft-box">
+
+                <img
+                    src="img/feature/f5.png"
+                    alt="Happy customers"
+                    loading="lazy"
+                >
+
+                <h6>
+                    Happy Customers
+                </h6>
+
+            </div>
+
+
+            <div class="ft-box">
+
+                <img
+                    src="img/feature/f6.png"
+                    alt="24/7 customer support"
+                    loading="lazy"
+                >
+
+                <h6>
+                    24/7 Support
+                </h6>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             SNEAKERS — ON DEMAND
+             ===================================================== -->
+
+        <section
+            id="sneakers1"
+            class="section-p1"
+        >
+
+            <h2>
+                Sneakers on Demand
+            </h2>
+
+            <p>
+                Hurry while stock still lasts
+            </p>
+
+
+            <div
+                class="pro-container"
+                data-product-grid
+                data-collection="demand"
+                data-limit="8"
+            ></div>
+
+        </section>
+
+
+        <!-- =====================================================
+             NEW STOCK
+             ===================================================== -->
+
+        <section
+            id="sneakers2"
+            class="section-p1"
+        >
+
+            <h2>
+                New Stock
+            </h2>
+
+            <p>
+                Hurry while stock still lasts
+            </p>
+
+
+            <div
+                class="pro-container"
+                data-product-grid
+                data-collection="new"
+                data-limit="8"
+            ></div>
+
+        </section>
+
+
+        <!-- =====================================================
+             SINGLE MINIMAL PROMOTIONAL BANNER
+             ===================================================== -->
+
+        <section
+            id="banner"
+            class="section-m1"
+            aria-label="SneakersLink collection promotion"
+        >
+
+            <div class="banner-content">
+
+                <span class="banner-eyebrow">
+                    SNEAKERSLINK NDIO PLUG!
+                </span>
+
+                <h2>
+                    Your next pair<br>
+                    starts here.
+                </h2>
+
+                <p>
+                    Discover the latest Kicks &amp; Unique styles.
+                </p>
+
+                <a
+                    href="shop.html"
+                    class="banner-cta"
+                    aria-label="Shop SneakersLink collection"
+                >
+
+                    Shop Now
+
+                    <i
+                        class="fas fa-arrow-right"
+                        aria-hidden="true"
+                    ></i>
+
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             FPL MINI-LEAGUE PROMO
+             ===================================================== -->
+
+        <section
+            id="fpl-promo"
+            class="section-m1"
+            aria-label="Join the SneakersLink Fantasy Premier League mini-league"
+        >
+
+            <div class="fpl-card">
+
+                <div class="fpl-visual">
+
+                    <img
+                        src="img/fpl.jpeg"
+                        alt="SneakersLink FPL mini-league — my team screen shown on a phone, beside a pair of green sneakers"
+                        loading="lazy"
+                    >
+
+                </div>
+
+                <div class="fpl-content">
+
+                    <span class="fpl-eyebrow">
+                        <i class="fas fa-futbol" aria-hidden="true"></i>
+                        Fantasy Premier League
+                    </span>
+
+                    <h2>
+                        Play. Top the table.<br>
+                        Win the kicks.
+                    </h2>
+
+                    <p>
+                        We're inviting you to join the official
+                        <strong>SneakersLink FPL</strong> mini-league. Build your squad,
+                        battle it out gameweek after gameweek, and finish the season
+                        top of the table for a chance to win a
+                        <strong>free pair of sneakers</strong>, on us.
+                    </p>
+
+                    <ul class="fpl-details">
+
+                        <li>
+                            <i class="fas fa-trophy" aria-hidden="true"></i>
+                            Prize: a pair of sneakers for the season champion
+                        </li>
+
+                        <li>
+                            <i class="fas fa-medal" aria-hidden="true"></i>
+                            Winner: whoever tops the league at the final gameweek
+                        </li>
+
+                        <li>
+                            <i class="fas fa-users" aria-hidden="true"></i>
+                            Open to every SneakersLink customer, free to join
+                        </li>
+
+                    </ul>
+
+                    <div class="fpl-code-box">
+
+                        <span class="fpl-code-label">
+                            League Code
+                        </span>
+
+                        <span class="fpl-code-value">
+                            zyoymr
+                        </span>
+
+                    </div>
+
+                    <a
+                        href="https://fantasy.premierleague.com/leagues/auto-join/zyoymr"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="fpl-cta"
+                        aria-label="Join the SneakersLink FPL mini-league with code zyoymr"
+                    >
+
+                        Join the League
+
+                        <i
+                            class="fas fa-arrow-right"
+                            aria-hidden="true"
+                        ></i>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             NEWSLETTER
+             ===================================================== -->
+
+        <section
+            id="newsletter"
+            class="section-p1 section-m1"
+        >
+
+            <div class="newstext">
+
+                <h4>
+                    Sign Up For Newsletters
+                </h4>
+
+                <p>
+                    Get E-mail updates about our latest shop
+                    and <span>special offers.</span>
+                </p>
+
+            </div>
+
+
+            <form
+                class="form"
+                id="newsletterForm"
+                novalidate
+            >
+
+                <input
+                    type="email"
+                    id="newsletterEmail"
+                    name="email"
+                    autocomplete="email"
+                    required
+                    placeholder="Your email address"
+                    aria-label="Email address"
+                >
+
+                <button
+                    class="normal"
+                    type="submit"
+                >
+                    Sign Up
+                </button>
+
+            </form>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         FOOTER
+         ========================================================= -->
+
+    <footer class="site-footer">
+
+    <div class="footer-main">
+
+        <!-- =====================================================
+             BRAND / CONTACT
+             ===================================================== -->
+
+        <div class="footer-brand">
+
+            <a
+                href="index.html"
+                class="footer-logo"
+                aria-label="SneakersLink home"
+            >
+                Sneakers<span>Link</span>
+            </a>
+
+            <p class="footer-tagline">
+                Your plug for premium sneakers in Kenya.
+            </p>
+
+            <div class="footer-contact">
+
+                <a href="tel:+254768372955">
+                    <i class="fas fa-phone-alt" aria-hidden="true"></i>
+                    <span>+254 768 372955</span>
+                </a>
+
+                <a href="mailto:sneakerslink254@gmail.com">
+                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                    <span>sneakerslink254@gmail.com</span>
+                </a>
+
+                <span>
+                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                    <span>Nairobi, Kenya</span>
+                </span>
+
+            </div>
+
+
+            <!-- SOCIALS -->
+
+            <div class="footer-socials">
+
+                <a
+                    href="#"
+                    aria-label="SneakersLink Facebook"
+                    title="Facebook"
+                >
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+
+                <a
+                    href="#"
+                    aria-label="SneakersLink Instagram"
+                    title="Instagram"
+                >
+                    <i class="fab fa-instagram"></i>
+                </a>
+
+                <a
+                    href="#"
+                    aria-label="SneakersLink TikTok"
+                    title="TikTok"
+                >
+                    <i class="fab fa-tiktok"></i>
+                </a>
+
+                <a
+                    href="https://wa.me/254768372955"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="SneakersLink WhatsApp"
+                    title="WhatsApp"
+                >
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             SHOP
+             ===================================================== -->
+
+        <div class="footer-column">
+
+            <h4>
+                Shop
+            </h4>
+
+            <a href="shop.html">
+                All Sneakers
+            </a>
+
+            <a href="shop.html">
+                Adidas Samba
+            </a>
+
+            <a href="shop.html">
+                Adidas Campus
+            </a>
+
+            <a href="shop.html">
+                New Arrivals
+            </a>
+
+            <a href="shop.html">
+                Special Offers
+            </a>
+
+        </div>
+
+
+        <!-- =====================================================
+             INFORMATION
+             ===================================================== -->
+
+        <div class="footer-column">
+
+            <h4>
+                Information
+            </h4>
+
+            <a href="about.html">
+                About Us
+            </a>
+
+            <a href="#">
+                Delivery Information
+            </a>
+
+            <a href="#">
+                Privacy Policy
+            </a>
+
+            <a href="#">
+                Terms &amp; Conditions
+            </a>
+
+            <a href="contact.html">
+                Contact Us
+            </a>
+
+        </div>
+
+
+        <!-- =====================================================
+             ACCOUNT / SUPPORT
+             ===================================================== -->
+
+        <div class="footer-column">
+
+            <h4>
+                My Account
+            </h4>
+
+            <a
+                href="login.html"
+                id="footerLoginLink"
+            >
+                Sign In
+            </a>
+
+            <a
+                href="profile.html"
+                id="footerProfileLink"
+            >
+                My Profile
+            </a>
+
+            <a href="cart.html">
+                My Cart
+            </a>
+
+            <a href="track-order.html">
+                Track My Order
+            </a>
+
+            <a href="contact.html">
+                Help &amp; Support
+            </a>
+
+        </div>
+
+
+        <!-- =====================================================
+             APP / PAYMENT
+             ===================================================== -->
+
+        <div class="footer-column footer-app">
+
+            <h4>
+                Get the App
+            </h4>
+
+            <p>
+                Shop SneakersLink wherever you go.
+            </p>
+
+            <div class="footer-app-links">
+
+                <img
+                    src="img/pay/app.jpg"
+                    alt="Download on the App Store"
+                    loading="lazy"
+                >
+
+                <img
+                    src="img/pay/play.jpg"
+                    alt="Get it on Google Play"
+                    loading="lazy"
+                >
+
+            </div>
+
+            <span class="payment-label">
+                Secure payments
+            </span>
+
+            <img
+                class="mpesa-logo"
+                src="img/pay/mpesa2.png"
+                alt="M-Pesa accepted"
+                loading="lazy"
+            >
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         FOOTER BOTTOM
+         ========================================================= -->
+
+    <div class="footer-bottom">
+
+        <p>
+            © 2024 SneakersLink. All rights reserved.
+        </p>
+
+        <div class="footer-bottom-links">
+
+            <a href="#">
+                Privacy
+            </a>
+
+            <a href="#">
+                Terms
+            </a>
+
+            <a href="contact.html">
+                Contact
+            </a>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+    <!-- =========================================================
+         WHATSAPP
+         ========================================================= -->
+
+    <a
+        href="https://wa.me/254768372955?text=Hi%20SneakersLink%2C%20I%27d%20like%20to%20ask%20about..."
+        class="whatsapp-fab"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat with SneakersLink on WhatsApp"
+        title="Chat with us on WhatsApp"
+    >
+
+        <i
+            class="fab fa-whatsapp"
+            aria-hidden="true"
+        ></i>
+
+    </a>
+
+
+    <!-- =========================================================
+         BACK TO TOP
+         ========================================================= -->
+
+    <button
+        type="button"
+        id="backToTop"
+        class="back-to-top"
+        aria-label="Back to top"
+        title="Back to top"
+    >
+
+        <i
+            class="fas fa-arrow-up"
+            aria-hidden="true"
+        ></i>
+
+    </button>
+
+
+    <!-- =========================================================
+         SITE JAVASCRIPT
+         ========================================================= -->
+
+    <script type="module" src="firebase-auth.js"></script>
+    <script type="module" src="firebase-profile.js"></script>
+    <script type="module" src="firebase-orders.js"></script>
+
+    <script src="data/products.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>
