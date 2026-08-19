@@ -25,6 +25,22 @@
   </head>
 
   <body>
+
+    <!-- =========================================================
+         PAGE LOADER
+         ---------------------------------------------------------
+         Instagram-style splash. Covers the page immediately and
+         is removed by script.js once the page is ready AND the
+         signed-in/out state is known — see initPageLoader() in
+         script.js. Keeps the account area below from ever being
+         seen before we know which state it should be in.
+         ========================================================= -->
+    <div id="slPageLoader" aria-hidden="true">
+        <div class="sl-loader-mark">
+            <div class="sl-loader-logo">Sneakers<span>Link</span></div>
+            <div class="sl-loader-ring"></div>
+        </div>
+    </div>
     <h1 class="sr-only">Your Cart | SneakersLink</h1>
     <!-- NAVIGATION BAR -->
     <!-- =========================================================
@@ -141,6 +157,7 @@
         <div
             class="account-area"
             id="accountArea"
+        data-auth-state="pending"
         >
 
             <!-- =================================================

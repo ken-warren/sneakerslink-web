@@ -6158,3 +6158,115 @@ footer .col img.logo:hover {
   white-space: nowrap;
   border: 0;
 }
+
+/* =========================================================
+   PAGE LOADER (Instagram-style splash before UI reveal)
+   ---------------------------------------------------------
+   #slPageLoader is the first element inside <body> on every
+   page, so it paints over everything the instant the page
+   starts rendering (style.css is render-blocking, so these
+   rules are already active — no flash-of-unstyled overlay).
+   script.js removes it once the page is ready and the signed
+   in / signed out state is known. See initPageLoader().
+   ========================================================= */
+
+#slPageLoader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.4s var(--ease),
+    visibility 0.4s var(--ease);
+}
+
+#slPageLoader.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.sl-loader-mark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.sl-loader-logo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--ink);
+  animation: slLoaderPulse 1.3s ease-in-out infinite;
+}
+
+.sl-loader-logo span {
+  color: var(--brand);
+}
+
+.sl-loader-ring {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  border-top-color: var(--brand);
+  animation: slLoaderSpin 0.8s linear infinite;
+}
+
+@keyframes slLoaderSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slLoaderPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sl-loader-logo,
+  .sl-loader-ring {
+    animation: none !important;
+  }
+}
+
+/* =========================================================
+   ACCOUNT AREA — NO FLASH OF THE WRONG STATE
+   ---------------------------------------------------------
+   #accountArea starts with data-auth-state="pending" in the
+   HTML (both the guest links and the account menu are already
+   `hidden`/invisible). script.js flips the attribute to "in"
+   or "out" the moment Firebase reports the real state, and
+   only then is either block allowed to become visible — so a
+   returning, signed-in customer never sees "Sign in / Sign up"
+   render first and get swapped out a moment later.
+   ========================================================= */
+
+#accountArea {
+  min-width: 72px;
+}
+
+#accountArea[data-auth-state="pending"] #accountGuestLinks,
+#accountArea[data-auth-state="pending"] #accountMenu {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#accountGuestLinks,
+#accountMenu {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.25s var(--ease);
+}

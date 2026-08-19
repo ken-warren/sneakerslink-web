@@ -959,10 +959,110 @@
   }
 
   /* =========================================================
+     PAGE LOADER
+     ---------------------------------------------------------
+     Instagram-style splash: #slPageLoader is the first thing
+     in <body>, painted immediately (style.css is render-blocking
+     so there's no flash-of-unstyled overlay). It stays up until
+     BOTH of these are true:
+
+       1. A short minimum splash time has elapsed, so the reveal
+          never looks like a flicker on fast connections.
+       2. The signed-in / signed-out state is known.
+
+     Waiting on (2) is what stops the nav's "Sign in / Sign up"
+     links from flashing before swapping to the account menu —
+     the UI is only ever shown once it already matches who's
+     looking at it. A bounded safety timeout guarantees the
+     splash is never stuck up if Firebase is slow, offline, or
+     unconfigured.
+     ========================================================= */
+
+  function initPageLoader() {
+    const loader = $("#slPageLoader");
+
+    if (!loader) {
+      return;
+    }
+
+    const MIN_DISPLAY_MS = 350;
+    const MAX_WAIT_MS = 1400;
+
+    const shownAt = Date.now();
+
+    let authResolved = false;
+
+    let hidden = false;
+
+    function finishHide() {
+      if (hidden) {
+        return;
+      }
+
+      hidden = true;
+
+      loader.classList.add("is-hidden");
+
+      window.setTimeout(() => {
+        loader.remove();
+      }, 500);
+    }
+
+    function attemptHide() {
+      if (!authResolved) {
+        return;
+      }
+
+      const elapsed = Date.now() - shownAt;
+
+      const remaining = Math.max(MIN_DISPLAY_MS - elapsed, 0);
+
+      window.setTimeout(finishHide, remaining);
+    }
+
+    function markAuthResolved() {
+      if (authResolved) {
+        return;
+      }
+
+      authResolved = true;
+
+      attemptHide();
+    }
+
+    function connectAuth() {
+      if (
+        window.SLAuth &&
+        typeof window.SLAuth.onAuthStateChanged === "function"
+      ) {
+        window.SLAuth.onAuthStateChanged(() => markAuthResolved());
+
+        return true;
+      }
+
+      return false;
+    }
+
+    if (!connectAuth()) {
+      window.addEventListener("slauth:ready", connectAuth, {
+        once: true,
+      });
+    }
+
+    /*
+     * Safety net so a slow, offline, or unconfigured Firebase
+     * project never leaves a customer staring at the splash.
+     */
+    window.setTimeout(markAuthResolved, MAX_WAIT_MS);
+  }
+
+  /* =========================================================
      ACCOUNT / AUTH
      ========================================================= */
 
   function initAccountMenu() {
+    const accountArea = $("#accountArea");
+
     const guestLinks = $("#accountGuestLinks");
 
     const menu = $("#accountMenu");
@@ -1051,6 +1151,10 @@
     }
 
     function setLoggedInView(user) {
+      if (accountArea) {
+        accountArea.dataset.authState = "in";
+      }
+
       if (guestLinks) {
         guestLinks.hidden = true;
 
@@ -1089,6 +1193,10 @@
     }
 
     function setLoggedOutView() {
+      if (accountArea) {
+        accountArea.dataset.authState = "out";
+      }
+
       if (guestLinks) {
         guestLinks.hidden = false;
 
@@ -2672,6 +2780,8 @@
     }
 
     appInitialised = true;
+
+    initPageLoader();
 
     initTheme();
 
