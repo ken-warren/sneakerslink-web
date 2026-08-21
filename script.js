@@ -961,22 +961,48 @@
   /* =========================================================
      PAGE LOADER
      ---------------------------------------------------------
-     Instagram-style splash: #slPageLoader is the first thing
-     in <body>, painted immediately (style.css is render-blocking
-     so there's no flash-of-unstyled overlay). It stays up until
-     BOTH of these are true:
+     #slPageLoader is the first thing in <body>, painted
+     immediately (style.css is render-blocking, so there's no
+     flash-of-unstyled overlay). Two rules keep this feeling
+     like an app instead of a website that reloads:
 
-       1. A short minimum splash time has elapsed, so the reveal
-          never looks like a flicker on fast connections.
-       2. The signed-in / signed-out state is known.
+     1. IT ONLY SHOWS ITS BRANDED SPLASH ONCE PER SESSION.
+        The very first page a customer opens gets the brief
+        logo moment. Every internal link after that removes
+        the loader immediately — the multi-page reloads that
+        make a static site "switch pages" shouldn't replay a
+        splash screen every single time, the way a native app
+        never does.
 
-     Waiting on (2) is what stops the nav's "Sign in / Sign up"
-     links from flashing before swapping to the account menu —
-     the UI is only ever shown once it already matches who's
-     looking at it. A bounded safety timeout guarantees the
-     splash is never stuck up if Firebase is slow, offline, or
-     unconfigured.
+     2. EVEN ON A REPEAT NAVIGATION, THE ACCOUNT AREA STAYS
+        HIDDEN UNTIL SIGN-IN STATE IS KNOWN. This is the actual
+        fix for "Sign in / Sign up" flashing before the profile
+        icon: #accountArea starts hidden in the HTML itself
+        (see style.css) and initAccountMenu() below only reveals
+        it once Firebase has answered — independent of whether
+        the splash is showing. A bounded safety timeout still
+        applies so nothing is ever stuck hidden if Firebase is
+        slow, offline, or unconfigured.
      ========================================================= */
+
+  const SESSION_SEEN_KEY = "sl_app_started";
+
+  function hasSeenSplashThisSession() {
+    try {
+      return sessionStorage.getItem(SESSION_SEEN_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }
+
+  function markSplashSeen() {
+    try {
+      sessionStorage.setItem(SESSION_SEEN_KEY, "1");
+    } catch {
+      /* Private browsing / storage disabled — fine, just means
+         every page gets the brief splash instead of one. */
+    }
+  }
 
   function initPageLoader() {
     const loader = $("#slPageLoader");
@@ -985,8 +1011,22 @@
       return;
     }
 
-    const MIN_DISPLAY_MS = 350;
-    const MAX_WAIT_MS = 1400;
+    /*
+     * Repeat navigation within the same session: skip the splash
+     * entirely and let the page appear instantly, app-style. The
+     * account area's own hidden-until-known state (below) still
+     * protects against the sign-in flash on its own.
+     */
+    if (hasSeenSplashThisSession()) {
+      loader.remove();
+
+      return;
+    }
+
+    markSplashSeen();
+
+    const MIN_DISPLAY_MS = 200;
+    const MAX_WAIT_MS = 900;
 
     const shownAt = Date.now();
 
@@ -1005,7 +1045,7 @@
 
       window.setTimeout(() => {
         loader.remove();
-      }, 500);
+      }, 320);
     }
 
     function attemptHide() {
@@ -1350,6 +1390,292 @@
       window.addEventListener("slauth:ready", wireAuthState);
 
       window.addEventListener("slprofile:ready", wireAuthState);
+    }
+  }
+
+  /* =========================================================
+     NOTIFICATIONS
+     ---------------------------------------------------------
+     Bell icon in the nav, visible only to signed-in customers
+     (see the CSS rule tying .notif-area's visibility to the
+     same body.sl-user-logged-in class initAccountMenu already
+     toggles). Subscribes in real time to notifications/{uid}
+     via firebase-notifications.js and renders order-status and
+     promo updates into the dropdown.
+     ========================================================= */
+
+  function initNotifications() {
+    const area = $("#notifArea");
+
+    const toggleBtn = $("#notifToggle");
+
+    const dropdown = $("#notifDropdown");
+
+    const countEl = $("#notifCount");
+
+    const listEl = $("#notifList");
+
+    const emptyEl = $("#notifEmpty");
+
+    const markAllBtn = $("#notifMarkAllBtn");
+
+    if (!area || !toggleBtn) {
+      return;
+    }
+
+    let unsubscribeNotifications = null;
+
+    let currentItems = [];
+
+    function closeDropdown() {
+      dropdown?.classList.remove("is-open");
+
+      toggleBtn?.classList.remove("is-open");
+
+      toggleBtn?.setAttribute("aria-expanded", "false");
+    }
+
+    function openDropdown() {
+      dropdown?.classList.add("is-open");
+
+      toggleBtn?.classList.add("is-open");
+
+      toggleBtn?.setAttribute("aria-expanded", "true");
+    }
+
+    function toMillis(value) {
+      if (!value) {
+        return Date.now();
+      }
+
+      if (typeof value.toMillis === "function") {
+        return value.toMillis();
+      }
+
+      if (typeof value === "number") {
+        return value;
+      }
+
+      const parsed = Date.parse(value);
+
+      return Number.isFinite(parsed) ? parsed : Date.now();
+    }
+
+    function relativeTime(value) {
+      const millis = toMillis(value);
+
+      const diffMinutes = Math.max(0, Math.round((Date.now() - millis) / 60000));
+
+      if (diffMinutes < 1) {
+        return "Just now";
+      }
+
+      if (diffMinutes < 60) {
+        return `${diffMinutes}m ago`;
+      }
+
+      const diffHours = Math.round(diffMinutes / 60);
+
+      if (diffHours < 24) {
+        return `${diffHours}h ago`;
+      }
+
+      const diffDays = Math.round(diffHours / 24);
+
+      if (diffDays < 7) {
+        return `${diffDays}d ago`;
+      }
+
+      return new Intl.DateTimeFormat("en-KE", {
+        day: "numeric",
+        month: "short",
+      }).format(millis);
+    }
+
+    function renderList() {
+      if (!listEl) {
+        return;
+      }
+
+      const unreadCount = currentItems.filter((item) => !item.read).length;
+
+      if (countEl) {
+        countEl.textContent = unreadCount > 9 ? "9+" : String(unreadCount);
+
+        countEl.classList.toggle("notif-count--visible", unreadCount > 0);
+      }
+
+      if (markAllBtn) {
+        markAllBtn.hidden = unreadCount === 0;
+      }
+
+      $$(".notif-item", listEl).forEach((node) => node.remove());
+
+      if (!currentItems.length) {
+        if (emptyEl) {
+          emptyEl.hidden = false;
+        }
+
+        return;
+      }
+
+      if (emptyEl) {
+        emptyEl.hidden = true;
+      }
+
+      currentItems.forEach((item) => {
+        const row = document.createElement("button");
+
+        row.type = "button";
+
+        row.className = item.read ? "notif-item" : "notif-item notif-item--unread";
+
+        const icon = item.type === "order" ? "fa-box" : "fa-tag";
+
+        row.innerHTML = `
+          <span class="notif-item-icon">
+            <i class="fas ${icon}" aria-hidden="true"></i>
+          </span>
+          <span class="notif-item-body">
+            <strong>${escapeHtml(item.title || "Notification")}</strong>
+            <span>${escapeHtml(item.message || "")}</span>
+            <time>${escapeHtml(relativeTime(item.createdAt))}</time>
+          </span>
+        `;
+
+        row.addEventListener("click", () => {
+          if (!item.read && window.SLNotifications) {
+            window.SLNotifications.markAsRead(item.id);
+          }
+
+          closeDropdown();
+
+          if (item.link) {
+            window.location.href = item.link;
+          }
+        });
+
+        listEl.appendChild(row);
+      });
+    }
+
+    function handleItems(items) {
+      currentItems = Array.isArray(items) ? items : [];
+
+      renderList();
+    }
+
+    if (toggleBtn && !toggleBtn.dataset.notifBound) {
+      toggleBtn.dataset.notifBound = "true";
+
+      toggleBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+
+        if (dropdown?.classList.contains("is-open")) {
+          closeDropdown();
+        } else {
+          openDropdown();
+        }
+      });
+    }
+
+    if (!document.body.dataset.notifOutsideBound) {
+      document.body.dataset.notifOutsideBound = "true";
+
+      document.addEventListener("click", (event) => {
+        if (
+          dropdown &&
+          dropdown.classList.contains("is-open") &&
+          !area.contains(event.target)
+        ) {
+          closeDropdown();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeDropdown();
+        }
+      });
+    }
+
+    if (markAllBtn && !markAllBtn.dataset.notifBound) {
+      markAllBtn.dataset.notifBound = "true";
+
+      markAllBtn.addEventListener("click", () => {
+        const unreadIds = currentItems
+          .filter((item) => !item.read)
+          .map((item) => item.id);
+
+        if (unreadIds.length && window.SLNotifications) {
+          window.SLNotifications.markAllAsRead(unreadIds);
+        }
+      });
+    }
+
+    function handleAuthUser(user) {
+      if (unsubscribeNotifications) {
+        unsubscribeNotifications();
+
+        unsubscribeNotifications = null;
+      }
+
+      if (!user) {
+        currentItems = [];
+
+        renderList();
+
+        closeDropdown();
+
+        return;
+      }
+
+      function subscribeNow() {
+        if (
+          window.SLNotifications &&
+          typeof window.SLNotifications.subscribe === "function"
+        ) {
+          unsubscribeNotifications = window.SLNotifications.subscribe(
+            user.uid,
+            handleItems,
+          );
+
+          return true;
+        }
+
+        return false;
+      }
+
+      if (!subscribeNow()) {
+        window.addEventListener("slnotifications:ready", subscribeNow, {
+          once: true,
+        });
+      }
+    }
+
+    let authStateWired = false;
+
+    function wireAuthState() {
+      if (authStateWired) {
+        return true;
+      }
+
+      if (
+        window.SLAuth &&
+        typeof window.SLAuth.onAuthStateChanged === "function"
+      ) {
+        authStateWired = true;
+
+        window.SLAuth.onAuthStateChanged(handleAuthUser);
+
+        return true;
+      }
+
+      return false;
+    }
+
+    if (!wireAuthState()) {
+      window.addEventListener("slauth:ready", wireAuthState);
     }
   }
 
@@ -2786,6 +3112,8 @@
     initTheme();
 
     initAccountMenu();
+
+    initNotifications();
 
     updateCartBadge();
 

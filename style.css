@@ -4534,6 +4534,26 @@ footer .col img.logo:hover {
     line-height: 15px;
   }
 
+  .home-nav > .nav-actions .notif-toggle {
+    width: 38px;
+    height: 38px;
+    margin: 0;
+  }
+
+  .home-nav > .nav-actions .notif-count {
+    top: 2px;
+    right: 2px;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 3px;
+    font-size: 9px;
+    line-height: 14px;
+  }
+
+  .home-nav > .nav-actions .notif-dropdown {
+    width: 260px;
+  }
+
   /* Mobile menu drawer. */
   .home-nav > #navbar {
     position: fixed;
@@ -6225,14 +6245,17 @@ footer .col img.logo:hover {
 }
 
 /* =========================================================
-   PAGE LOADER (Instagram-style splash before UI reveal)
+   PAGE LOADER (app-style splash, shown once per session)
    ---------------------------------------------------------
    #slPageLoader is the first element inside <body> on every
    page, so it paints over everything the instant the page
    starts rendering (style.css is render-blocking, so these
    rules are already active — no flash-of-unstyled overlay).
-   script.js removes it once the page is ready and the signed
-   in / signed out state is known. See initPageLoader().
+   script.js removes it right away on any page after the
+   first one this session, and — on that first page — once
+   the page is ready and the signed in/out state is known.
+   See initPageLoader(). Deliberately understated: one quiet
+   fade-in of the wordmark, no spinner, no looping animation.
    ========================================================= */
 
 #slPageLoader {
@@ -6246,8 +6269,8 @@ footer .col img.logo:hover {
   opacity: 1;
   visibility: visible;
   transition:
-    opacity 0.4s var(--ease),
-    visibility 0.4s var(--ease);
+    opacity 0.3s var(--ease),
+    visibility 0.3s var(--ease);
 }
 
 #slPageLoader.is-hidden {
@@ -6258,52 +6281,36 @@ footer .col img.logo:hover {
 
 .sl-loader-mark {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 16px;
+  justify-content: center;
 }
 
 .sl-loader-logo {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.3px;
   color: var(--ink);
-  animation: slLoaderPulse 1.3s ease-in-out infinite;
+  opacity: 0;
+  transform: scale(0.96);
+  animation: slLoaderIn 0.45s var(--ease) forwards;
 }
 
 .sl-loader-logo span {
   color: var(--brand);
 }
 
-.sl-loader-ring {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 3px solid var(--border);
-  border-top-color: var(--brand);
-  animation: slLoaderSpin 0.8s linear infinite;
-}
-
-@keyframes slLoaderSpin {
+@keyframes slLoaderIn {
   to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes slLoaderPulse {
-  0%,
-  100% {
     opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
+    transform: scale(1);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sl-loader-logo,
-  .sl-loader-ring {
+  .sl-loader-logo {
     animation: none !important;
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -6334,4 +6341,303 @@ footer .col img.logo:hover {
   opacity: 1;
   visibility: visible;
   transition: opacity 0.25s var(--ease);
+}
+
+/* =========================================================
+   NOTIFICATIONS
+   ---------------------------------------------------------
+   Bell icon in the nav. Only ever visible to a signed-in
+   customer — tied to the same body.sl-user-logged-in /
+   body.sl-user-logged-out classes initAccountMenu() already
+   toggles in script.js, so it appears and disappears exactly
+   in step with the account menu, with no separate state to
+   keep in sync.
+   ========================================================= */
+
+.notif-area {
+  display: none;
+  position: relative;
+  align-items: center;
+}
+
+body.sl-user-logged-in .notif-area {
+  display: flex;
+}
+
+.notif-toggle {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  margin: 0;
+
+  border: 1px solid transparent;
+  border-radius: 50%;
+
+  background: transparent;
+  color: var(--text);
+
+  cursor: pointer;
+  position: relative;
+
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.notif-toggle:hover,
+.notif-toggle.is-open {
+  color: #088178;
+  background-color: rgba(8, 129, 120, 0.08);
+  border-color: rgba(8, 129, 120, 0.15);
+}
+
+.notif-toggle:focus-visible {
+  outline: 2px solid #088178;
+  outline-offset: 3px;
+}
+
+.notif-count {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+
+  border-radius: 999px;
+
+  background: #e61010;
+  color: #fff;
+
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+
+  transform: scale(0);
+  transition: transform 0.2s var(--ease);
+}
+
+.notif-count--visible {
+  transform: scale(1);
+}
+
+/* =========================================================
+   NOTIFICATION DROPDOWN
+   ========================================================= */
+
+.notif-dropdown {
+  position: absolute;
+
+  top: calc(100% + 12px);
+  right: 0;
+
+  width: 300px;
+  max-height: 400px;
+
+  display: flex;
+  flex-direction: column;
+
+  background-color: var(--nav-bg);
+  color: var(--text);
+
+  border: 1px solid rgba(128, 128, 128, 0.18);
+  border-radius: 4px;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transform: translateY(-8px);
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    visibility 0.25s ease;
+
+  z-index: 1001;
+
+  overflow: hidden;
+}
+
+.notif-dropdown.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+
+  transform: translateY(0);
+}
+
+.notif-dropdown::before {
+  content: "";
+
+  position: absolute;
+
+  top: -6px;
+  right: 15px;
+
+  width: 10px;
+  height: 10px;
+
+  background-color: var(--nav-bg);
+
+  border-left: 1px solid rgba(128, 128, 128, 0.18);
+  border-top: 1px solid rgba(128, 128, 128, 0.18);
+
+  transform: rotate(45deg);
+}
+
+.notif-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 12px 14px 10px;
+
+  border-bottom: 1px solid rgba(128, 128, 128, 0.18);
+
+  flex-shrink: 0;
+}
+
+.notif-dropdown-header strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.notif-mark-all {
+  border: none;
+  background: transparent;
+
+  color: #088178;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+  padding: 4px 6px;
+}
+
+.notif-mark-all:hover {
+  text-decoration: underline;
+}
+
+.notif-list {
+  overflow-y: auto;
+
+  padding: 6px;
+}
+
+.notif-item {
+  width: 100%;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 10px;
+
+  padding: 10px 8px;
+  margin: 0 0 2px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: transparent;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition: background-color 0.2s ease;
+}
+
+.notif-item:hover,
+.notif-item:focus-visible {
+  background-color: rgba(8, 129, 120, 0.08);
+}
+
+.notif-item--unread {
+  background-color: rgba(8, 129, 120, 0.06);
+}
+
+.notif-item-icon {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background-color: rgba(8, 129, 120, 0.1);
+  color: #088178;
+
+  font-size: 12px;
+}
+
+.notif-item-body {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.notif-item-body strong {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+
+  line-height: 1.35;
+}
+
+.notif-item-body span {
+  font-size: 12px;
+  color: var(--text-muted);
+
+  line-height: 1.4;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.notif-item-body time {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+
+.notif-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 34px 14px;
+
+  color: var(--text-muted);
+
+  font-size: 12.5px;
+  text-align: center;
+}
+
+.notif-empty i {
+  font-size: 20px;
+  opacity: 0.5;
 }

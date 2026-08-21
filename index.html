@@ -174,7 +174,79 @@
 
             <!-- ACCOUNT -->
 
+            
+        <!-- NOTIFICATIONS -->
+
+        <div
+            class="notif-area"
+            id="notifArea"
+        >
+
+            <button
+                type="button"
+                class="notif-toggle"
+                id="notifToggle"
+                aria-haspopup="true"
+                aria-expanded="false"
+                aria-label="Open notifications"
+                title="Notifications"
+            >
+
+                <i
+                    class="fas fa-bell"
+                    aria-hidden="true"
+                ></i>
+
+                <span
+                    class="notif-count"
+                    id="notifCount"
+                    aria-hidden="true"
+                >
+                    0
+                </span>
+
+            </button>
+
             <div
+                class="notif-dropdown"
+                id="notifDropdown"
+            >
+
+                <div class="notif-dropdown-header">
+
+                    <strong>Notifications</strong>
+
+                    <button
+                        type="button"
+                        class="notif-mark-all"
+                        id="notifMarkAllBtn"
+                        hidden
+                    >
+                        Mark all read
+                    </button>
+
+                </div>
+
+                <div
+                    class="notif-list"
+                    id="notifList"
+                >
+
+                    <div
+                        class="notif-empty"
+                        id="notifEmpty"
+                    >
+                        <i class="fas fa-bell-slash" aria-hidden="true"></i>
+                        <span>You're all caught up</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+<div
                 class="account-area"
                 id="accountArea"
             data-auth-state="pending"
@@ -2163,6 +2235,8 @@
          ========================================================= -->
 
     <script type="module" src="firebase-auth.js"></script>
+
+    <script type="module" src="firebase-notifications.js"></script>
     <script type="module" src="firebase-profile.js"></script>
     <script type="module" src="firebase-orders.js"></script>
 

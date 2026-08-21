@@ -1250,6 +1250,76 @@ function subscribeAllOrders(
 
 
 /* =========================================================
+   ORDER STATUS NOTIFICATION
+   ---------------------------------------------------------
+   Writes directly to notifications/{id} rather than going
+   through firebase-notifications.js — admin.html (the only
+   page that calls updateOrderStatus) doesn't necessarily load
+   that module, so this stays self-contained instead of
+   depending on load order. Never throws: a notification
+   failing to write must never fail the actual status update.
+   ========================================================= */
+
+async function notifyOrderStatus(
+    customerUid,
+    orderId,
+    status
+) {
+
+    if (!customerUid) {
+        return;
+    }
+
+    const stage =
+        ORDER_STAGES.find(
+            item => item.key === status
+        );
+
+    const stageLabel =
+        stage?.label || status;
+
+    try {
+
+        const notifRef =
+            doc(
+                collection(
+                    db,
+                    "notifications"
+                )
+            );
+
+        await setDoc(
+            notifRef,
+            {
+                uid: customerUid,
+
+                type: "order",
+
+                title: `Order ${orderId}`,
+
+                message:
+                    `Your order is now: ${stageLabel}.`,
+
+                link:
+                    `track-order.html?order=${encodeURIComponent(orderId)}`,
+
+                read: false,
+
+                createdAt: serverTimestamp(),
+            }
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "[SneakersLink] Could not write order status notification:",
+            error
+        );
+    }
+}
+
+
+/* =========================================================
    ADMIN — UPDATE STATUS
    ========================================================= */
 
@@ -1313,6 +1383,17 @@ async function updateOrderStatus(
                 serverTimestamp(),
         }
     );
+
+    /*
+     * Fire-and-forget — the status update above has already
+     * succeeded and must be returned to the admin regardless of
+     * whether the customer notification write works.
+     */
+    notifyOrderStatus(
+        snapshot.data()?.customerUid,
+        cleanId,
+        cleanStatus
+    ).catch(() => {});
 
     return {
         id: cleanId,

@@ -35,6 +35,7 @@ import {
   doc,
   getDoc,
   setDoc,
+  collection,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -313,7 +314,9 @@ async function createCustomerProfile(
   /*
    * Only set createdAt when this is a new customer.
    */
-  if (!existing.exists()) {
+  const isNewCustomer = !existing.exists();
+
+  if (isNewCustomer) {
     profileData.createdAt =
       serverTimestamp();
   }
@@ -326,7 +329,61 @@ async function createCustomerProfile(
     }
   );
 
+  if (isNewCustomer) {
+    /*
+     * Fire-and-forget welcome notification. Never awaited and
+     * never allowed to throw — a notification failing must not
+     * block account creation or sign-in.
+     */
+    notifyNewCustomer(user.uid).catch(() => {});
+  }
+
   return profileData;
+}
+
+
+/* =========================================================
+   WELCOME NOTIFICATION
+   ---------------------------------------------------------
+   Writes directly to notifications/{id} rather than going
+   through firebase-notifications.js — that module may not be
+   loaded on every page that can create a customer profile
+   (e.g. login.html), so this stays self-contained instead of
+   depending on load order.
+   ========================================================= */
+
+async function notifyNewCustomer(uid) {
+  if (!isConfigured || !db || !uid) {
+    return;
+  }
+
+  const notifRef =
+    doc(
+      collection(
+        db,
+        "notifications"
+      )
+    );
+
+  await setDoc(
+    notifRef,
+    {
+      uid,
+
+      type: "promo",
+
+      title: "Welcome to SneakersLink!",
+
+      message:
+        "Your account is ready. Browse new arrivals and track every order right here.",
+
+      link: "shop.html",
+
+      read: false,
+
+      createdAt: serverTimestamp(),
+    }
+  );
 }
 
 
@@ -556,27 +613,30 @@ function onAuthStateChangedSafe(
 
   return onAuthStateChanged(
     auth,
-    async (user) => {
+    (user) => {
+      /*
+       * Tell the app who's signed in RIGHT AWAY. Nothing here
+       * should make the customer wait on a Firestore round trip
+       * before the UI can reflect that they're logged in — that
+       * previously meant the nav briefly kept showing "Sign in /
+       * Sign up" on every page load while this profile sync was
+       * still in flight.
+       *
+       * The Firestore profile sync still happens — it just runs
+       * in the background and is never awaited here. If it fails
+       * (temporary network issue, etc.) it's logged, not thrown,
+       * and never forces the user out of the application.
+       */
+      callback(user);
+
       if (user) {
-        /*
-         * Keep the customer's Firestore profile available.
-         *
-         * If this fails because of a temporary network issue,
-         * don't force the user out of the application.
-         */
-        try {
-          await createCustomerProfile(
-            user
-          );
-        } catch (error) {
+        createCustomerProfile(user).catch((error) => {
           console.warn(
             "[SneakersLink] Could not sync customer profile:",
             error
           );
-        }
+        });
       }
-
-      callback(user);
     }
   );
 }
