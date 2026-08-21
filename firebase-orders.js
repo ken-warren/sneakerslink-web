@@ -650,6 +650,16 @@ async function createOrder(
         order
     );
 
+    /*
+     * Fire-and-forget — the order has already been placed and
+     * must be returned to the customer regardless of whether the
+     * confirmation notification write succeeds.
+     */
+    notifyOrderPlaced(
+        order.customerUid,
+        id
+    ).catch(() => {});
+
     const now =
         Date.now();
 
@@ -1250,33 +1260,26 @@ function subscribeAllOrders(
 
 
 /* =========================================================
-   ORDER STATUS NOTIFICATION
+   ORDER NOTIFICATIONS
    ---------------------------------------------------------
    Writes directly to notifications/{id} rather than going
-   through firebase-notifications.js — admin.html (the only
-   page that calls updateOrderStatus) doesn't necessarily load
-   that module, so this stays self-contained instead of
-   depending on load order. Never throws: a notification
-   failing to write must never fail the actual status update.
+   through firebase-notifications.js — the pages that create
+   and update orders don't necessarily load that module, so
+   this stays self-contained instead of depending on load
+   order. Never throws: a notification failing to write must
+   never fail the actual order create/update it's attached to.
    ========================================================= */
 
-async function notifyOrderStatus(
+async function writeOrderNotification(
     customerUid,
     orderId,
-    status
+    title,
+    message
 ) {
 
     if (!customerUid) {
         return;
     }
-
-    const stage =
-        ORDER_STAGES.find(
-            item => item.key === status
-        );
-
-    const stageLabel =
-        stage?.label || status;
 
     try {
 
@@ -1295,10 +1298,9 @@ async function notifyOrderStatus(
 
                 type: "order",
 
-                title: `Order ${orderId}`,
+                title,
 
-                message:
-                    `Your order is now: ${stageLabel}.`,
+                message,
 
                 link:
                     `track-order.html?order=${encodeURIComponent(orderId)}`,
@@ -1312,10 +1314,45 @@ async function notifyOrderStatus(
     } catch (error) {
 
         console.warn(
-            "[SneakersLink] Could not write order status notification:",
+            "[SneakersLink] Could not write order notification:",
             error
         );
     }
+}
+
+async function notifyOrderPlaced(
+    customerUid,
+    orderId
+) {
+
+    await writeOrderNotification(
+        customerUid,
+        orderId,
+        `Order ${orderId}`,
+        "Thank you for placing your order! View the status here."
+    );
+}
+
+async function notifyOrderStatus(
+    customerUid,
+    orderId,
+    status
+) {
+
+    const stage =
+        ORDER_STAGES.find(
+            item => item.key === status
+        );
+
+    const stageLabel =
+        stage?.label || status;
+
+    await writeOrderNotification(
+        customerUid,
+        orderId,
+        `Order ${orderId}`,
+        `Your order is now: ${stageLabel}.`
+    );
 }
 
 
